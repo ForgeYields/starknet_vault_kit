@@ -5,8 +5,8 @@ use alexandria_math::i257::I257Impl;
 use starknet::ContractAddress;
 use vault_allocator::test::register::{ETH, GENESIS_POOL_ID, wstETH};
 use vault_allocator::test::utils::{
-    ManageLeaf, _add_avnu_leafs, _add_vesu_flash_loan_leafs, _add_vesu_leafs,
-    _pad_leafs_to_power_of_two, generate_merkle_tree, get_leaf_hash,
+    ManageLeaf, _add_avnu_leafs, _add_vesu_leafs, _pad_leafs_to_power_of_two, generate_merkle_tree,
+    get_leaf_hash,
 };
 use super::utils::DUMMY_ADDRESS;
 
@@ -34,17 +34,6 @@ fn test_creator() {
     let router = DUMMY_ADDRESS();
 
     // INTEGRATIONS
-    let flash_loan_asset = wstETH();
-    let is_legacy = false;
-    _add_vesu_flash_loan_leafs(
-        ref leafs,
-        ref leaf_index,
-        vault_allocator,
-        decoder_and_sanitizer,
-        manager,
-        flash_loan_asset,
-        is_legacy,
-    );
 
     let pool_id = GENESIS_POOL_ID;
     let mut assets_to_supply = ArrayTrait::new();

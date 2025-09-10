@@ -63,6 +63,6 @@ model RedeemClaimed {
 
 model IndexerStatus {
   id                    Int      @id @default(1)
-  currentBlock          Int
-  updatedAt             DateTime @updatedAt
+  lastBlock      Int
+  updatedAt      DateTime @updatedAt
 }

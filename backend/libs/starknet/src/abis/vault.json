@@ -1,0 +1,1581 @@
+[
+    {
+        "type": "impl",
+        "name": "UpgradeableImpl",
+        "interface_name": "openzeppelin_interfaces::upgrades::IUpgradeable"
+    },
+    {
+        "type": "interface",
+        "name": "openzeppelin_interfaces::upgrades::IUpgradeable",
+        "items": [
+            {
+                "type": "function",
+                "name": "upgrade",
+                "inputs": [
+                    {
+                        "name": "new_class_hash",
+                        "type": "core::starknet::class_hash::ClassHash"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "VaultMetadataImpl",
+        "interface_name": "openzeppelin_interfaces::token::erc20::IERC20Metadata"
+    },
+    {
+        "type": "struct",
+        "name": "core::byte_array::ByteArray",
+        "members": [
+            {
+                "name": "data",
+                "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+                "name": "pending_word",
+                "type": "core::felt252"
+            },
+            {
+                "name": "pending_word_len",
+                "type": "core::integer::u32"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "openzeppelin_interfaces::token::erc20::IERC20Metadata",
+        "items": [
+            {
+                "type": "function",
+                "name": "name",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::byte_array::ByteArray"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "symbol",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::byte_array::ByteArray"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "decimals",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u8"
+                    }
+                ],
+                "state_mutability": "view"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "VaultImpl",
+        "interface_name": "vault::vault::interface::IVault"
+    },
+    {
+        "type": "struct",
+        "name": "core::integer::u256",
+        "members": [
+            {
+                "name": "low",
+                "type": "core::integer::u128"
+            },
+            {
+                "name": "high",
+                "type": "core::integer::u128"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "vault::vault::interface::IVault",
+        "items": [
+            {
+                "type": "function",
+                "name": "register_redeem_request",
+                "inputs": [
+                    {
+                        "name": "redeem_request",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "register_vault_allocator",
+                "inputs": [
+                    {
+                        "name": "vault_allocator",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "request_redeem",
+                "inputs": [
+                    {
+                        "name": "shares",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "receiver",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "claim_redeem",
+                "inputs": [
+                    {
+                        "name": "id",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "set_fees_config",
+                "inputs": [
+                    {
+                        "name": "fees_recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "redeem_fees",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "management_fees",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "performance_fees",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "set_report_delay",
+                "inputs": [
+                    {
+                        "name": "report_delay",
+                        "type": "core::integer::u64"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "set_max_delta",
+                "inputs": [
+                    {
+                        "name": "max_delta",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "report",
+                "inputs": [
+                    {
+                        "name": "new_aum",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "bring_liquidity",
+                "inputs": [
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "pause",
+                "inputs": [],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "unpause",
+                "inputs": [],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "epoch",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "handled_epoch_len",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "buffer",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "aum",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "redeem_assets",
+                "inputs": [
+                    {
+                        "name": "epoch",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "redeem_nominal",
+                "inputs": [
+                    {
+                        "name": "epoch",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "fees_recipient",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "redeem_fees",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "management_fees",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "performance_fees",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "redeem_request",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "report_delay",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u64"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "vault_allocator",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "last_report_timestamp",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u64"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "max_delta",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "due_assets_from_id",
+                "inputs": [
+                    {
+                        "name": "id",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "ERC4626Impl",
+        "interface_name": "openzeppelin_interfaces::token::erc4626::IERC4626"
+    },
+    {
+        "type": "interface",
+        "name": "openzeppelin_interfaces::token::erc4626::IERC4626",
+        "items": [
+            {
+                "type": "function",
+                "name": "asset",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "total_assets",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "convert_to_shares",
+                "inputs": [
+                    {
+                        "name": "assets",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "convert_to_assets",
+                "inputs": [
+                    {
+                        "name": "shares",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "max_deposit",
+                "inputs": [
+                    {
+                        "name": "receiver",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "preview_deposit",
+                "inputs": [
+                    {
+                        "name": "assets",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "deposit",
+                "inputs": [
+                    {
+                        "name": "assets",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "receiver",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "max_mint",
+                "inputs": [
+                    {
+                        "name": "receiver",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "preview_mint",
+                "inputs": [
+                    {
+                        "name": "shares",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "mint",
+                "inputs": [
+                    {
+                        "name": "shares",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "receiver",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "max_withdraw",
+                "inputs": [
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "preview_withdraw",
+                "inputs": [
+                    {
+                        "name": "assets",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "withdraw",
+                "inputs": [
+                    {
+                        "name": "assets",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "receiver",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "max_redeem",
+                "inputs": [
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "preview_redeem",
+                "inputs": [
+                    {
+                        "name": "shares",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "redeem",
+                "inputs": [
+                    {
+                        "name": "shares",
+                        "type": "core::integer::u256"
+                    },
+                    {
+                        "name": "receiver",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "ERC20Impl",
+        "interface_name": "openzeppelin_interfaces::token::erc20::IERC20"
+    },
+    {
+        "type": "enum",
+        "name": "core::bool",
+        "variants": [
+            {
+                "name": "False",
+                "type": "()"
+            },
+            {
+                "name": "True",
+                "type": "()"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "openzeppelin_interfaces::token::erc20::IERC20",
+        "items": [
+            {
+                "type": "function",
+                "name": "total_supply",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "balance_of",
+                "inputs": [
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "allowance",
+                "inputs": [
+                    {
+                        "name": "owner",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "spender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "transfer",
+                "inputs": [
+                    {
+                        "name": "recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "transfer_from",
+                "inputs": [
+                    {
+                        "name": "sender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "approve",
+                "inputs": [
+                    {
+                        "name": "spender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "ERC20CamelOnlyImpl",
+        "interface_name": "openzeppelin_interfaces::token::erc20::IERC20CamelOnly"
+    },
+    {
+        "type": "interface",
+        "name": "openzeppelin_interfaces::token::erc20::IERC20CamelOnly",
+        "items": [
+            {
+                "type": "function",
+                "name": "totalSupply",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "balanceOf",
+                "inputs": [
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "transferFrom",
+                "inputs": [
+                    {
+                        "name": "sender",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "recipient",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "AccessControlImpl",
+        "interface_name": "openzeppelin_interfaces::access::accesscontrol::IAccessControl"
+    },
+    {
+        "type": "interface",
+        "name": "openzeppelin_interfaces::access::accesscontrol::IAccessControl",
+        "items": [
+            {
+                "type": "function",
+                "name": "has_role",
+                "inputs": [
+                    {
+                        "name": "role",
+                        "type": "core::felt252"
+                    },
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_role_admin",
+                "inputs": [
+                    {
+                        "name": "role",
+                        "type": "core::felt252"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::felt252"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "grant_role",
+                "inputs": [
+                    {
+                        "name": "role",
+                        "type": "core::felt252"
+                    },
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "revoke_role",
+                "inputs": [
+                    {
+                        "name": "role",
+                        "type": "core::felt252"
+                    },
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "renounce_role",
+                "inputs": [
+                    {
+                        "name": "role",
+                        "type": "core::felt252"
+                    },
+                    {
+                        "name": "account",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "PausableImpl",
+        "interface_name": "openzeppelin_interfaces::security::pausable::IPausable"
+    },
+    {
+        "type": "interface",
+        "name": "openzeppelin_interfaces::security::pausable::IPausable",
+        "items": [
+            {
+                "type": "function",
+                "name": "is_paused",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "view"
+            }
+        ]
+    },
+    {
+        "type": "constructor",
+        "name": "constructor",
+        "inputs": [
+            {
+                "name": "name",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "symbol",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "underlying_asset",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "fees_recipient",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "redeem_fees",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "management_fees",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "performance_fees",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "report_delay",
+                "type": "core::integer::u64"
+            },
+            {
+                "name": "max_delta",
+                "type": "core::integer::u256"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_token::erc20::erc20::ERC20Component::Transfer",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "from",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "to",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "value",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_token::erc20::erc20::ERC20Component::Approval",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "spender",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "value",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_token::erc20::erc20::ERC20Component::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "Transfer",
+                "type": "openzeppelin_token::erc20::erc20::ERC20Component::Transfer",
+                "kind": "nested"
+            },
+            {
+                "name": "Approval",
+                "type": "openzeppelin_token::erc20::erc20::ERC20Component::Approval",
+                "kind": "nested"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_token::erc20::extensions::erc4626::erc4626::ERC4626Component::Deposit",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "sender",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "assets",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "shares",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_token::erc20::extensions::erc4626::erc4626::ERC4626Component::Withdraw",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "sender",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "receiver",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "assets",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "shares",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_token::erc20::extensions::erc4626::erc4626::ERC4626Component::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "Deposit",
+                "type": "openzeppelin_token::erc20::extensions::erc4626::erc4626::ERC4626Component::Deposit",
+                "kind": "nested"
+            },
+            {
+                "name": "Withdraw",
+                "type": "openzeppelin_token::erc20::extensions::erc4626::erc4626::ERC4626Component::Withdraw",
+                "kind": "nested"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_introspection::src5::SRC5Component::Event",
+        "kind": "enum",
+        "variants": []
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "role",
+                "type": "core::felt252",
+                "kind": "data"
+            },
+            {
+                "name": "account",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "sender",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "role",
+                "type": "core::felt252",
+                "kind": "data"
+            },
+            {
+                "name": "account",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "sender",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "delay",
+                "type": "core::integer::u64",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "role",
+                "type": "core::felt252",
+                "kind": "data"
+            },
+            {
+                "name": "account",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "sender",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "role",
+                "type": "core::felt252",
+                "kind": "data"
+            },
+            {
+                "name": "previous_admin_role",
+                "type": "core::felt252",
+                "kind": "data"
+            },
+            {
+                "name": "new_admin_role",
+                "type": "core::felt252",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "RoleGranted",
+                "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+                "kind": "nested"
+            },
+            {
+                "name": "RoleGrantedWithDelay",
+                "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+                "kind": "nested"
+            },
+            {
+                "name": "RoleRevoked",
+                "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+                "kind": "nested"
+            },
+            {
+                "name": "RoleAdminChanged",
+                "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+                "kind": "nested"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "class_hash",
+                "type": "core::starknet::class_hash::ClassHash",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "Upgraded",
+                "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+                "kind": "nested"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_security::pausable::PausableComponent::Paused",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "account",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_security::pausable::PausableComponent::Unpaused",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "account",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "openzeppelin_security::pausable::PausableComponent::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "Paused",
+                "type": "openzeppelin_security::pausable::PausableComponent::Paused",
+                "kind": "nested"
+            },
+            {
+                "name": "Unpaused",
+                "type": "openzeppelin_security::pausable::PausableComponent::Unpaused",
+                "kind": "nested"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "vault::vault::vault::Vault::RedeemRequested",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "receiver",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "shares",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "assets",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "id",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "epoch",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "vault::vault::vault::Vault::RedeemClaimed",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "receiver",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "data"
+            },
+            {
+                "name": "redeem_request_nominal",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "assets",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "id",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "epoch",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "vault::vault::vault::Vault::Report",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "new_epoch",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "new_handled_epoch_len",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "total_supply",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "total_assets",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "management_fee_shares",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "performance_fee_shares",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "vault::vault::vault::Vault::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "ERC20Event",
+                "type": "openzeppelin_token::erc20::erc20::ERC20Component::Event",
+                "kind": "nested"
+            },
+            {
+                "name": "ERC4626Event",
+                "type": "openzeppelin_token::erc20::extensions::erc4626::erc4626::ERC4626Component::Event",
+                "kind": "nested"
+            },
+            {
+                "name": "SRC5Event",
+                "type": "openzeppelin_introspection::src5::SRC5Component::Event",
+                "kind": "nested"
+            },
+            {
+                "name": "AccessControlEvent",
+                "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+                "kind": "nested"
+            },
+            {
+                "name": "UpgradeableEvent",
+                "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+                "kind": "nested"
+            },
+            {
+                "name": "PausableEvent",
+                "type": "openzeppelin_security::pausable::PausableComponent::Event",
+                "kind": "nested"
+            },
+            {
+                "name": "RedeemRequested",
+                "type": "vault::vault::vault::Vault::RedeemRequested",
+                "kind": "nested"
+            },
+            {
+                "name": "RedeemClaimed",
+                "type": "vault::vault::vault::Vault::RedeemClaimed",
+                "kind": "nested"
+            },
+            {
+                "name": "Report",
+                "type": "vault::vault::vault::Vault::Report",
+                "kind": "nested"
+            }
+        ]
+    }
+]

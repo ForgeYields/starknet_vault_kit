@@ -1,48 +1,82 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
+    container_name: vault_postgres
     environment:
+      POSTGRES_DB: starknet_vault_kit
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: starknet_vault_kit
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - "5432:5432"
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d starknet_vault_kit']
+      interval: 30s
+      timeout: 10s
       retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile.api
+    container_name: vault_api
+    ports:
+      - '3000:3000'
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/starknet_vault_kit
+      - RPC_URL=${RPC_URL}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+      - LOG_LEVEL=${LOG_LEVEL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
 
   indexer:
     build:
-      context: .
-      dockerfile: Dockerfile.indexer
+      context: ..
+      dockerfile: backend/Dockerfile.indexer
+    container_name: vault_indexer
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/starknet_vault_kit
-      - RPC_URL=${RPC_URL:-https://starknet-mainnet.public.blastapi.io}
+      - RPC_URL=${RPC_URL}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
       - APIBARA_TOKEN=${APIBARA_TOKEN}
+      - START_BLOCK=${START_BLOCK}
+      - LOG_LEVEL=${LOG_LEVEL}
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
 
-  api:
+  onchain-aum-provider:
     build:
-      context: .
-      dockerfile: Dockerfile.api
+      context: ..
+      dockerfile: backend/Dockerfile.relayerOnChainAum
+    container_name: vault_aum_provider
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/starknet_vault_kit
-      - RPC_URL=${RPC_URL:-https://starknet-mainnet.public.blastapi.io}
-    ports:
-      - "3000:3000"
+      - RPC_URL=${RPC_URL}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - ON_CHAIN_AUM_PROVIDER=${ON_CHAIN_AUM_PROVIDER}
+      - RELAYER_ADDRESS=${RELAYER_ADDRESS}
+      - RELAYER_PRIVATE_KEY=${RELAYER_PRIVATE_KEY}
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  pgdata:
+    driver: local

@@ -1,8 +1,11 @@
-import { ConfigService as ConfigServiceSource } from "@nestjs/config";
-import { BaseEnvironmentVariables } from "./env.validation";
+import { Injectable } from "@nestjs/common";
+import { ConfigService as NestConfigService } from "@nestjs/config";
 
-export class ConfigService extends ConfigServiceSource {
+@Injectable()
+export class ConfigService {
+  constructor(private readonly configService: NestConfigService) {}
+
   public get(key: string): string | number | undefined {
-    return super.get(key, { infer: true });
+    return this.configService.get(key, { infer: true });
   }
 }

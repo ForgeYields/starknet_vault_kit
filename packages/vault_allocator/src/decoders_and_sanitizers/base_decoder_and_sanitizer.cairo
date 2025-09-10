@@ -28,18 +28,9 @@ pub mod BaseDecoderAndSanitizerComponent {
             serialized_struct.span()
         }
 
-        fn flash_loan(
-            self: @ComponentState<TContractState>,
-            receiver: ContractAddress,
-            asset: ContractAddress,
-            amount: u256,
-            is_legacy: bool,
-            data: Span<felt252>,
-        ) -> Span<felt252> {
+
+        fn bring_liquidity(self: @ComponentState<TContractState>, amount: u256) -> Span<felt252> {
             let mut serialized_struct: Array<felt252> = ArrayTrait::new();
-            receiver.serialize(ref serialized_struct);
-            asset.serialize(ref serialized_struct);
-            is_legacy.serialize(ref serialized_struct);
             serialized_struct.span()
         }
     }

@@ -7,6 +7,7 @@ pub mod PriceRouter {
     use core::num::traits::{Pow, Zero};
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+    use openzeppelin::utils::math;
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
@@ -89,7 +90,7 @@ pub mod PriceRouter {
 
             let num: u256 = amount * base_price * scale_quote;
             let den: u256 = quote_price * scale_base;
-            num / den
+            math::u256_mul_div(num, 1, den, math::Rounding::Ceil)
         }
         fn asset_to_id(self: @ContractState, asset: ContractAddress) -> felt252 {
             self.asset_to_id.read(asset)

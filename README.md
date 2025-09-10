@@ -87,6 +87,12 @@ scarb build
 snforge test
 ```
 
+### Scripts & Backend
+
+For deployment scripts and configuration utilities, see [scripts/README.md](scripts/README.md).
+
+For backend services (API and indexer), see [backend/README.md](backend/README.md).
+
 ## Testing
 
 The project includes comprehensive test suites:

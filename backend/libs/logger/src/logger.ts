@@ -73,11 +73,16 @@ export class Logger {
         new winston.transports.Console({
           level,
           format: winston.format.combine(
-            winston.format.colorize(),
+            winston.format.colorize({ all: false, level: true }),
             winston.format.timestamp({ format: 'HH:mm:ss' }),
-            winston.format.printf(({ timestamp, level, message, context, service, ...meta }) => {
-              const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
-              return `${timestamp} [${level}] [${service}:${context}] ${message}${metaStr}`;
+            winston.format.printf(({ timestamp, level, message, context, ...meta }) => {
+              const contextStr = context ? `[${context}]` : '';
+              const metaStr = Object.keys(meta).length > 1 ? ` ${JSON.stringify(
+                Object.fromEntries(
+                  Object.entries(meta).filter(([key]) => key !== 'service')
+                ), null, 2
+              )}` : '';
+              return `${timestamp} ${level} ${contextStr} ${message}${metaStr}`;
             })
           ),
         })

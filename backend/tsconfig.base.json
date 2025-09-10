@@ -23,7 +23,9 @@
       "@forge/config": ["libs/config/src"],
       "@forge/config/*": ["libs/config/src/*"],
       "@forge/logger": ["libs/logger/src"],
-      "@forge/logger/*": ["libs/logger/src/*"]
+      "@forge/logger/*": ["libs/logger/src/*"],
+      "@forge/starknet": ["libs/starknet/src"],
+      "@forge/starknet/*": ["libs/starknet/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

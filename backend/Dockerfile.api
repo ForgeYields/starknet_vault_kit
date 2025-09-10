@@ -1,31 +1,42 @@
-FROM node:18-alpine
-
+# ---- build ----
+FROM node:20-alpine AS build
 WORKDIR /app
-
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
-COPY apps/api/package.json ./apps/api/
-COPY libs/config/package.json ./libs/config/
-COPY libs/db/package.json ./libs/db/
-COPY libs/core/package.json ./libs/core/
-COPY libs/logger/package.json ./libs/logger/
-
-# Install pnpm and dependencies
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+COPY backend/ .
 RUN pnpm install --frozen-lockfile
+# generate Prisma client
+RUN pnpm prisma:generate
+# build tous les workspaces (libs + apps) pour résoudre les liens pnpm
+RUN pnpm -r build
+# copy the compiled apps directly without pruning to preserve all dependencies
 
-# Copy source code
-COPY prisma ./prisma/
-COPY apps/api ./apps/api/
-COPY libs ./libs/
-COPY tsconfig.json ./
-
-# Generate Prisma client
-RUN pnpm run prisma:generate
-
-# Build the application
-RUN pnpm run build:api
-
+# ---- runtime ----
+FROM node:20-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+# user non-root
+RUN addgroup -S app && adduser -S app -G app
+# copier deps prod
+COPY --from=build /app/node_modules ./node_modules
+# copier manifests afin que les liens pnpm workspace restent valides
+COPY --from=build /app/package.json ./
+COPY --from=build /app/pnpm-workspace.yaml ./
+# copier les package.json des apps et libs pour les deps
+COPY --from=build /app/apps/api/package.json ./apps/api/
+COPY --from=build /app/libs/*/package.json ./libs/*/
+# copier le code compilé des apps et libs
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+COPY --from=build /app/libs ./libs
+# créer les symlinks pour les packages workspace et dependencies manquantes
+RUN mkdir -p node_modules/@forge && \
+    ln -sf ../../libs/config node_modules/@forge/config && \
+    ln -sf ../../libs/db node_modules/@forge/db && \
+    ln -sf ../../libs/logger node_modules/@forge/logger && \
+    ln -sf ../../libs/starknet node_modules/@forge/starknet && \
+    ln -sf .pnpm/decimal.js@10.6.0/node_modules/decimal.js node_modules/decimal.js && \
+    ln -sf .pnpm/starknet@7.6.4/node_modules/starknet node_modules/starknet && \
+    chown -R app:app .
+USER app
+CMD ["node", "apps/api/dist/apps/api/src/main.js"]
 EXPOSE 3000
-
-CMD ["pnpm", "run", "start:api"]
+    

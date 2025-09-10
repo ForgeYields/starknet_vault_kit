@@ -18,16 +18,4 @@ pub mod Errors {
     pub fn not_vault_allocator() {
         panic!("Not vault allocator");
     }
-
-    pub fn flash_loan_not_executed() {
-        panic!("Flash loan not executed");
-    }
-
-    pub fn not_vesu_singleton() {
-        panic!("Not vesu singleton");
-    }
-
-    pub fn bad_flash_loan_intent_hash() {
-        panic!("Bad flash loan intent hash");
-    }
 }

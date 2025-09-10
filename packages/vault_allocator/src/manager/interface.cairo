@@ -6,7 +6,6 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait IManager<T> {
-    fn vesu_singleton(self: @T) -> ContractAddress;
     fn vault_allocator(self: @T) -> ContractAddress;
     fn set_manage_root(ref self: T, target: ContractAddress, root: felt252);
     fn manage_root(self: @T, target: ContractAddress) -> felt252;
@@ -19,15 +18,6 @@ pub trait IManager<T> {
         targets: Span<ContractAddress>,
         selectors: Span<felt252>,
         calldatas: Span<Span<felt252>>,
-    );
-
-    fn flash_loan(
-        ref self: T,
-        recipient: ContractAddress,
-        asset: ContractAddress,
-        amount: u256,
-        is_legacy: bool,
-        data: Span<felt252>,
     );
 }
 

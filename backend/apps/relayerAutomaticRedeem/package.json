@@ -1,0 +1,25 @@
+{
+  "name": "relayerAutomaticRedeem",
+  "version": "0.0.1",
+  "description": "Automatic redeem relayer for StarkNet Vault Kit - processes pending redeems automatically",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "lint": "eslint \"src/**/*.ts\" --fix"
+  },
+  "dependencies": {
+    "@forge/config": "workspace:*",
+    "@forge/db": "workspace:*",
+    "@forge/logger": "workspace:*",
+    "@forge/starknet": "workspace:*",
+    "cron": "^4.3.3",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/cron": "^2.0.0",
+    "ts-node": "^10.9.1"
+  }
+}

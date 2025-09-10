@@ -1,5 +1,11 @@
 import { plainToClass, Transform } from "class-transformer";
-import { IsNumber, IsOptional, validateSync, IsString } from "class-validator";
+import {
+  IsNumber,
+  IsOptional,
+  validateSync,
+  IsString,
+  IsBoolean,
+} from "class-validator";
 
 // Base environment variables needed by all services
 export class BaseEnvironmentVariables {
@@ -16,12 +22,65 @@ export class ApiEnvironmentVariables extends BaseEnvironmentVariables {
 
   @IsString()
   RPC_URL: string;
+
+  @IsString()
+  VAULT_ADDRESS: string;
 }
 
 // Indexer-specific environment variables
 export class IndexerEnvironmentVariables extends BaseEnvironmentVariables {
   @IsString()
   APIBARA_TOKEN: string;
+
+  @IsString()
+  VAULT_ADDRESS: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
+  START_BLOCK?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === "true" || value === true)
+  FORCE_START_BLOCK?: boolean;
+}
+
+// RelayerAutomaticRedeem-specific environment variables
+export class RelayerAutomaticRedeemEnvironmentVariables extends BaseEnvironmentVariables {
+  @IsString()
+  RPC_URL: string;
+
+  @IsString()
+  VAULT_ADDRESS: string;
+
+  @IsString()
+  RELAYER_ADDRESS: string;
+
+  @IsString()
+  RELAYER_PRIVATE_KEY: string;
+
+  @IsOptional()
+  @IsString()
+  CRON_SCHEDULE = "*/5 * * * *";
+}
+
+// RelayerOnChainAum-specific environment variables
+export class RelayerOnChainAumEnvironmentVariables extends BaseEnvironmentVariables {
+  @IsString()
+  RPC_URL: string;
+
+  @IsString()
+  VAULT_ADDRESS: string;
+
+  @IsString()
+  RELAYER_ADDRESS: string;
+
+  @IsString()
+  RELAYER_PRIVATE_KEY: string;
+
+  @IsString()
+  ON_CHAIN_AUM_PROVIDER: string;
 }
 
 // Generic validation function
@@ -51,7 +110,14 @@ export function validateIndexerConfig(config: Record<string, unknown>) {
   return validateConfig(IndexerEnvironmentVariables, config);
 }
 
-// Legacy export for backward compatibility
-export function validate(config: Record<string, unknown>) {
-  return validateApiConfig(config);
+export function validateRelayerAutomaticRedeemConfig(
+  config: Record<string, unknown>
+) {
+  return validateConfig(RelayerAutomaticRedeemEnvironmentVariables, config);
+}
+
+export function validateRelayerOnChainAumConfig(
+  config: Record<string, unknown>
+) {
+  return validateConfig(RelayerOnChainAumEnvironmentVariables, config);
 }

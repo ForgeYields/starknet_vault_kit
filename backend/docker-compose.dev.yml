@@ -1,0 +1,153 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: starknet_vault_kit
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api.dev
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/starknet_vault_kit
+      - RPC_URL=${RPC_URL}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./libs:/app/libs
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: >
+      sh -c "
+        until nc -z postgres 5432;
+        do
+          echo '⏳ Waiting for Postgres...';
+          sleep 2;
+        done;
+        echo '✅ Postgres is up! Generating Prisma client...';
+        pnpm prisma generate --schema=libs/db/prisma/schema.prisma;
+        echo '✅ Prisma client generated! Running migrations...';
+        pnpm prisma migrate deploy --schema=libs/db/prisma/schema.prisma;
+        echo '✅ Migrations done! Starting API with hot reload...';
+        pnpm run dev:api
+      "
+
+  indexer:
+    build:
+      context: .
+      dockerfile: Dockerfile.indexer.dev
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/starknet_vault_kit
+      - RPC_URL=${RPC_URL:-https://starknet-mainnet.public.blastapi.io}
+      - APIBARA_TOKEN=${APIBARA_TOKEN}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+      - START_BLOCK=${START_BLOCK}
+      - FORCE_START_BLOCK=${FORCE_START_BLOCK}
+    volumes:
+      - ./apps/indexer:/app/apps/indexer
+      - ./libs:/app/libs
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+    command: >
+      sh -c "
+        until nc -z api 3000;
+        do
+          echo '⏳ Waiting for API (ready after Prisma)...';
+          sleep 2;
+        done;
+        echo '✅ API is ready! Installing dependencies...';
+        pnpm run dev:indexer
+      "
+
+  relayer-automatic-redeem:
+    build:
+      context: .
+      dockerfile: Dockerfile.relayerAutomaticRedeem.dev
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/starknet_vault_kit
+      - RPC_URL=${RPC_URL:-https://starknet-mainnet.public.blastapi.io}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+      - RELAYER_ADDRESS=${RELAYER_ADDRESS}
+      - RELAYER_PRIVATE_KEY=${RELAYER_PRIVATE_KEY}
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-*/5 * * * *}
+    volumes:
+      - ./apps/relayerAutomaticRedeem:/app/apps/relayerAutomaticRedeem
+      - ./libs:/app/libs
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+    command: >
+      sh -c "
+        until nc -z api 3000;
+        do
+          echo '⏳ Waiting for API (ready after migration)...';
+          sleep 2;
+        done;
+        echo '✅ API is ready! Installing dependencies...';
+        pnpm run dev:relayerAutomaticRedeem
+      "
+
+  relayer-on-chain-aum:
+    build:
+      context: .
+      dockerfile: Dockerfile.relayerOnChainAum.dev
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/starknet_vault_kit
+      - RPC_URL=${RPC_URL:-https://starknet-mainnet.public.blastapi.io}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+      - RELAYER_ADDRESS=${RELAYER_ADDRESS}
+      - RELAYER_PRIVATE_KEY=${RELAYER_PRIVATE_KEY}
+      - ON_CHAIN_AUM_PROVIDER=${ON_CHAIN_AUM_PROVIDER}
+    volumes:
+      - ./apps/relayerOnChainAum:/app/apps/relayerOnChainAum
+      - ./libs:/app/libs
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+    command: >
+      sh -c "
+        until nc -z api 3000;
+        do
+          echo '⏳ Waiting for API (ready after migration)...';
+          sleep 2;
+        done;
+        echo '✅ API is ready! Starting on-chain AUM relayer...';
+        pnpm run dev:relayerOnChainAum
+      "
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: forge-pgadmin-dev
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:

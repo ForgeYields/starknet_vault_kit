@@ -1,0 +1,99 @@
+[
+    {
+        "type": "impl",
+        "name": "AumProvider4626Impl",
+        "interface_name": "vault::aum_provider::aum_provider_4626::interface::IAumProvider4626"
+    },
+    {
+        "type": "interface",
+        "name": "vault::aum_provider::aum_provider_4626::interface::IAumProvider4626",
+        "items": [
+            {
+                "type": "function",
+                "name": "get_strategy_4626",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "state_mutability": "view"
+            }
+        ]
+    },
+    {
+        "type": "impl",
+        "name": "BaseAumProviderImpl",
+        "interface_name": "vault::aum_provider::interface::IBaseAumProvider"
+    },
+    {
+        "type": "struct",
+        "name": "core::integer::u256",
+        "members": [
+            {
+                "name": "low",
+                "type": "core::integer::u128"
+            },
+            {
+                "name": "high",
+                "type": "core::integer::u128"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "vault::aum_provider::interface::IBaseAumProvider",
+        "items": [
+            {
+                "type": "function",
+                "name": "aum",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "report",
+                "inputs": [],
+                "outputs": [],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "constructor",
+        "name": "constructor",
+        "inputs": [
+            {
+                "name": "vault",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "strategy4626",
+                "type": "core::starknet::contract_address::ContractAddress"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "vault::aum_provider::base_aum_provider::BaseAumProviderComponent::Event",
+        "kind": "enum",
+        "variants": []
+    },
+    {
+        "type": "event",
+        "name": "vault::aum_provider::aum_provider_4626::aum_provider_4626::AumProvider4626::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "BaseAumProviderEvent",
+                "type": "vault::aum_provider::base_aum_provider::BaseAumProviderComponent::Event",
+                "kind": "nested"
+            }
+        ]
+    }
+]

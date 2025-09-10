@@ -1,0 +1,21 @@
+{
+  "name": "relayerOnChainAum",
+  "version": "0.0.1",
+  "description": "On-chain AUM relayer for StarkNet Vault Kit",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/apps/relayerOnChainAum/src/main.js",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@forge/config": "workspace:*",
+    "@forge/logger": "workspace:*",
+    "@forge/starknet": "workspace:*",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^4.0.0"
+  }
+}

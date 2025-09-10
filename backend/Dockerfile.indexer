@@ -1,29 +1,36 @@
-FROM node:18-alpine
-
+# ---- build ----
+FROM node:20-alpine AS build
 WORKDIR /app
-
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
-COPY apps/indexer/package.json ./apps/indexer/
-COPY libs/config/package.json ./libs/config/
-COPY libs/db/package.json ./libs/db/
-COPY libs/core/package.json ./libs/core/
-COPY libs/logger/package.json ./libs/logger/
-
-# Install pnpm and dependencies
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@9.9.0 --activate
+COPY backend/ .
 RUN pnpm install --frozen-lockfile
+# generate Prisma client
+RUN pnpm prisma:generate
+RUN pnpm -r build
+# skip pruning to preserve all workspace dependencies
 
-# Copy source code
-COPY prisma ./prisma/
-COPY apps/indexer ./apps/indexer/
-COPY libs ./libs/
-COPY tsconfig.json ./
-
-# Generate Prisma client
-RUN pnpm run prisma:generate
-
-# Build the application
-RUN pnpm run build:indexer
-
-CMD ["pnpm", "run", "start:indexer"]
+# ---- runtime ----
+FROM node:20-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
+COPY --from=build /app/pnpm-workspace.yaml ./
+# copier les package.json des apps et libs pour les deps
+COPY --from=build /app/apps/indexer/package.json ./apps/indexer/
+COPY --from=build /app/libs/*/package.json ./libs/*/
+COPY --from=build /app/apps/indexer/dist ./apps/indexer/dist
+COPY --from=build /app/libs ./libs
+# créer les symlinks pour les packages workspace et dependencies manquantes
+RUN mkdir -p node_modules/@forge node_modules/@apibara && \
+    ln -sf ../../libs/config node_modules/@forge/config && \
+    ln -sf ../../libs/db node_modules/@forge/db && \
+    ln -sf ../../libs/logger node_modules/@forge/logger && \
+    ln -sf .pnpm/decimal.js@10.6.0/node_modules/decimal.js node_modules/decimal.js && \
+    ln -sf .pnpm/starknet@7.6.4/node_modules/starknet node_modules/starknet && \
+    ln -sf ../.pnpm/@apibara+protocol@0.4.9/node_modules/@apibara/protocol node_modules/@apibara/protocol && \
+    ln -sf ../.pnpm/@apibara+starknet@0.5.0/node_modules/@apibara/starknet node_modules/@apibara/starknet && \
+    chown -R app:app .
+USER app
+CMD ["node", "apps/indexer/dist/apps/indexer/src/main.js"]

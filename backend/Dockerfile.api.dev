@@ -1,0 +1,35 @@
+FROM node:20-alpine
+
+# Install necessary libraries for Prisma on Alpine and pnpm
+RUN apk add --no-cache openssl libssl3 libcrypto3 && \
+    npm install -g pnpm
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+COPY apps/api/package.json ./apps/api/
+COPY libs/config/package.json ./libs/config/
+COPY libs/db/package.json ./libs/db/
+COPY libs/logger/package.json ./libs/logger/
+COPY libs/starknet/package.json ./libs/starknet/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY apps/api ./apps/api/
+COPY libs ./libs/
+COPY tsconfig.json ./
+
+# Generate Prisma client and build libraries in parallel
+RUN pnpm prisma generate --schema=libs/db/prisma/schema.prisma && \
+    pnpm --filter @forge/config build && \
+    pnpm --filter @forge/logger build && \
+    pnpm --filter @forge/starknet build && \
+    pnpm --filter @forge/db build && \
+    pnpm run build:api
+
+EXPOSE 3000
+
+CMD ["pnpm", "run", "start:api"]

@@ -4,7 +4,6 @@
 
 // Standard library imports
 use starknet::ContractAddress;
-use vault::redeem_request::interface::RedeemRequestInfo;
 
 #[starknet::interface]
 pub trait IVault<TContractState> {

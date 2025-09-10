@@ -1,0 +1,39 @@
+{
+  "name": "starknet-vault-kit-scripts",
+  "version": "1.0.0",
+  "description": "StarkNet Vault Kit deployment and management scripts",
+  "main": "index.js",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "declare": "tsx declareContract.ts --contract",
+    "declare:vault": "tsx declareContract.ts --contract Vault",
+    "declare:vault-allocator": "tsx declareContract.ts --contract VaultAllocator",
+    "declare:redeem-request": "tsx declareContract.ts --contract RedeemRequest",
+    "declare:avnu-middleware": "tsx declareContract.ts --contract AvnuMiddleware",
+    "declare:manager": "tsx declareContract.ts --contract Manager",
+    "declare:price-router": "tsx declareContract.ts --contract PriceRouter",
+    "declare:decoder-sanitizer": "tsx declareContract.ts --contract SimpleDecoderAndSanitizer",
+    "declare:aum-provider-4626": "tsx declareContract.ts --contract AumProvider4626",
+    "deploy:contract": "tsx deployContract.ts --contract",
+    "deploy:vault": "tsx deployVault.ts",
+    "vault:config": "tsx vaultConfig.ts",
+    "manager:config": "tsx managerConfig.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "starknet": "7.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4"
+  },
+  "keywords": [
+    "starknet",
+    "cairo",
+    "vault",
+    "defi"
+  ],
+  "author": "",
+  "license": "ISC"
+}

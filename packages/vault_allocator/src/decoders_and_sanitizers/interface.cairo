@@ -7,12 +7,5 @@ use starknet::ContractAddress;
 #[starknet::interface]
 pub trait IBaseDecoderAndSanitizer<T> {
     fn approve(self: @T, spender: ContractAddress, amount: u256) -> Span<felt252>;
-    fn flash_loan(
-        self: @T,
-        receiver: ContractAddress,
-        asset: ContractAddress,
-        amount: u256,
-        is_legacy: bool,
-        data: Span<felt252>,
-    ) -> Span<felt252>;
+    fn bring_liquidity(self: @T, amount: u256) -> Span<felt252>;
 }

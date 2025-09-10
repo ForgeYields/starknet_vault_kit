@@ -30,7 +30,7 @@ use vault_allocator::vault_allocator::interface::IVaultAllocatorDispatcherTrait;
 #[test]
 fn test_stable_carry_loop() {
     let vault_allocator = deploy_vault_allocator();
-    let manager = deploy_manager(vault_allocator, VESU_SINGLETON());
+    let manager = deploy_manager(vault_allocator);
     let simple_decoder_and_sanitizer = deploy_simple_decoder_and_sanitizer();
     let price_router = deploy_price_router();
     initialize_price_router(price_router);

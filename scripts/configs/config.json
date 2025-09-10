@@ -1,0 +1,23 @@
+{
+  "sepolia": {
+    "hash": {},
+    "periphery": {}
+  },
+  "mainnet": {
+    "hash": {
+      "Vault": "0x516d937281e70cc858ddc2a5a2c98fe97782d290564c6e94d2e8c91dd70cc2f",
+      "VaultAllocator": "0x7f2faf80d197cbfd7286fa0b8328e9d15eff219138611573beb8280a92712e5",
+      "RedeemRequest": "0x213cf96be799ccd7d4775e3798c880c093197ac19313d6032f43c8d22a6346a",
+      "AvnuMiddleware": "0x142dff46d17eb94e9c77a771968ccd8257d8eed5d6a84c3e37f50e15dc39a9f",
+      "Manager": "0x67a612fc0c9f0d9a84e425cd7e531e408fa3234fa5e1050eef1905b4ac35a61",
+      "PriceRouter": "0x677bd52be1ce091b133c5bd637cec20df7f1390adfa64de98791e2928d5d3c1",
+      "SimpleDecoderAndSanitizer": "0x5e9c41a7fd764459fc91f3712a7bb3e31a02ed97cf4954b6dd84feb5034e6bc",
+      "AumProvider4626": "0x21aa3fcc7be5d6078d8551838e297e5e29f7e594c2f1338e3a27dbb11e127eb"
+    },
+    "periphery": {
+      "vesuSingleton": "0x000d8d6dfec4d33bfb6895de9f3852143a17c6f92fd2a21da3d6924d34870160",
+      "avnuRouter": "0x04270219d365d6b017231b52e92b3fb5d7c8378b05e9abc97724537a80e93b0f",
+      "pragma": "0x02a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b"
+    }
+  }
+}

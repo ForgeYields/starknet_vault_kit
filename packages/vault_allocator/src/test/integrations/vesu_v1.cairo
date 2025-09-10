@@ -26,7 +26,7 @@ use vault_allocator::vault_allocator::interface::IVaultAllocatorDispatcherTrait;
 #[test]
 fn test_manage_vault_with_merkle_verification_earn_mode() {
     let vault_allocator = deploy_vault_allocator();
-    let manager = deploy_manager(vault_allocator, VESU_SINGLETON());
+    let manager = deploy_manager(vault_allocator);
     let simple_decoder_and_sanitizer = deploy_simple_decoder_and_sanitizer();
 
     let mut leafs: Array<ManageLeaf> = ArrayTrait::new();
@@ -277,7 +277,7 @@ fn test_manage_vault_with_merkle_verification_earn_mode() {
 #[test]
 fn test_manage_vault_with_merkle_verification_debt_mode() {
     let vault_allocator = deploy_vault_allocator();
-    let manager = deploy_manager(vault_allocator, VESU_SINGLETON());
+    let manager = deploy_manager(vault_allocator);
     let simple_decoder_and_sanitizer = deploy_simple_decoder_and_sanitizer();
 
     let mut leafs: Array<ManageLeaf> = ArrayTrait::new();
@@ -322,10 +322,7 @@ fn test_manage_vault_with_merkle_verification_debt_mode() {
     // first scenario is depositing wsteth to vesu genesis pool, transfer the position and borrow
     // ETH
     let deposit_amount: u256 = WAD;
-    let extension = ISingletonV2Dispatcher { contract_address: VESU_SINGLETON() }
-        .extension(GENESIS_POOL_ID);
-    let v_token = IDefaultExtensionPOV2Dispatcher { contract_address: extension }
-        .v_token_for_collateral_asset(GENESIS_POOL_ID, wstETH());
+
     let debt_amount: u256 = WAD / 40; // 2.5% of the deposit
 
     let mut array_of_decoders_and_sanitizers = ArrayTrait::new();

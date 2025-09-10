@@ -159,7 +159,8 @@ pub mod Vault {
         // Vault-specific events
         RedeemRequested: RedeemRequested, // Emitted when a redemption is requested
         RedeemClaimed: RedeemClaimed, // Emitted when a redemption is claimed
-        Report: Report // Emitted when oracle reports new AUM
+        Report: Report, // Emitted when oracle reports new AUM
+        BringLiquidity: BringLiquidity // Emitted when liquidity is brought back from allocators
     }
 
     /// Event emitted when a user requests a redemption
@@ -192,6 +193,16 @@ pub mod Vault {
         pub total_assets: u256, // Total assets under management
         pub management_fee_shares: u256, // Management fee shares minted
         pub performance_fee_shares: u256 // Performance fee shares minted
+    }
+
+    /// Event emitted when liquidity is brought back from allocators
+    #[derive(Drop, starknet::Event)]
+    pub struct BringLiquidity {
+        pub caller: ContractAddress, // Address that initiated the liquidity transfer
+        pub amount: u256, // Amount of assets brought back to vault
+        pub new_buffer: u256, // New buffer amount after the transfer
+        pub new_aum: u256, // New AUM amount after the transfer
+        pub epoch: u256 // Epoch when the liquidity was brought back
     }
 
     /// Initialize the vault with configuration parameters
@@ -775,10 +786,20 @@ pub mod Vault {
         fn bring_liquidity(
             ref self: ContractState, amount: u256,
         ) { // Amount of assets to bring back
+            let caller = get_caller_address();
             ERC20ABIDispatcher { contract_address: self.erc4626.asset() }
-                .transfer_from(get_caller_address(), starknet::get_contract_address(), amount);
-            self.buffer.write(self.buffer.read() + amount); // Increase buffer
-            self.aum.write(self.aum.read() - amount); // Decrease deployed AUM
+                .transfer_from(caller, starknet::get_contract_address(), amount);
+            let new_buffer = self.buffer.read() + amount; // Calculate new buffer
+            let new_aum = self.aum.read() - amount; // Calculate new AUM
+            self.buffer.write(new_buffer); // Increase buffer
+            self.aum.write(new_aum); // Decrease deployed AUM
+
+            self
+                .emit(
+                    BringLiquidity {
+                        caller, amount, new_buffer, new_aum, epoch: self.epoch.read(),
+                    },
+                );
         }
 
         // --- State Getter Functions ---
