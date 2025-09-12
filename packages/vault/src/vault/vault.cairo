@@ -515,8 +515,11 @@ pub mod Vault {
             } else {
                 self.redeem_fees.read()
             };
-            let fee_shares = (shares * redeem_fees)
-                / WAD; // Fee calculation: shares * fee_rate / 1e18
+            let fee_shares_num = shares * redeem_fees;
+            let mut fee_shares = fee_shares_num / WAD; // Fee calculation: shares * fee_rate / 1e18
+            if ((fee_shares_num % WAD).is_non_zero()) {
+                fee_shares += 1;
+            }
 
             if (fee_shares.is_non_zero()) {
                 self
