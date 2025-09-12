@@ -202,6 +202,22 @@ fn test_manage_vault_with_merkle_verification_inconsistent_lengths_4() {
 }
 
 #[test]
+#[should_panic(expected: "Invalid manage proof length")]
+fn test_manage_vault_with_merkle_verification_empty_proof() {
+    let vault_allocator = deploy_vault_allocator();
+    let manager = deploy_manager(vault_allocator);
+    
+    manager
+        .manage_vault_with_merkle_verification(
+            array![array![].span()].span(),
+            array![DUMMY_ADDRESS()].span(),
+            array![DUMMY_ADDRESS()].span(),
+            array![3].span(),
+            array![array![].span()].span(),
+        );
+}
+
+#[test]
 #[should_panic(expected: "Invalid manage proof")]
 fn test_manage_vault_with_merkle_verification_invalid_proof() {
     let vault_allocator = deploy_vault_allocator();

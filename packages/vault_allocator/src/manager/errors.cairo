@@ -18,4 +18,8 @@ pub mod Errors {
     pub fn not_vault_allocator() {
         panic!("Not vault allocator");
     }
+
+    pub fn invalid_manage_proof_length() {
+        panic!("Invalid manage proof length");
+    }
 }

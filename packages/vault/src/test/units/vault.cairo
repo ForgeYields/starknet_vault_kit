@@ -446,9 +446,8 @@ fn test_request_redeem_exceeds_zero_assets() {
 }
 
 #[test]
-// #[fuzzer]
-fn test_request_redeem_success() {
-    let x = 100086487372256170310641511670414079303723254511463964245788324900628865734999;
+#[fuzzer]
+fn test_request_redeem_success(x: u256) {
     let (underlying, vault, redeem_request) = set_up();
 
     let deposit_amount = Vault::WAD;

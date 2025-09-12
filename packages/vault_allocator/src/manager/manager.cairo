@@ -8,6 +8,7 @@ pub mod Manager {
     pub const OWNER_ROLE: felt252 = selector!("OWNER_ROLE");
     pub const PAUSER_ROLE: felt252 = selector!("PAUSER_ROLE");
     use core::hash::HashStateTrait;
+    use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::interfaces::upgrades::IUpgradeable;
@@ -162,6 +163,9 @@ pub mod Manager {
             selector: felt252,
             calldata: Span<felt252>,
         ) {
+            if (proof.len().is_zero()) {
+                Errors::invalid_manage_proof_length();
+            }
             let mut packed_argument_addresses = ArrayTrait::new();
             let ret_data = starknet::syscalls::call_contract_syscall(
                 decoder_and_sanitizer, selector, calldata,
