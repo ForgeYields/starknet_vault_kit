@@ -726,8 +726,10 @@ pub mod Vault {
                     Errors::vault_allocator_not_set();
                 }
                 // Deploy all remaining buffer to allocator
-                ERC20ABIDispatcher { contract_address: self.erc4626.asset() }
-                    .transfer(alloc, remaining_buffer);
+                if (remaining_buffer.is_non_zero()) {
+                    ERC20ABIDispatcher { contract_address: self.erc4626.asset() }
+                        .transfer(alloc, remaining_buffer);
+                }
                 self.aum.write(new_aum + remaining_buffer); // Update AUM to include deployed assets
                 self.buffer.write(0); // Buffer is now empty
             } else {
