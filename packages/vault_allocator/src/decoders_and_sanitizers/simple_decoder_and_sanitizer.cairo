@@ -10,6 +10,7 @@ pub mod SimpleDecoderAndSanitizer {
     use vault_allocator::decoders_and_sanitizers::multiply_decoder_and_sanitizer::multiply_decoder_and_sanitizer::MultiplyDecoderAndSanitizerComponent;
     use vault_allocator::decoders_and_sanitizers::starknet_vault_kit_decoder_and_sanitizer::starknet_vault_kit_decoder_and_sanitizer::StarknetVaultKitDecoderAndSanitizerComponent;
     use vault_allocator::decoders_and_sanitizers::vesu_decoder_and_sanitizer::vesu_decoder_and_sanitizer::VesuDecoderAndSanitizerComponent;
+    use vault_allocator::decoders_and_sanitizers::defi_spring_snf_style::defi_spring_snf_style_decoder_and_sanitizer::DefiSpringSNFStyleDecoderAndSanitizerComponent;
 
     component!(
         path: BaseDecoderAndSanitizerComponent,
@@ -46,6 +47,11 @@ pub mod SimpleDecoderAndSanitizer {
         event: MultiplyDecoderAndSanitizerEvent,
     );
 
+    component!(
+        path: DefiSpringSNFStyleDecoderAndSanitizerComponent,
+        storage: defi_spring_snf_style_decoder_and_sanitizer,
+        event: DefiSpringSNFStyleDecoderAndSanitizerEvent,
+    );
 
     #[abi(embed_v0)]
     impl BaseDecoderAndSanitizerImpl =
@@ -69,6 +75,11 @@ pub mod SimpleDecoderAndSanitizer {
     impl MultiplyDecoderAndSanitizerImpl =
         MultiplyDecoderAndSanitizerComponent::MultiplyDecoderAndSanitizerImpl<ContractState>;
 
+    #[abi(embed_v0)]
+    impl DefiSpringSNFStyleDecoderAndSanitizerImpl =
+        DefiSpringSNFStyleDecoderAndSanitizerComponent::DefiSpringSNFStyleDecoderAndSanitizerImpl<
+            ContractState,
+        >;
 
     #[storage]
     pub struct Storage {
@@ -84,6 +95,8 @@ pub mod SimpleDecoderAndSanitizer {
         pub starknet_vault_kit_decoder_and_sanitizer: StarknetVaultKitDecoderAndSanitizerComponent::Storage,
         #[substorage(v0)]
         pub multiply_decoder_and_sanitizer: MultiplyDecoderAndSanitizerComponent::Storage,
+        #[substorage(v0)]
+        pub defi_spring_snf_style_decoder_and_sanitizer: DefiSpringSNFStyleDecoderAndSanitizerComponent::Storage,
     }
 
     #[event]
@@ -101,5 +114,7 @@ pub mod SimpleDecoderAndSanitizer {
         StarknetVaultKitDecoderAndSanitizerEvent: StarknetVaultKitDecoderAndSanitizerComponent::Event,
         #[flat]
         MultiplyDecoderAndSanitizerEvent: MultiplyDecoderAndSanitizerComponent::Event,
+        #[flat]
+        DefiSpringSNFStyleDecoderAndSanitizerEvent: DefiSpringSNFStyleDecoderAndSanitizerComponent::Event,
     }
 }
