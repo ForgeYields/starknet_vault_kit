@@ -2930,39 +2930,6 @@ fn test_deposit_limit() {
     );
 }
 
-#[test]
-fn test_mint_limit() {
-    let (underlying, vault, _) = set_up();
-    let erc4626_dispatcher = IERC4626Dispatcher { contract_address: vault.contract_address };
-    let deposit_cap = Vault::WAD * 100;
-    cheat_caller_address_once(vault.contract_address, OWNER());
-    vault.set_deposit_limit(deposit_cap);
-    let mint_limit_config = Vault::WAD * 50;
-    cheat_caller_address_once(vault.contract_address, OWNER());
-    vault.set_mint_limit(mint_limit_config);
-    assert(vault.get_mint_limit() == mint_limit_config, 'Mint limit not set');
-    let initial_max_mint = erc4626_dispatcher.max_mint(DUMMY_ADDRESS());
-    assert(initial_max_mint == deposit_cap, 'Initial max mint wrong');
-    let first_deposit = Vault::WAD * 30;
-    cheat_caller_address_once(underlying, OWNER());
-    ERC20ABIDispatcher { contract_address: underlying }.transfer(DUMMY_ADDRESS(), first_deposit);
-    cheat_caller_address_once(underlying, DUMMY_ADDRESS());
-    ERC20ABIDispatcher { contract_address: underlying }
-        .approve(vault.contract_address, first_deposit);
-    cheat_caller_address_once(vault.contract_address, DUMMY_ADDRESS());
-    erc4626_dispatcher.deposit(first_deposit, DUMMY_ADDRESS());
-    let remaining_deposit_cap = deposit_cap - first_deposit; // 70 WAD remaining
-    let expected_max_mint = erc4626_dispatcher.convert_to_shares(remaining_deposit_cap);
-    let actual_max_mint = erc4626_dispatcher.max_mint(DUMMY_ADDRESS());
-    assert(actual_max_mint == expected_max_mint, 'Max mint not adjusted');
-    cheat_caller_address_once(vault.contract_address, OWNER());
-    vault.set_deposit_limit(Bounded::MAX);
-    cheat_caller_address_once(vault.contract_address, OWNER());
-    vault.set_mint_limit(Bounded::MAX);
-
-    assert(erc4626_dispatcher.max_mint(DUMMY_ADDRESS()) == Bounded::MAX, 'Max mint not unlimited');
-}
-
 
 #[test]
 #[should_panic(expected: ('Caller is missing role',))]
@@ -2971,15 +2938,6 @@ fn test_set_deposit_limit_unauthorized() {
 
     cheat_caller_address_once(vault.contract_address, DUMMY_ADDRESS());
     vault.set_deposit_limit(Vault::WAD);
-}
-
-#[test]
-#[should_panic(expected: ('Caller is missing role',))]
-fn test_set_mint_limit_unauthorized() {
-    let (_, vault, _) = set_up();
-
-    cheat_caller_address_once(vault.contract_address, DUMMY_ADDRESS());
-    vault.set_mint_limit(Vault::WAD);
 }
 
 
