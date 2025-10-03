@@ -11,7 +11,7 @@
       "AvnuMiddleware": "0x061991d4c071181b102b97df406d2804c08c63d443cb011552fa4a93947de8e9",
       "Manager": "0x0743ae018195fc5208d05471999a8ee519a4aac9a715a049b367389bac24214f",
       "PriceRouter": "0x0388513a8239b53c9dba7a19049e9159f73a9d196dcb10745489bdc7d65839e5",
-      "SimpleDecoderAndSanitizer": "0x036c29d91a5f1cf1eb62acad4c39803061fd184b0d16a78721b7fcd725756625",
+      "SimpleDecoderAndSanitizer": "0x2da95c87eab791618ac297a871c4508399450091cc03ede6fc4e807e0779bdc",
       "AumProvider4626": "0x21aa3fcc7be5d6078d8551838e297e5e29f7e594c2f1338e3a27dbb11e127eb",
       "VesuV2SpecificDecoderAndSanitizer": "0x02da0e885beb8200e0c1e2793cd5afecd4567c41b4f19940a962d77cd0b34f29"
     },
