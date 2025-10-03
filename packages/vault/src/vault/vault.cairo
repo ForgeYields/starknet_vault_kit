@@ -241,11 +241,17 @@ pub mod Vault {
     #[derive(Drop, starknet::Event)]
     pub enum Event {
         // Component events
+        #[flat]
         ERC20Event: ERC20Component::Event,
+        #[flat]
         ERC4626Event: ERC4626Component::Event,
+        #[flat]
         SRC5Event: SRC5Component::Event,
+        #[flat]
         AccessControlEvent: AccessControlComponent::Event,
+        #[flat]
         UpgradeableEvent: UpgradeableComponent::Event,
+        #[flat]
         PausableEvent: PausableComponent::Event,
         // Vault-specific events
         RedeemRequested: RedeemRequested, // Emitted when a redemption is requested
