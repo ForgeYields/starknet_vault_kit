@@ -32,9 +32,7 @@ pub mod Vault {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::security::pausable::PausableComponent;
     use openzeppelin::token::erc20::extensions::erc4626::ERC4626Component::Fee;
-    use openzeppelin::token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626Component, ERC4626DefaultNoFees,
-    };
+    use openzeppelin::token::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
     use openzeppelin::token::erc20::{
         DefaultConfig as ERC20DefaultConfig, ERC20Component, ERC20HooksEmptyImpl,
     };
@@ -86,6 +84,38 @@ pub mod Vault {
     #[abi(embed_v0)]
     impl ERC4626Impl = ERC4626Component::ERC4626Impl<ContractState>;
     impl ERC4626InternalImpl = ERC4626Component::InternalImpl<ContractState>;
+
+
+    impl ERC4626FeesImpl of ERC4626Component::FeeConfigTrait<ContractState> {
+        fn calculate_deposit_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            Option::None
+        }
+
+        fn calculate_mint_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            Option::None
+        }
+
+        fn calculate_withdraw_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee_shares = contract_state._calculate_fee_shares(shares);
+            Option::Some(Fee::Shares(fee_shares))
+        }
+
+        fn calculate_redeem_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee_shares = contract_state._calculate_fee_shares(shares);
+            Option::Some(Fee::Shares(fee_shares))
+        }
+    }
+
 
     // --- Custom ERC4626 Limits Implementation ---
     // Custom implementation of deposit/withdraw limits
@@ -574,19 +604,14 @@ pub mod Vault {
             }
 
             // Calculate and collect redemption fees
-            let fees_recipient = self.fees_recipient.read();
-            let redeem_fees = if (owner == fees_recipient) {
-                0
-            } else {
-                self.redeem_fees.read()
-            };
-            let fee_shares = (shares * redeem_fees)
-                / WAD; // Fee calculation: shares * fee_rate / 1e18
+            let fee_shares = self._calculate_fee_shares(shares);
 
             if (fee_shares.is_non_zero()) {
                 self
                     .erc20
-                    .update(owner, fees_recipient, fee_shares); // Transfer fee shares to recipient
+                    .update(
+                        owner, self.fees_recipient.read(), fee_shares,
+                    ); // Transfer fee shares to recipient
             }
             let remaining_shares = shares - fee_shares; // Shares after fee deduction
 
@@ -1089,6 +1114,11 @@ pub mod Vault {
                 i += 1;
             }
             total_redeem_assets
+        }
+
+
+        fn _calculate_fee_shares(self: @ContractState, shares: u256) -> u256 {
+            (shares * self.redeem_fees.read()) / WAD
         }
     }
 }

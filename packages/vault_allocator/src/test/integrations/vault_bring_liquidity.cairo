@@ -3,7 +3,6 @@
 // Licensed under the MIT License. See LICENSE file for details.
 
 use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
-use openzeppelin::interfaces::erc4626::IERC4626Dispatcher;
 use snforge_std::{map_entry_address, store};
 use vault_allocator::manager::interface::IManagerDispatcherTrait;
 use vault_allocator::merkle_tree::base::{
