@@ -5,7 +5,9 @@
 #[starknet::contract]
 pub mod VaultAllocator {
     use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::interfaces::erc721::IERC721_RECEIVER_ID;
     use openzeppelin::interfaces::upgrades::IUpgradeable;
+    use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -14,11 +16,14 @@ pub mod VaultAllocator {
     use vault_allocator::vault_allocator::errors::Errors;
     use vault_allocator::vault_allocator::interface::IVaultAllocator;
 
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        src5: SRC5Component::Storage,
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
@@ -29,7 +34,11 @@ pub mod VaultAllocator {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+        #[flat]
         OwnableEvent: OwnableComponent::Event,
+        #[flat]
         UpgradeableEvent: UpgradeableComponent::Event,
         CallPerformed: CallPerformed,
     }
@@ -54,6 +63,10 @@ pub mod VaultAllocator {
     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
     #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
@@ -107,7 +120,9 @@ pub mod VaultAllocator {
             selector: felt252,
             calldata: Span<felt252>,
         ) -> Span<felt252> {
+            self.src5.register_interface(IERC721_RECEIVER_ID);
             let result = call_contract_syscall(to, selector, calldata).unwrap_syscall();
+            self.src5.deregister_interface(IERC721_RECEIVER_ID);
             self.emit(CallPerformed { to, selector, calldata, result });
             result
         }
