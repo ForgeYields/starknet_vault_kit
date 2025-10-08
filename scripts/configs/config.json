@@ -5,13 +5,13 @@
   },
   "mainnet": {
     "hash": {
-      "Vault": "0x53d1818254263887fe891b4c0ae0c68f3ed84a9524249cda2d7b215a6b147e0",
-      "VaultAllocator": "0x00bf475be37c67c2b2b400dc4433f162ea516c40bd6ac4fc0bc5452a6a61539f",
-      "RedeemRequest": "0x076b42bba1d387b1d4a91f4b3e660365b25e5e6f1a0a27b9417283e45e7034ed",
+      "Vault": "0x225ca31b59b9f0e72dbbe72696aae6cf3431c68a2b993e9ecc10a62dd91ea04",
+      "VaultAllocator": "0x4d838ecc1ef60da3461c1687bee3ce175a5d5c8f6f3bd645d70ef5efe86eb1f",
+      "RedeemRequest": "0x6dff890f7d5976a343b111f5c275cccd5838498221d199558a1c46799d072cc",
       "AvnuMiddleware": "0x061991d4c071181b102b97df406d2804c08c63d443cb011552fa4a93947de8e9",
-      "Manager": "0x0743ae018195fc5208d05471999a8ee519a4aac9a715a049b367389bac24214f",
+      "Manager": "0x23a91c52488034095902965133a91f4a271ba00e9cdf2c2f944965e28876c67",
       "PriceRouter": "0x0388513a8239b53c9dba7a19049e9159f73a9d196dcb10745489bdc7d65839e5",
-      "SimpleDecoderAndSanitizer": "0x2da95c87eab791618ac297a871c4508399450091cc03ede6fc4e807e0779bdc",
+      "SimpleDecoderAndSanitizer": "0x3b17431a41da79a87afb7ac20b227c7c9d920d7677251a2bf9c12f4137b546f",
       "AumProvider4626": "0x21aa3fcc7be5d6078d8551838e297e5e29f7e594c2f1338e3a27dbb11e127eb",
       "VesuV2SpecificDecoderAndSanitizer": "0x02da0e885beb8200e0c1e2793cd5afecd4567c41b4f19940a962d77cd0b34f29"
     },

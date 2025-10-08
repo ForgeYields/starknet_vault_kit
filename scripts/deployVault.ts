@@ -577,8 +577,8 @@ async function main() {
       vaultConfig.reportDelay,
       vaultConfig.maxDeltaPercentage
     );
-    console.log("\n⏳ Waiting 3 seconds before deploying RedeemRequest...");
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    console.log("\n⏳ Waiting 10 seconds before deploying RedeemRequest...");
+    await new Promise(resolve => setTimeout(resolve, 10000));
     
     console.log("\n📦 Deploying RedeemRequest...");
     const redeemRequestAddress = await deployRedeemRequest(
@@ -588,14 +588,14 @@ async function main() {
       vaultConfig.symbol
     );
 
-    console.log("\n⏳ Waiting 3 seconds before linking RedeemRequest to Vault...");
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    console.log("\n⏳ Waiting 10 seconds before linking RedeemRequest to Vault...");
+    await new Promise(resolve => setTimeout(resolve, 10000));
     
     console.log("\n🔗 Linking RedeemRequest to Vault...");
     await linkRedeemRequestToVault(vaultAddress, redeemRequestAddress);
 
-    console.log("\n⏳ Waiting 3 seconds before vault allocator operations...");
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    console.log("\n⏳ Waiting 10 seconds before vault allocator operations...");
+    await new Promise(resolve => setTimeout(resolve, 10000));
     
     if (isCustodial) {
       console.log("\n🔗 Attaching existing VaultAllocator to Vault...");
@@ -608,14 +608,14 @@ async function main() {
         vaultConfig.symbol
       );
 
-      console.log("\n⏳ Waiting 3 seconds before attaching VaultAllocator to Vault...");
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log("\n⏳ Waiting 10 seconds before attaching VaultAllocator to Vault...");
+      await new Promise(resolve => setTimeout(resolve, 10000));
 
       console.log("\n🔗 Attaching new VaultAllocator to Vault...");
       await attachVaultAllocatorToVault(vaultAddress, newVaultAllocatorAddress);
 
-      console.log("\n⏳ Waiting 3 seconds before deploying Manager...");
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log("\n⏳ Waiting 10 seconds before deploying Manager...");
+      await new Promise(resolve => setTimeout(resolve, 10000));
 
       console.log("\n📦 Deploying Manager...");
       const managerAddress = await deployManager(
@@ -624,8 +624,8 @@ async function main() {
         vaultConfig.symbol
       );
 
-      console.log("\n⏳ Waiting 3 seconds before setting Manager in VaultAllocator...");
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      console.log("\n⏳ Waiting 10 seconds before setting Manager in VaultAllocator...");
+      await new Promise(resolve => setTimeout(resolve, 10000));
 
       console.log("\n🔗 Setting Manager in VaultAllocator...");
       await setManagerInVaultAllocator(
