@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      decimal.js:
+        specifier: ^10.2.1
+        version: 10.6.0
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -235,6 +238,9 @@ packages:
 
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+
+  decimal.js@10.6.0:
+    resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
 
   dotenv@16.6.1:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
@@ -479,6 +485,8 @@ snapshots:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
+
+  decimal.js@10.6.0: {}
 
   dotenv@16.6.1: {}
 
