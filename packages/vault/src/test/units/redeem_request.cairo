@@ -13,7 +13,7 @@ use vault::redeem_request::interface::{
 };
 use vault::test::utils::{
     DUMMY_ADDRESS, OTHER_DUMMY_ADDRESS, OWNER, cheat_caller_address_once, deploy_counter,
-    deploy_erc20_mock, deploy_redeem_request, deploy_vault,
+    deploy_erc20_mock, deploy_erc721_receiver_at, deploy_redeem_request, deploy_vault,
 };
 use vault::vault::vault::Vault;
 use vault_allocator::mocks::counter::{ICounterDispatcher, ICounterDispatcherTrait};
@@ -22,6 +22,8 @@ fn set_up() -> (ContractAddress, IRedeemRequestDispatcher) {
     let underlying_assets = deploy_erc20_mock();
     let vault = deploy_vault(underlying_assets);
     let redeem_request = deploy_redeem_request(vault.contract_address);
+    deploy_erc721_receiver_at(DUMMY_ADDRESS());
+    deploy_erc721_receiver_at(OTHER_DUMMY_ADDRESS());
     (vault.contract_address, redeem_request)
 }
 
@@ -267,7 +269,8 @@ fn test_erc721_functionality() {
     assert(erc721_dispatcher.get_approved(id) == OTHER_DUMMY_ADDRESS(), 'Approved incorrect');
 
     cheat_caller_address_once(redeem_request.contract_address, OTHER_DUMMY_ADDRESS());
-    erc721_dispatcher.transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id);
+    erc721_dispatcher
+        .safe_transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id, array![].span());
 
     assert(erc721_dispatcher.owner_of(id) == OTHER_DUMMY_ADDRESS(), 'Owner after transfer');
     assert(erc721_dispatcher.balance_of(DUMMY_ADDRESS()) == 0, 'Balance after transfer');
@@ -299,10 +302,12 @@ fn test_set_approval_for_all() {
     );
 
     cheat_caller_address_once(redeem_request.contract_address, OTHER_DUMMY_ADDRESS());
-    erc721_dispatcher.transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id_1);
+    erc721_dispatcher
+        .safe_transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id_1, array![].span());
 
     cheat_caller_address_once(redeem_request.contract_address, OTHER_DUMMY_ADDRESS());
-    erc721_dispatcher.transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id_2);
+    erc721_dispatcher
+        .safe_transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id_2, array![].span());
 
     assert(erc721_dispatcher.balance_of(DUMMY_ADDRESS()) == 0, 'Original owner balance');
     assert(erc721_dispatcher.balance_of(OTHER_DUMMY_ADDRESS()) == 2, 'New owner balance');
@@ -329,7 +334,8 @@ fn test_complex_scenario_mint_burn_transfer() {
     assert(redeem_request.id_len() == 2, 'Initial ID length');
 
     cheat_caller_address_once(redeem_request.contract_address, DUMMY_ADDRESS());
-    erc721_dispatcher.transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id_1);
+    erc721_dispatcher
+        .safe_transfer_from(DUMMY_ADDRESS(), OTHER_DUMMY_ADDRESS(), id_1, array![].span());
 
     assert(erc721_dispatcher.owner_of(id_1) == OTHER_DUMMY_ADDRESS(), 'ID 1 new owner');
     assert(erc721_dispatcher.balance_of(DUMMY_ADDRESS()) == 1, 'Balance after transfer');

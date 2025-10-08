@@ -10,4 +10,8 @@ pub mod Errors {
     pub fn not_vault_owner() {
         panic!("Caller is not vault owner");
     }
+
+    pub fn not_implemented() {
+        panic!("Not implemented");
+    }
 }

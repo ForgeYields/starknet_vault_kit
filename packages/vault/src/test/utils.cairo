@@ -93,6 +93,15 @@ pub fn deploy_vault(underlying_asset: ContractAddress) -> IVaultDispatcher {
     IVaultDispatcher { contract_address: vault_allocator_address }
 }
 
+pub fn deploy_erc721_receiver_at(targetAddress: ContractAddress) -> ContractAddress {
+    let vault_erc721_receiver = declare("MockERC721Receiver").unwrap().contract_class();
+    let mut calldata = ArrayTrait::new();
+    let (vault_erc721_receiver_address, _) = vault_erc721_receiver
+        .deploy_at(@calldata, targetAddress)
+        .unwrap();
+    vault_erc721_receiver_address
+}
+
 pub fn deploy_redeem_request(vault: ContractAddress) -> IRedeemRequestDispatcher {
     let redeem_request = declare("RedeemRequest").unwrap().contract_class();
     let mut calldata = ArrayTrait::new();

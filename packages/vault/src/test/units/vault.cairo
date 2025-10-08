@@ -25,8 +25,8 @@ use vault::redeem_request::interface::{IRedeemRequestDispatcher, IRedeemRequestD
 use vault::test::utils::{
     DUMMY_ADDRESS, FEES_RECIPIENT, MANAGEMENT_FEES, MAX_DELTA, ORACLE, OTHER_DUMMY_ADDRESS, OWNER,
     PERFORMANCE_FEES, REDEEM_FEES, REPORT_DELAY, VAULT_ALLOCATOR, VAULT_NAME, VAULT_SYMBOL, between,
-    cheat_caller_address_once, deploy_counter, deploy_erc20_mock, deploy_redeem_request,
-    deploy_vault,
+    cheat_caller_address_once, deploy_counter, deploy_erc20_mock, deploy_erc721_receiver_at,
+    deploy_redeem_request, deploy_vault,
 };
 use vault::vault::interface::{IVaultDispatcher, IVaultDispatcherTrait};
 use vault::vault::vault::Vault;
@@ -41,6 +41,10 @@ fn set_up() -> (ContractAddress, IVaultDispatcher, IRedeemRequestDispatcher) {
     vault.register_redeem_request(redeem_request.contract_address);
     cheat_caller_address_once(vault.contract_address, OWNER());
     vault.register_vault_allocator(VAULT_ALLOCATOR());
+    deploy_erc721_receiver_at(DUMMY_ADDRESS());
+    deploy_erc721_receiver_at(OTHER_DUMMY_ADDRESS());
+    deploy_erc721_receiver_at(OWNER());
+
     (underlying_assets, vault, redeem_request)
 }
 

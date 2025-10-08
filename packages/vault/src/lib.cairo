@@ -28,6 +28,7 @@ pub mod redeem_request {
 
 #[cfg(test)]
 pub mod test {
+    pub mod mock_erc721_receiver;
     pub mod utils;
     pub mod units {
         pub mod redeem_request;

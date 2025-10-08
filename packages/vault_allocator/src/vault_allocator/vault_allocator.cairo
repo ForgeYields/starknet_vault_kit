@@ -5,7 +5,7 @@
 #[starknet::contract]
 pub mod VaultAllocator {
     use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::interfaces::erc721::IERC721_RECEIVER_ID;
+    use openzeppelin::interfaces::erc721::{ERC721ReceiverMixin, IERC721_RECEIVER_ID};
     use openzeppelin::interfaces::upgrades::IUpgradeable;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
@@ -64,7 +64,6 @@ pub mod VaultAllocator {
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
-    #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
     impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
@@ -102,6 +101,32 @@ pub mod VaultAllocator {
                 results.append(self.call_contract(call.to, call.selector, call.calldata));
             }
             results
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721ReceiverMixinImpl of ERC721ReceiverMixin<ContractState> {
+        fn on_erc721_received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            token_id: u256,
+            data: Span<felt252>,
+        ) -> felt252 {
+            IERC721_RECEIVER_ID
+        }
+        fn onERC721Received(
+            self: @ContractState,
+            operator: ContractAddress,
+            from: ContractAddress,
+            tokenId: u256,
+            data: Span<felt252>,
+        ) -> felt252 {
+            IERC721_RECEIVER_ID
+        }
+
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            self.src5.supports_interface(interface_id)
         }
     }
 
