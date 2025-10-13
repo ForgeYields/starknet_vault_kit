@@ -6,6 +6,7 @@ pub mod vault {
     pub mod errors;
     pub mod interface;
     pub mod vault;
+    pub mod vault_migration;
 }
 
 pub mod aum_provider {
