@@ -11,6 +11,8 @@ pub trait IVaultMigration<TContractState> {
 #[starknet::contract]
 pub mod VaultAllocatorMigration {
     use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+    use openzeppelin::interfaces::erc4626::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
     use openzeppelin::interfaces::erc721::{ERC721ReceiverMixin, IERC721_RECEIVER_ID};
     use openzeppelin::interfaces::upgrades::IUpgradeable;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -114,6 +116,8 @@ pub mod VaultAllocatorMigration {
     #[abi(embed_v0)]
     fn bring_liquidity(ref self: ContractState, vault: ContractAddress, amount: u256) {
         self.ownable.assert_only_owner();
+        let underlying_asset = ERC4626ABIDispatcher { contract_address: vault }.asset();
+        ERC20ABIDispatcher { contract_address: underlying_asset }.approve(vault, amount);
         IVaultMigrationDispatcher { contract_address: vault }.bring_liquidity(amount);
     }
 
