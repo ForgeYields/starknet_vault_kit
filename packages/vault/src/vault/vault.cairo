@@ -18,7 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════════════════════════
 
 #[starknet::contract]
-pub mod Vault {
+pub mod VaultMigration {
     use core::num::traits::{Bounded, Zero};
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::interfaces::erc20::{
@@ -441,7 +441,8 @@ pub mod Vault {
             shares: u256,
             fee: Option<Fee>,
         ) {
-            Errors::not_implemented(); // Withdrawals disabled - use request_redeem instead
+            let mut contract_state = self.get_contract_mut();
+            contract_state.pausable.assert_not_paused();
         }
 
 
@@ -455,7 +456,10 @@ pub mod Vault {
             assets: u256,
             shares: u256,
             fee: Option<Fee>,
-        ) {}
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.buffer.write(contract_state.buffer.read() - assets);
+        }
 
 
         /// Hook executed before transferring assets and minting shares during deposit
@@ -819,10 +823,10 @@ pub mod Vault {
                     Errors::vault_allocator_not_set();
                 }
                 // Deploy all remaining buffer to allocator
-                ERC20ABIDispatcher { contract_address: self.erc4626.asset() }
-                    .transfer(alloc, remaining_buffer);
-                self.aum.write(new_aum + remaining_buffer); // Update AUM to include deployed assets
-                self.buffer.write(0); // Buffer is now empty
+                // ERC20ABIDispatcher { contract_address: self.erc4626.asset() }
+                //     .transfer(alloc, remaining_buffer);
+                self.aum.write(new_aum); // Update AUM to include deployed assets
+                self.buffer.write(remaining_buffer); // Buffer is now empty
             } else {
                 self.aum.write(new_aum); // Keep buffer for pending redemptions
                 self.buffer.write(remaining_buffer);

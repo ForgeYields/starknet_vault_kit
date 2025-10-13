@@ -6,7 +6,6 @@ pub mod vault_allocator {
     pub mod errors;
     pub mod interface;
     pub mod vault_allocator;
-    pub mod vault_allocator_migration;
 }
 
 pub mod manager {

@@ -2,9 +2,17 @@
 // Copyright (c) 2025 Starknet Vault Kit
 // Licensed under the MIT License. See LICENSE file for details.
 
+#[starknet::interface]
+pub trait IVaultMigration<TContractState> {
+    fn bring_liquidity(ref self: TContractState, amount: u256);
+}
+
+
 #[starknet::contract]
-pub mod VaultAllocator {
+pub mod VaultAllocatorMigration {
     use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+    use openzeppelin::interfaces::erc4626::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
     use openzeppelin::interfaces::erc721::{ERC721ReceiverMixin, IERC721_RECEIVER_ID};
     use openzeppelin::interfaces::upgrades::IUpgradeable;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -15,6 +23,7 @@ pub mod VaultAllocator {
     use starknet::{ContractAddress, SyscallResultTrait, get_caller_address};
     use vault_allocator::vault_allocator::errors::Errors;
     use vault_allocator::vault_allocator::interface::IVaultAllocator;
+    use super::{IVaultMigrationDispatcher, IVaultMigrationDispatcherTrait};
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -102,6 +111,14 @@ pub mod VaultAllocator {
             }
             results
         }
+    }
+
+    #[abi(embed_v0)]
+    fn bring_liquidity(ref self: ContractState, vault: ContractAddress, amount: u256) {
+        self.ownable.assert_only_owner();
+        let underlying_asset = ERC4626ABIDispatcher { contract_address: vault }.asset();
+        ERC20ABIDispatcher { contract_address: underlying_asset }.approve(vault, amount);
+        IVaultMigrationDispatcher { contract_address: vault }.bring_liquidity(amount);
     }
 
     #[abi(embed_v0)]
