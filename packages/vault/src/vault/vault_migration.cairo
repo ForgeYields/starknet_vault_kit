@@ -18,7 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════════════════════════
 
 #[starknet::contract]
-pub mod Vault {
+pub mod VaultMigration {
     use core::num::traits::{Bounded, Zero};
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::interfaces::erc20::{
