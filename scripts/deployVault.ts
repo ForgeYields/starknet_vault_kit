@@ -2,7 +2,6 @@ import {
   Account,
   byteArray,
   CairoUint256,
-  CallData,
   RpcProvider,
   validateAndParseAddress,
 } from "starknet";
@@ -452,28 +451,14 @@ export async function deployManager(
     );
   }
 
-  const vesuSingleton = networkConfig.periphery?.vesuSingleton;
-  if (!vesuSingleton) {
-    throw new Error(
-      `Vesu Singleton address not found for network: ${envNetwork}.`
-    );
-  }
-
   try {
-    const constructorCalldata = CallData.compile([
-      owner.address,
-      vaultAllocatorAddress,
-      vesuSingleton,
-    ]);
-
     console.log(`Deploying Manager with constructor params:`);
     console.log(`  Owner: ${owner.address}`);
     console.log(`  Vault Allocator: ${vaultAllocatorAddress}`);
-    console.log(`  Vesu Singleton: ${vesuSingleton}`);
 
     const deployResponse = await owner.deployContract({
       classHash: classHash,
-      constructorCalldata: constructorCalldata,
+      constructorCalldata: [owner.address, vaultAllocatorAddress],
     });
 
     console.log(`Manager deployed successfully!`);
