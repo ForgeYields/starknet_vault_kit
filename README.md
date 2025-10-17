@@ -87,6 +87,133 @@ scarb build
 snforge test
 ```
 
+## Get Started as a Vault Builder
+
+This guide walks you through deploying and configuring vaults as a builder, covering both custodial and non-custodial approaches.
+
+### Step 1: Deploy Your Vault
+
+Use the deployment script to create your vault with the desired configuration:
+
+```bash
+cd scripts
+npm run deploy:vault
+```
+
+The script (`scripts/deployVault.ts`) will prompt you for:
+- **Vault Details**: Name, symbol, underlying asset address
+- **Fee Configuration**: Management, performance, and redemption fees
+- **Operational Parameters**: Report delay, max delta percentage, fees recipient
+- **Vault Type**: Choose between custodial or non-custodial
+
+#### Custodial vs Non-Custodial Vaults
+
+**Custodial Vaults:**
+- Use an existing, pre-deployed VaultAllocator
+- Suitable when you trust a third-party allocator
+- Faster deployment (vault + redeem request only)
+- Limited control over fund allocation strategies
+
+**Non-Custodial Vaults:**
+- Deploy a new VaultAllocator and Manager specific to your vault
+- Full control over fund allocation and strategy management
+- Requires additional setup for Merkle tree verification system
+- Higher security and customization capabilities
+
+### Step 2: Non-Custodial Setup (Advanced Fund Management)
+
+For non-custodial vaults, you need to set up the Merkle tree verification system for secure fund allocation:
+
+#### 2.1 Configure Allocation Strategies
+
+The VaultAllocator (`packages/vault_allocator`) provides secure fund allocation through:
+- **Manager Contract**: Merkle proof-based call verification
+- **Decoders & Sanitizers**: Pre-built integrations for protocols (AVNU, Vesu, ERC-4626)
+- **Merkle Tree Verification**: Whitelist system for allowed operations
+
+#### 2.2 Generate Merkle Tree Configuration
+
+Run the merkle tree generation script to create your allocation whitelist:
+
+```bash
+./export_merkle.sh [config_name]
+```
+
+This script:
+1. Executes test scenarios to generate valid operation leafs
+2. Creates a Merkle tree with allowed operations
+3. Outputs a JSON configuration file in `leafs/[config_name].json`
+
+The generated file contains:
+- **Metadata**: Vault, allocator, and manager addresses
+- **Leafs**: Whitelisted operations with their proofs
+- **Tree**: Complete Merkle tree structure
+
+#### 2.3 Set Management Root
+
+Configure the Manager contract with your Merkle root:
+
+```typescript
+// Using the deployed manager address from step 1
+const manager = new Contract(managerAbi, managerAddress, account);
+await manager.set_manage_root(vaultAddress, merkleRoot);
+```
+
+### Step 3: Off-Chain Integration with Curator SDK
+
+Use the Curator SDK (`sdk/src/curator/index.ts`) to generate secure calldata for vault operations:
+
+#### 3.1 Initialize the SDK
+
+```typescript
+import { VaultCuratorSDK } from './sdk/src/curator';
+
+// Load configuration from generated merkle file
+const curator = VaultCuratorSDK.fromFile('./leafs/your_config.json');
+```
+
+#### 3.2 Generate Operation Calldata
+
+The SDK provides helper methods for common operations:
+
+```typescript
+// Bring liquidity to vault
+const calls = curator.bringLiquidityHelper(true, amount); // true = with approval
+
+// Multi-step operations (approve + deposit)
+const calls = curator.depositHelper({
+  target: vaultAddress,
+  assets: depositAmount,
+  receiver: userAddress,
+  withApproval: true
+});
+
+// Advanced DeFi operations
+const calls = curator.multiRouteSwapHelper(swapParams, { withApproval: true });
+const calls = curator.ModifyPositionV1Helper(vesuParams, approvalParams);
+```
+
+#### 3.3 Execute Operations
+
+```typescript
+// Execute the generated calls
+const response = await account.execute(calls);
+```
+
+### Key Benefits
+
+- **Security**: Merkle proof verification ensures only whitelisted operations
+- **Flexibility**: Support for multiple DeFi protocols (AVNU, Vesu, ERC-4626)
+- **Efficiency**: Batch operations with automatic approval handling
+- **Auditability**: All operations are pre-defined and verifiable
+
+### Next Steps
+
+1. **Monitor**: Use the backend services for vault monitoring and analytics
+2. **Optimize**: Adjust strategies based on performance metrics
+3. **Scale**: Deploy multiple vaults with different strategies
+4. **Integrate**: Use the SDK in your applications for seamless vault management
+
 ### Scripts & Backend
 
 For deployment scripts and configuration utilities, see [scripts/README.md](scripts/README.md).
