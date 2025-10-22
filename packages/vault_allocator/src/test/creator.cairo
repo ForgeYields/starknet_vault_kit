@@ -124,10 +124,14 @@ fn _generate_merkle_tree(
         ref leafs, ref leaf_index, vault_allocator, vault_decoder_and_sanitizer, vault,
     );
 
+    println!("We are at vesu v1 leafs");
+
     // vesu V1 leafs
     _add_vesu_v1_leafs(
         ref leafs, ref leaf_index, vault_allocator, vault_decoder_and_sanitizer, vesu_v1_configs,
     );
+
+    println!("We are at vesu v2 leafs");
 
     // vesu V2 leafs
     _add_vesu_v2_leafs(
@@ -138,6 +142,8 @@ fn _generate_merkle_tree(
         vesu_v2_configs,
     );
 
+    println!("We are at erc4626 leafs");
+
     for erc4626_strategy_elem in erc4626_strategies {
         _add_erc4626_leafs(
             ref leafs,
@@ -147,6 +153,9 @@ fn _generate_merkle_tree(
             *erc4626_strategy_elem,
         )
     }
+
+    println!("We are at starknet vault kit strategies leafs");
+
     for starknet_vault_kit_strategy_elem in starknet_vault_kit_strategies {
         _add_starknet_vault_kit_strategies(
             ref leafs,
@@ -157,6 +166,8 @@ fn _generate_merkle_tree(
         )
     }
 
+    println!("We are at avnu leafs");
+
     _add_avnu_leafs(
         ref leafs,
         ref leaf_index,
@@ -165,6 +176,8 @@ fn _generate_merkle_tree(
         avnu_router_middleware,
         avnu_configs,
     );
+
+    println!("We are at extended leafs");
 
     // Extended leafs
     let extended_recipient = 0x006f28120907c8cfbcd71df2c5fb44a205989aa41c8d36c85723a54d60782cfc
@@ -183,6 +196,8 @@ fn _generate_merkle_tree(
         vault_decoder_and_sanitizer,
     );
 
+    println!("We are at starkgate withdraw leafs");
+
     // Starkgate withdraw leafs
     let l2_bridge = 0x05cd48fccbfd8aa2773fe22c217e808319ffcc1c5a6a463f7d8fa2da48218196
         .try_into()
@@ -192,9 +207,12 @@ fn _generate_merkle_tree(
         ref leafs,
         ref leaf_index,
         l2_bridge,
+        usdc_address,
         l1_recipient,
         vault_decoder_and_sanitizer,
     );
+
+    println!("We are at leafs");
 
     let leaf_used = leafs.len();
 

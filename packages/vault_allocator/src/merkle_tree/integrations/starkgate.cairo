@@ -9,12 +9,13 @@ pub fn _add_starkgate_leafs(
     ref leafs: Array<ManageLeaf>,
     ref leaf_index: u256,
     l2_bridge: ContractAddress,
+    l2_token: ContractAddress,
     l1_recipient: EthAddress,
     decoder_and_sanitizer: ContractAddress,
 ) {
     let starkgate_disp = IStarkgateABIDispatcher { contract_address: l2_bridge };
-    let l2_token = starkgate_disp.get_l2_token();
-    let l1_token = starkgate_disp.get_l1_token();
+    let l1_token = starkgate_disp.get_l1_token(l2_token);
+    let l2_token = starkgate_disp.get_l2_token(l1_token);
     leafs
         .append(
             ManageLeaf {
