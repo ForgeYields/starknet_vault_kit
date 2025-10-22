@@ -34,14 +34,6 @@ name = "SLLSE"
 url = "https://starknet-mainnet.public.blastapi.io/rpc/v0_8"
 block_id.number = "1794270"
 
-
-
-
-
-
-
-
-
 [dependencies]
 starknet.workspace = true
 openzeppelin.workspace = true
@@ -50,7 +42,6 @@ alexandria_math.workspace = true
 
 [dev-dependencies]
 snforge_std.workspace = true
-
 
 [lib]
 

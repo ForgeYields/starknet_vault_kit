@@ -17,6 +17,7 @@ pub mod manager {
 pub mod integration_interfaces {
     pub mod avnu;
     pub mod pragma;
+    pub mod starkgate;
     pub mod vesu_v1;
     pub mod vesu_v2;
 }
@@ -84,7 +85,8 @@ pub mod mocks {
 
 #[cfg(test)]
 pub mod test {
-    // pub mod creator;
+    pub mod creator;
+
     pub mod utils;
     pub mod units {
         pub mod manager;
@@ -105,6 +107,8 @@ pub mod merkle_tree {
     pub mod base;
     pub mod registery;
     pub mod integrations {
+        pub mod extended;
+        pub mod starkgate;
         pub mod avnu;
         pub mod erc4626;
         pub mod starknet_vault_kit_strategies;
