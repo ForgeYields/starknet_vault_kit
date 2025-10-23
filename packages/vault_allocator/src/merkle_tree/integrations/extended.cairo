@@ -1,9 +1,5 @@
-use openzeppelin::interfaces::erc4626::{IERC4626Dispatcher, IERC4626DispatcherTrait};
-use starknet::{ContractAddress, EthereumAddress};
-use vault_allocator::integration_interfaces::starkgate::{
-    IStarkgateABIDispatcher, IStarkgateABIDispatcherTrait,
-};
-use vault_allocator::merkle_tree::base::{ManageLeaf, get_symbol};
+use starknet::ContractAddress;
+use vault_allocator::merkle_tree::base::ManageLeaf;
 
 
 pub fn _add_extended_leafs(
