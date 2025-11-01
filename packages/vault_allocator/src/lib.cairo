@@ -16,6 +16,7 @@ pub mod manager {
 
 pub mod integration_interfaces {
     pub mod avnu;
+    pub mod paradex_gigavault;
     pub mod pragma;
     pub mod starkgate;
     pub mod vesu_v1;
@@ -36,6 +37,11 @@ pub mod periphery {
 }
 
 pub mod middlewares {
+    pub mod paradex_gigavault_middleware {
+        // pub mod errors;
+        pub mod interface;
+        pub mod paradex_gigavault_middleware;
+    }
     pub mod avnu_middleware {
         pub mod avnu_middleware;
         pub mod errors;
@@ -55,6 +61,7 @@ pub mod pods {
 pub mod decoders_and_sanitizers {
     pub mod base_decoder_and_sanitizer;
     pub mod decoder_custom_types;
+    pub mod forgeyields_paradex_decoder_and_sanitizer;
     pub mod interface;
     pub mod simple_decoder_and_sanitizer;
     pub mod vesu_v2_specific_decoder_and_sanitizer;
@@ -82,6 +89,14 @@ pub mod decoders_and_sanitizers {
     pub mod multiply_decoder_and_sanitizer {
         pub mod interface;
         pub mod multiply_decoder_and_sanitizer;
+    }
+    pub mod paradex_gigavault_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod paradex_gigavault_decoder_and_sanitizer;
+    }
+    pub mod starkgate_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod starkgate_decoder_and_sanitizer;
     }
 }
 

@@ -82,7 +82,7 @@ pub mod AssetTransferPodComponent {
             ref self: ComponentState<TContractState>, asset: ContractAddress, amount: u256,
         ) {
             self._assert_only_authorized_caller();
-            if amount == 0 {
+            if amount.is_zero() {
                 Errors::zero_amount();
             }
 

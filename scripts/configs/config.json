@@ -9,7 +9,10 @@
   },
   "paradex_testnet": {
     "hash": {
-      "VaultAllocator": "0x691ed860d19cc24b4146505a68e47f46f60713f6223c04802be0bdafabb61b3"
+      "VaultAllocator": "0x64e1ce32f32901d651878dfa4f6363024deb5c270bc4e532f77ac6c71fbbcd2",
+      "ForgeyieldsParadexDecoderAndSanitizer": "0x69fa1a453135ec4a40ef3471ba8b7475c58fba4a818a4174cdef1bf6be9c79a",
+      "ParadexGigaVaultMiddleware": "0x7088ae1b362dfdf615394f88e384ec76fb4016f76f0020d588e9da5314813",
+      "Manager": "0x474abeaa804f4dbad841fa782cef87501ee6659cd53a5c01bcf268ebae933d4"
     },
     "periphery": {}
   },
