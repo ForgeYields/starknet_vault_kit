@@ -14,13 +14,17 @@ export async function appendToEnv(name: string, address: string) {
   );
 }
 
+const chainIdToNetwork = {
+  [constants.StarknetChainId.SN_SEPOLIA]: "sepolia",
+  [constants.StarknetChainId.SN_MAIN]: "mainnet",
+  ["0x505249564154455f534e5f50415241434c4541525f4d41494e4e4554"]:
+    "paradex_prod",
+  ["0x505249564154455f534e5f504f54435f5345504f4c4941"]: "paradex_testnet",
+};
 export async function getNetworkEnv(provider: RpcProvider): Promise<string> {
   const chainIdFromRpc = await provider.getChainId();
-  if (chainIdFromRpc == constants.StarknetChainId.SN_SEPOLIA) {
-    return "sepolia";
-  }
-  if (chainIdFromRpc == constants.StarknetChainId.SN_MAIN) {
-    return "mainnet";
+  if (chainIdToNetwork[chainIdFromRpc]) {
+    return chainIdToNetwork[chainIdFromRpc];
   }
   throw new Error(`Unsupported network: ${chainIdFromRpc}`);
 }

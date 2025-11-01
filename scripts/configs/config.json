@@ -3,6 +3,16 @@
     "hash": {},
     "periphery": {}
   },
+  "paradex_prod": {
+    "hash": {},
+    "periphery": {}
+  },
+  "paradex_testnet": {
+    "hash": {
+      "VaultAllocator": "0x691ed860d19cc24b4146505a68e47f46f60713f6223c04802be0bdafabb61b3"
+    },
+    "periphery": {}
+  },
   "mainnet": {
     "hash": {
       "Vault": "0x225ca31b59b9f0e72dbbe72696aae6cf3431c68a2b993e9ecc10a62dd91ea04",

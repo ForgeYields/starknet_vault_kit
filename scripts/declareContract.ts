@@ -100,6 +100,13 @@ async function main() {
         "VesuV2SpecificDecoderAndSanitizer"
       );
       break;
+    case "ParadexGigavaultDecoderAndSanitizer":
+      await declareContract(
+        envNetwork,
+        "vault_allocator",
+        "ParadexGigavaultDecoderAndSanitizer"
+      );
+      break;
     case "AumProvider4626":
       await declareContract(envNetwork, "vault", "AumProvider4626");
       break;
