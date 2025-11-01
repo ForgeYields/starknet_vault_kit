@@ -43,6 +43,15 @@ pub mod middlewares {
     }
 }
 
+pub mod pods {
+    pub mod base_pod;
+    pub mod components {
+        pub mod asset_transfer_pod;
+        pub mod errors;
+        pub mod interface;
+    }
+}
+
 pub mod decoders_and_sanitizers {
     pub mod base_decoder_and_sanitizer;
     pub mod decoder_custom_types;
@@ -107,10 +116,10 @@ pub mod merkle_tree {
     pub mod base;
     pub mod registery;
     pub mod integrations {
-        pub mod extended;
-        pub mod starkgate;
         pub mod avnu;
         pub mod erc4626;
+        pub mod extended;
+        pub mod starkgate;
         pub mod starknet_vault_kit_strategies;
         pub mod vesu_v1;
         pub mod vesu_v2;
