@@ -47,6 +47,12 @@ pub mod middlewares {
         pub mod errors;
         pub mod interface;
     }
+
+    pub mod starkgate_middleware {
+        pub mod errors;
+        pub mod interface;
+        pub mod starkgate_middleware;
+    }
 }
 
 pub mod pods {
