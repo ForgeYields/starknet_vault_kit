@@ -15,7 +15,7 @@ pub mod StarknetVaultKitDecoderAndSanitizerComponent {
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {}
 
-    #[embeddable_as(VesuDecoderAndSanitizerImpl)]
+    #[embeddable_as(StarknetVaultKitDecoderAndSanitizerImpl)]
     impl StarknetVaultKitDecoderAndSanitizer<
         TContractState,
         +HasComponent<TContractState>,
