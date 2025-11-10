@@ -114,6 +114,13 @@ async function main() {
         "ParadexGigaVaultMiddleware"
       );
       break;
+    case "StarkgateMiddleware":
+      await declareContract(
+        envNetwork,
+        "vault_allocator",
+        "StarkgateMiddleware"
+      );
+      break;
     case "AumProvider4626":
       await declareContract(envNetwork, "vault", "AumProvider4626");
       break;
