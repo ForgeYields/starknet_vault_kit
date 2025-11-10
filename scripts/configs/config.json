@@ -27,7 +27,7 @@
       "SimpleDecoderAndSanitizer": "0x682b4af3e0a122002f0842288b028d2ed4c3844e482a01b88e002f63120a2c1",
       "AumProvider4626": "0x21aa3fcc7be5d6078d8551838e297e5e29f7e594c2f1338e3a27dbb11e127eb",
       "VesuV2SpecificDecoderAndSanitizer": "0x02da0e885beb8200e0c1e2793cd5afecd4567c41b4f19940a962d77cd0b34f29",
-      "StarkgateMiddleware": "0x79ceb09f8831dbbe8eb6e01128a0ec44ebf4554029d60bfa3ad4d1693c3cac1"
+      "StarkgateMiddleware": "0x02ba274e79e43284d2003f18d059af27d87165594e2902792eb9f5876499c3a9"
     },
     "periphery": {
       "vesuSingleton": "0x000d8d6dfec4d33bfb6895de9f3852143a17c6f92fd2a21da3d6924d34870160",

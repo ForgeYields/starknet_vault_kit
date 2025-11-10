@@ -8,6 +8,7 @@ use starknet::{ContractAddress, EthAddress};
 pub trait IStarkgateMiddleware<T> {
     fn claim_token_bridged_back(ref self: T);
     fn set_config(ref self: T, slippage: u16, period: u64, allowed_calls_per_period: u64);
+    fn set_vault_allocator(ref self: T, vault_allocator: ContractAddress);
 
     // View functions
     fn get_starkgate_token_bridge(self: @T) -> ContractAddress;

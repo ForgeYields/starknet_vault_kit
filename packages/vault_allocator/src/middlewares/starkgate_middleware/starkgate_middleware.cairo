@@ -148,6 +148,11 @@ pub mod StarkgateMiddleware {
             self._set_config(slippage, period, allowed_calls_per_period);
         }
 
+        fn set_vault_allocator(ref self: ContractState, vault_allocator: ContractAddress) {
+            self.ownable.assert_only_owner();
+            self.vault_allocator.write(vault_allocator);
+        }
+
         // View functions
         fn get_starkgate_token_bridge(self: @ContractState) -> ContractAddress {
             self.starkgate_token_bridge.read().contract_address
