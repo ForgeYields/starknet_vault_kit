@@ -50,6 +50,7 @@ pub mod StarkgateMiddleware {
         pub window_call_count: u64,
         pub token_to_bridge: ContractAddress,
         pub token_to_receive: ContractAddress,
+        pub l1_recipient: EthAddress,
         pub pending_balance: u256,
     }
 
@@ -74,6 +75,7 @@ pub mod StarkgateMiddleware {
         allowed_calls_per_period: u64,
         token_to_bridge: ContractAddress,
         token_to_receive: ContractAddress,
+        l1_recipient: EthAddress,
     ) {
         self.vault_allocator.write(vault_allocator);
         self.price_router.write(IPriceRouterDispatcher { contract_address: price_router });
@@ -83,6 +85,7 @@ pub mod StarkgateMiddleware {
             .write(IStarkgateABIDispatcher { contract_address: starkgate_token_bridge });
         self.token_to_bridge.write(token_to_bridge);
         self.token_to_receive.write(token_to_receive);
+        self.l1_recipient.write(l1_recipient);
         self._set_config(slippage, period, allowed_calls_per_period);
     }
 
@@ -101,6 +104,9 @@ pub mod StarkgateMiddleware {
             let l2_token = starkgate_token_bridge.get_l2_token(l1_token);
             if (l2_token != self.token_to_bridge.read()) {
                 Errors::invalid_l2_token(l2_token, self.token_to_bridge.read());
+            }
+            if (l1_recipient != self.l1_recipient.read()) {
+                Errors::invalid_l1_recipient(l1_recipient, self.l1_recipient.read());
             }
             ERC20ABIDispatcher { contract_address: l2_token }
                 .transfer_from(caller, get_contract_address(), amount);
@@ -135,7 +141,9 @@ pub mod StarkgateMiddleware {
             self.pending_balance.write(Zero::zero());
         }
 
-        fn set_config(ref self: ContractState, slippage: u16, period: u64, allowed_calls_per_period: u64) {
+        fn set_config(
+            ref self: ContractState, slippage: u16, period: u64, allowed_calls_per_period: u64,
+        ) {
             self.ownable.assert_only_owner();
             self._set_config(slippage, period, allowed_calls_per_period);
         }
@@ -183,6 +191,10 @@ pub mod StarkgateMiddleware {
 
         fn get_pending_balance(self: @ContractState) -> u256 {
             self.pending_balance.read()
+        }
+
+        fn get_l1_recipient(self: @ContractState) -> EthAddress {
+            self.l1_recipient.read()
         }
     }
 

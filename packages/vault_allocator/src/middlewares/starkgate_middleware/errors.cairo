@@ -3,7 +3,7 @@
 // Licensed under the MIT License. See LICENSE file for details.
 
 pub mod Errors {
-    use starknet::ContractAddress;
+    use starknet::{ContractAddress, EthAddress};
     pub fn insufficient_output(out: u256, min: u256) {
         panic!("Insufficient output: {} < {}", out, min);
     }
@@ -34,5 +34,9 @@ pub mod Errors {
 
     pub fn pending_value_not_zero() {
         panic!("Pending value is not zero");
+    }
+
+    pub fn invalid_l1_recipient(l1_recipient: EthAddress, l1_recipient_to_send: EthAddress) {
+        panic!("Invalid L1 recipient: {:?} != {:?}", l1_recipient, l1_recipient_to_send);
     }
 }

@@ -2,7 +2,7 @@
 // Copyright (c) 2025 Starknet Vault Kit
 // Licensed under the MIT License. See LICENSE file for details.
 
-use starknet::ContractAddress;
+use starknet::{ContractAddress, EthAddress};
 
 #[starknet::interface]
 pub trait IStarkgateMiddleware<T> {
@@ -21,4 +21,5 @@ pub trait IStarkgateMiddleware<T> {
     fn get_token_to_bridge(self: @T) -> ContractAddress;
     fn get_token_to_receive(self: @T) -> ContractAddress;
     fn get_pending_balance(self: @T) -> u256;
+    fn get_l1_recipient(self: @T) -> EthAddress;
 }
