@@ -95,6 +95,14 @@ export interface ClaimRedeemParams {
   id: BigNumberish;
 }
 
+export interface InitiateTokenWithdrawParams {
+  l1_token: string;
+  l1_recipient: string;
+  amount: BigNumberish;
+}
+
+export interface ClaimTokenBridgedBackParams {}
+
 export interface i257 {
   abs: BigNumberish;
   is_negative: boolean;
@@ -690,6 +698,91 @@ export class VaultCuratorSDK {
         "2", // calldata length (uint256 = 2 slots)
         idUint256.low.toString(),
         idUint256.high.toString(),
+      ],
+    };
+  }
+
+  public initiateTokenWithdraw(params: InitiateTokenWithdrawParams): Call {
+    const initiateTokenWithdrawSelector = BigInt(
+      selector.getSelectorFromName("initiate_token_withdraw")
+    ).toString();
+    const initiateTokenWithdrawLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === initiateTokenWithdrawSelector &&
+        leaf.argument_addresses.includes(params.l1_token) &&
+        leaf.argument_addresses.includes(params.l1_recipient)
+    );
+
+    if (!initiateTokenWithdrawLeaf) {
+      throw new Error(
+        "Initiate token withdraw operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      initiateTokenWithdrawLeaf.leaf_hash
+    );
+
+    const amountUint256 = uint256.bnToUint256(params.amount.toString());
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(), // proof length
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        initiateTokenWithdrawLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        initiateTokenWithdrawLeaf.target,
+        "1", // selectors array length
+        initiateTokenWithdrawLeaf.selector,
+        "1", // calldatas array length
+        "4", // calldata length (l1_token + l1_recipient + amount uint256 = 4 slots)
+        params.l1_token,
+        params.l1_recipient,
+        amountUint256.low.toString(),
+        amountUint256.high.toString(),
+      ],
+    };
+  }
+
+  public claimTokenBridgedBack(params: ClaimTokenBridgedBackParams = {}): Call {
+    const claimTokenBridgedBackSelector = BigInt(
+      selector.getSelectorFromName("claim_token_bridged_back")
+    ).toString();
+    const claimTokenBridgedBackLeaf = this.config.leafs.find(
+      (leaf) => leaf.selector === claimTokenBridgedBackSelector
+    );
+
+    if (!claimTokenBridgedBackLeaf) {
+      throw new Error(
+        "Claim token bridged back operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      claimTokenBridgedBackLeaf.leaf_hash
+    );
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(), // proof length
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        claimTokenBridgedBackLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        claimTokenBridgedBackLeaf.target,
+        "1", // selectors array length
+        claimTokenBridgedBackLeaf.selector,
+        "1", // calldatas array length
+        "0", // calldata length (no parameters)
       ],
     };
   }

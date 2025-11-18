@@ -10,6 +10,8 @@ export type {
   MintParams,
   RequestRedeemParams,
   ClaimRedeemParams,
+  InitiateTokenWithdrawParams,
+  ClaimTokenBridgedBackParams,
   VaultState,
   FeesConfig,
   ReportParams,
