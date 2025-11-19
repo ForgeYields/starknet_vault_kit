@@ -26,6 +26,14 @@ export interface ClaimRedeemParams {
   id: BigNumberish;
 }
 
+export interface InitiateTokenWithdrawParams {
+  l1_token: string;
+  l1_recipient: string;
+  amount: BigNumberish;
+}
+
+export interface ClaimTokenBridgedBackParams {}
+
 export interface VaultState {
   epoch: bigint;
   handledEpochLen: bigint;
