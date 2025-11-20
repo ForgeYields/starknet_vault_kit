@@ -127,7 +127,7 @@ pub mod StarkgateMiddleware {
                 math::Rounding::Ceil,
             );
             let token_to_receive_balance = ERC20ABIDispatcher { contract_address: token_to_receive }
-                .balance_of(get_caller_address());
+                .balance_of(get_contract_address());
             let new_value = self
                 .price_router
                 .read()
