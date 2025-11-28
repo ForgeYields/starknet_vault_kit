@@ -326,7 +326,7 @@ export class VaultCuratorSDK {
     calls.push(
       this.multiRouteSwap({
         ...params,
-        beneficiary: this.config.metadata.vault,
+        beneficiary: this.config.metadata.vault_allocator,
       })
     );
     return calls;
