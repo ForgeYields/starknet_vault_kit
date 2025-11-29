@@ -543,7 +543,11 @@ export class VaultCuratorSDK {
     const swapLeaf = this.config.leafs.find(
       (leaf) =>
         leaf.selector === multiRouteSwapSelector &&
-        leaf.target === params.target
+        leaf.target === params.target &&
+        leaf.argument_addresses.length === 3 &&
+        leaf.argument_addresses[0] === params.sell_token_address &&
+        leaf.argument_addresses[1] === params.buy_token_address &&
+        leaf.argument_addresses[2] === this.config.metadata.vault_allocator
     );
 
     if (!swapLeaf) {
@@ -572,9 +576,7 @@ export class VaultCuratorSDK {
       routesCalldata.push(route.sell_token);
       routesCalldata.push(route.buy_token);
       routesCalldata.push(route.exchange_address);
-      const percentUint256 = uint256.bnToUint256(route.percent.toString());
-      routesCalldata.push(percentUint256.low.toString());
-      routesCalldata.push(percentUint256.high.toString());
+      routesCalldata.push(route.percent.toString()); // u128 is a single felt
       routesCalldata.push(route.additional_swap_params.length.toString());
       routesCalldata.push(...route.additional_swap_params);
     }
