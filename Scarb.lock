@@ -2,10 +2,26 @@
 version = 1
 
 [[package]]
-name = "alexandria_math"
-version = "0.6.0"
+name = "alexandria_bytes"
+version = "0.6.1"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:1e08ebba0ed9f7217b8efc283d2ad41730257cf41a47ca88a94fb0fafad22e9e"
+checksum = "sha256:b1a402330fe5356ca0a4f24d2b8dd1fb0a7e2568bf35c349319cadb53f0ed6fd"
+dependencies = [
+ "alexandria_data_structures",
+ "alexandria_math",
+]
+
+[[package]]
+name = "alexandria_data_structures"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:f011951982ca26ce64c212ca5aa739bd16461dae96a4fb9a8f8e360b1c5e7b94"
+
+[[package]]
+name = "alexandria_math"
+version = "0.6.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:19160f0993a6643e8e71a3bce03e54a37f26b8cad94f21668d7cc9afd08d2047"
 
 [[package]]
 name = "openzeppelin"
@@ -172,6 +188,7 @@ dependencies = [
 name = "vault_allocator"
 version = "0.1.0"
 dependencies = [
+ "alexandria_bytes",
  "alexandria_math",
  "openzeppelin",
  "snforge_std",
