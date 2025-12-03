@@ -6,7 +6,7 @@ use alexandria_bytes::Bytes;
 use starknet::ContractAddress;
 
 #[starknet::interface]
-pub trait IHyperlaneTokenRouterDispatcher<TContractState> {
+pub trait IHyperlaneTokenRouter<TContractState> {
     fn transfer_remote(
         ref self: TContractState,
         destination: u32,

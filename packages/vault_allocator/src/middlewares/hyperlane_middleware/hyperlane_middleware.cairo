@@ -6,12 +6,11 @@
 pub mod HyperlaneMiddleware {
     const BPS_SCALE: u16 = 10_000;
     use core::num::traits::Zero;
-    use alexandria_bytes::Bytes;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
     use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
     use openzeppelin::utils::math;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_block_timestamp, get_caller_address, get_contract_address};
     use vault_allocator::integration_interfaces::hyperlane::{
         IHyperlaneTokenRouterDispatcher, IHyperlaneTokenRouterDispatcherTrait,
@@ -46,7 +45,7 @@ pub mod HyperlaneMiddleware {
         pub allowed_calls_per_period: u64,
         pub current_window_id: u64,
         pub window_call_count: u64,
-        pub pending_balance: LegacyMap<(ContractAddress, ContractAddress, u32), u256>,
+        pub pending_balance: Map<(ContractAddress, ContractAddress, u32), u256>,
     }
 
     #[event]
@@ -108,8 +107,7 @@ pub mod HyperlaneMiddleware {
             self.enforce_rate_limit(caller);
 
             // Check that pending balance is zero for this pair/domain combination
-            let key = (token_to_bridge, token_to_claim, destination_domain);
-            let current_pending = self.pending_balance.read(key);
+            let current_pending = self.pending_balance.read((token_to_bridge, token_to_claim, destination_domain));
             if (current_pending != Zero::zero()) {
                 Errors::pending_value_not_zero();
             }
@@ -122,7 +120,7 @@ pub mod HyperlaneMiddleware {
             }
 
             // Track pending balance with composite key
-            self.pending_balance.write(key, amount);
+            self.pending_balance.write((token_to_bridge, token_to_claim, destination_domain), amount);
 
             // Transfer tokens from caller to this contract
             ERC20ABIDispatcher { contract_address: token_to_bridge }
@@ -147,8 +145,7 @@ pub mod HyperlaneMiddleware {
             token_to_claim: ContractAddress,
             destination_domain: u32,
         ) {
-            let key = (token_to_bridge, token_to_claim, destination_domain);
-            let pending = self.pending_balance.read(key);
+            let pending = self.pending_balance.read((token_to_bridge, token_to_claim, destination_domain));
             if (pending == Zero::zero()) {
                 Errors::pending_balance_zero();
             }
@@ -169,12 +166,12 @@ pub mod HyperlaneMiddleware {
                 Errors::insufficient_output(new_value, min_new_value);
             }
 
-            self.pending_balance.write(key, Zero::zero());
+            self.pending_balance.write((token_to_bridge, token_to_claim, destination_domain), Zero::zero());
 
             ERC20ABIDispatcher { contract_address: token_to_claim }
                 .transfer(self.vault_allocator.read(), token_balance);
 
-            self.emit(ClaimedToken { token_to_bridge, token_to_claim, destination_domain, token_balance });
+            self.emit(ClaimedToken { token_to_bridge, token_to_claim, destination_domain, amount_claimed: token_balance });
         }
 
         fn set_config(
@@ -182,6 +179,11 @@ pub mod HyperlaneMiddleware {
         ) {
             self.ownable.assert_only_owner();
             self._set_config(slippage, period, allowed_calls_per_period);
+        }
+
+        fn set_vault_allocator(ref self: ContractState, vault_allocator: ContractAddress) {
+            self.ownable.assert_only_owner();
+            self.vault_allocator.write(vault_allocator);
         }
 
         // View functions
