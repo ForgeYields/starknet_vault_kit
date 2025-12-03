@@ -35,4 +35,8 @@ pub mod Errors {
         panic!("Insufficient output: {} < {}", out, min);
     }
 
+    pub fn claimable_value_not_zero() {
+        panic!("Claimable value is not zero");
+    }
+
 }
