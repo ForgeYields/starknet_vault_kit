@@ -114,6 +114,13 @@ pub mod HyperlaneMiddleware {
                 Errors::pending_value_not_zero();
             }
 
+            // Check that the middleware's balance of token_to_claim is zero
+            let token_to_claim_balance = ERC20ABIDispatcher { contract_address: token_to_claim }
+                .balance_of(get_contract_address());
+            if (token_to_claim_balance != Zero::zero()) {
+                Errors::claimable_value_not_zero();
+            }
+
             // Track pending balance with composite key
             self.pending_balance.write(key, amount);
 
