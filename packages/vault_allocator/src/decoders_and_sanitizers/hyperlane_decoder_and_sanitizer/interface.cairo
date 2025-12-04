@@ -13,5 +13,6 @@ pub trait IHyperlaneDecoderAndSanitizer<T> {
         destination_domain: u32,
         recipient: u256,
         amount: u256,
+        value: u256,
     ) -> Span<felt252>;
 }

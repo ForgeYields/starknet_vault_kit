@@ -1,6 +1,7 @@
 use core::to_byte_array::FormatAsByteArray;
 use starknet::ContractAddress;
 use vault_allocator::merkle_tree::base::{ManageLeaf, get_symbol};
+use vault_allocator::merkle_tree::registery::STRK;
 
 
 #[derive(PartialEq, Drop, Serde, Debug, Clone)]
@@ -39,6 +40,27 @@ pub fn _add_hyperlane_leafs(
                 ManageLeaf {
                     decoder_and_sanitizer,
                     target: token_to_bridge,
+                    selector: selector!("approve"),
+                    argument_addresses: array![middleware.into()].span(),
+                    description: "Approve"
+                        + " "
+                        + "hyperlane_middleware"
+                        + "_"
+                        + middleware_str.clone()
+                        + " "
+                        + "to spend"
+                        + " "
+                        + get_symbol(token_to_bridge),
+                },
+            );
+        leaf_index += 1;
+
+        // Approval for gas token (STRK) to the middleware
+        leafs
+            .append(
+                ManageLeaf {
+                    decoder_and_sanitizer,
+                    target: STRK(),
                     selector: selector!("approve"),
                     argument_addresses: array![middleware.into()].span(),
                     description: "Approve"
