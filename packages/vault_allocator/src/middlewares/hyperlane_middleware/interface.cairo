@@ -13,6 +13,7 @@ pub trait IHyperlaneMiddleware<T> {
         destination_domain: u32,
         recipient: u256,
         amount: u256,
+        value: u256,
     ) -> u256;
     fn claim_token(
         ref self: T,
