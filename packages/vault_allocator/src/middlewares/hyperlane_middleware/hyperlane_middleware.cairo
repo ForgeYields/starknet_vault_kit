@@ -5,7 +5,6 @@
 #[starknet::contract]
 pub mod HyperlaneMiddleware {
     const BPS_SCALE: u16 = 10_000;
-    const GAS_TOKEN: ContractAddress = 0x04718f5a0Fc34cC1AF16A1cdee98fFB20C31f5cD61D6Ab07201858f4287c938D.try_into().unwrap();
     use core::num::traits::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
@@ -16,6 +15,7 @@ pub mod HyperlaneMiddleware {
     use vault_allocator::integration_interfaces::hyperlane::{
         IHyperlaneTokenRouterDispatcher, IHyperlaneTokenRouterDispatcherTrait,
     };
+    use vault_allocator::merkle_tree::registery::STRK;
     use vault_allocator::middlewares::hyperlane_middleware::errors::Errors;
     use vault_allocator::middlewares::hyperlane_middleware::interface::IHyperlaneMiddleware;
     use vault_allocator::periphery::price_router::interface::{
@@ -124,12 +124,12 @@ pub mod HyperlaneMiddleware {
             // Track pending balance
             self.pending_balance.write((token_to_bridge, token_to_claim, destination_domain), amount);
 
-            // Transfer GAS_TOKEN from caller to this contract
-            ERC20ABIDispatcher { contract_address: GAS_TOKEN }
+            // Transfer STRK from caller to this contract for bridge fees
+            ERC20ABIDispatcher { contract_address: STRK() }
                 .transfer_from(caller, get_contract_address(), value);
 
-            // Approve token_to_bridge contract to pull GAS_TOKEN to bridge
-            ERC20ABIDispatcher { contract_address: GAS_TOKEN }
+            // Approve token_to_bridge contract to pull STRK to bridge
+            ERC20ABIDispatcher { contract_address: STRK() }
                 .approve(token_to_bridge, value);
 
             // Transfer token_to_bridge from caller to this contract

@@ -25,12 +25,15 @@ pub mod HyperlaneDecoderAndSanitizerComponent {
             destination_domain: u32,
             recipient: u256,
             amount: u256,
+            value: u256,
         ) -> Span<felt252> {
             let mut serialized_struct: Array<felt252> = ArrayTrait::new();
             token_to_bridge.serialize(ref serialized_struct);
             token_to_claim.serialize(ref serialized_struct);
             destination_domain.serialize(ref serialized_struct);
             recipient.serialize(ref serialized_struct);
+            amount.serialize(ref serialized_struct);
+            value.serialize(ref serialized_struct);
             serialized_struct.span()
         }
     }
