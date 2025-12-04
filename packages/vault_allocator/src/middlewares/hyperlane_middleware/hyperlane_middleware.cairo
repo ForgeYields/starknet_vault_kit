@@ -5,6 +5,7 @@
 #[starknet::contract]
 pub mod HyperlaneMiddleware {
     const BPS_SCALE: u16 = 10_000;
+    const GAS_TOKEN: ContractAddress = 0x04718f5a0Fc34cC1AF16A1cdee98fFB20C31f5cD61D6Ab07201858f4287c938D.try_into().unwrap();
     use core::num::traits::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
@@ -102,6 +103,7 @@ pub mod HyperlaneMiddleware {
             destination_domain: u32,
             recipient: u256,
             amount: u256,
+            value: u256,
         ) -> u256 {
             let caller = get_caller_address();
             self.enforce_rate_limit(caller);
@@ -119,20 +121,28 @@ pub mod HyperlaneMiddleware {
                 Errors::claimable_value_not_zero();
             }
 
-            // Track pending balance with composite key
+            // Track pending balance
             self.pending_balance.write((token_to_bridge, token_to_claim, destination_domain), amount);
 
-            // Transfer tokens from caller to this contract
+            // Transfer GAS_TOKEN from caller to this contract
+            ERC20ABIDispatcher { contract_address: GAS_TOKEN }
+                .transfer_from(caller, get_contract_address(), value);
+
+            // Approve token_to_bridge contract to pull GAS_TOKEN to bridge
+            ERC20ABIDispatcher { contract_address: GAS_TOKEN }
+                .approve(token_to_bridge, value);
+
+            // Transfer token_to_bridge from caller to this contract
             ERC20ABIDispatcher { contract_address: token_to_bridge }
                 .transfer_from(caller, get_contract_address(), amount);
 
-            // Approve the token contract (itself implementing transfer_remote) to pull tokens from this middleware
+            // Approve token_to_bridge contract to pull token_to_bridge to bridge
             ERC20ABIDispatcher { contract_address: token_to_bridge }
                 .approve(token_to_bridge, amount);
 
             // Call transfer_remote on the token contract directly
             let message_id = IHyperlaneTokenRouterDispatcher { contract_address: token_to_bridge }
-                .transfer_remote(destination_domain, recipient, amount, Option::None, Option::None);
+                .transfer_remote(destination_domain, recipient, amount, value, Option::None, Option::None);
 
             self.emit(BridgeInitiated { token_to_bridge, token_to_claim, destination_domain, recipient, amount, message_id });
 
