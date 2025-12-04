@@ -150,6 +150,7 @@ pub mod merkle_tree {
         pub mod avnu;
         pub mod erc4626;
         pub mod extended;
+        pub mod hyperlane;
         pub mod starkgate;
         pub mod starknet_vault_kit_strategies;
         pub mod vesu_v1;
