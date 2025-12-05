@@ -32,6 +32,7 @@ openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts" }
 snforge_std = "0.48.1"
 alexandria_math = "0.6.0"
 alexandria_bytes = "0.6.0"
+ekubo = { git = "https://github.com/ekuboprotocol/starknet-contracts" }
 
 
 [dependencies]

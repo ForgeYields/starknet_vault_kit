@@ -15,13 +15,24 @@ fmt.workspace = true
 
 [[tool.snforge.fork]]
 name = "MAINNET"
-url = "https://starknet-mainnet.public.blastapi.io/rpc/v0_8"
+url = "https://rpc.starknet.lava.build"
 block_id.tag = "latest"
 
 [[tool.snforge.fork]]
 name = "AVNU"
-url = "https://starknet-mainnet.public.blastapi.io/rpc/v0_8"
+url = "https://rpc.starknet.lava.build"
 block_id.number = "1781028"
+
+
+[[tool.snforge.fork]]
+name = "EKUBO"
+url = "https://rpc.starknet.lava.build"
+block_id.number = "4077824"
+
+
+
+
+
 
 
 [[tool.snforge.fork]]
@@ -39,6 +50,7 @@ starknet.workspace = true
 openzeppelin.workspace = true
 alexandria_math.workspace = true
 alexandria_bytes.workspace = true
+ekubo.workspace = true
 
 
 [dev-dependencies]

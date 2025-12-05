@@ -5,6 +5,8 @@
 use openzeppelin::merkle_tree::hashes::PedersenCHasher;
 use snforge_std::{CheatSpan, ContractClassTrait, DeclareResultTrait, cheat_caller_address, declare};
 use starknet::{ClassHash, ContractAddress};
+use vault_allocator::adapters::ekubo_adapter::interface::IEkuboAdapterDispatcher;
+use vault_allocator::integration_interfaces::ekubo::{Bounds, PoolKey};
 use vault_allocator::manager::interface::IManagerDispatcher;
 use vault_allocator::merkle_tree::registery::{
     DAI, DAI_PRAGMA_ID, ETH, ETH_PRAGMA_ID, PRAGMA, STRK, STRK_PRAGMA_ID, USDC, USDC_PRAGMA_ID,
@@ -16,6 +18,7 @@ use vault_allocator::periphery::price_router::interface::{
     IPriceRouterDispatcher, IPriceRouterDispatcherTrait,
 };
 use vault_allocator::vault_allocator::interface::IVaultAllocatorDispatcher;
+
 pub const WAD: u256 = 1_000_000_000_000_000_000;
 pub const INITIAL_SLIPPAGE_BPS: u256 = 100; // 1%
 
@@ -43,6 +46,28 @@ pub fn deploy_vault_allocator() -> IVaultAllocatorDispatcher {
     OWNER().serialize(ref calldata);
     let (vault_allocator_address, _) = vault_allocator.deploy(@calldata).unwrap();
     IVaultAllocatorDispatcher { contract_address: vault_allocator_address }
+}
+
+pub fn deploy_ekubo_adapter(
+    owner: ContractAddress,
+    vault_allocator: ContractAddress,
+    ekubo_positions_contract: ContractAddress,
+    bounds_settings: Bounds,
+    pool_key: PoolKey,
+    ekubo_positions_nft: ContractAddress,
+    ekubo_core: ContractAddress,
+) -> IEkuboAdapterDispatcher {
+    let ekubo_adapter = declare("EkuboAdapter").unwrap().contract_class();
+    let mut calldata = ArrayTrait::new();
+    owner.serialize(ref calldata);
+    vault_allocator.serialize(ref calldata);
+    ekubo_positions_contract.serialize(ref calldata);
+    bounds_settings.serialize(ref calldata);
+    pool_key.serialize(ref calldata);
+    ekubo_positions_nft.serialize(ref calldata);
+    ekubo_core.serialize(ref calldata);
+    let (ekubo_adapter_address, _) = ekubo_adapter.deploy(@calldata).unwrap();
+    IEkuboAdapterDispatcher { contract_address: ekubo_adapter_address }
 }
 
 pub fn deploy_manager(vault_allocator: IVaultAllocatorDispatcher) -> IManagerDispatcher {

@@ -16,6 +16,7 @@ pub mod manager {
 
 pub mod integration_interfaces {
     pub mod avnu;
+    pub mod ekubo;
     pub mod hyperlane;
     pub mod paradex_gigavault;
     pub mod pragma;
@@ -56,10 +57,19 @@ pub mod middlewares {
     }
     pub mod hyperlane_middleware {
         pub mod errors;
-        pub mod interface;
         pub mod hyperlane_middleware;
+        pub mod interface;
     }
 }
+
+pub mod adapters {
+    pub mod ekubo_adapter {
+        pub mod ekubo_adapter;
+        pub mod errors;
+        pub mod interface;
+    }
+}
+
 
 pub mod pods {
     pub mod base_pod;
@@ -111,8 +121,12 @@ pub mod decoders_and_sanitizers {
         pub mod starkgate_decoder_and_sanitizer;
     }
     pub mod hyperlane_decoder_and_sanitizer {
-        pub mod interface;
         pub mod hyperlane_decoder_and_sanitizer;
+        pub mod interface;
+    }
+    pub mod ekubo_adapter_decoder_and_sanitizer {
+        pub mod ekubo_adapter_decoder_and_sanitizer;
+        pub mod interface;
     }
 }
 
@@ -140,6 +154,10 @@ pub mod test {
     pub mod scenarios {
         pub mod stable_carry_loop;
     }
+
+    pub mod adapters {
+        pub mod ekubo_adapter;
+    }
 }
 
 
@@ -148,6 +166,7 @@ pub mod merkle_tree {
     pub mod registery;
     pub mod integrations {
         pub mod avnu;
+        pub mod ekubo_adapter;
         pub mod erc4626;
         pub mod extended;
         pub mod hyperlane;
