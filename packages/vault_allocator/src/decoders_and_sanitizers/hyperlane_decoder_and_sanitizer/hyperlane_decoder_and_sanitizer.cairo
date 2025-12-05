@@ -32,8 +32,6 @@ pub mod HyperlaneDecoderAndSanitizerComponent {
             token_to_claim.serialize(ref serialized_struct);
             destination_domain.serialize(ref serialized_struct);
             recipient.serialize(ref serialized_struct);
-            amount.serialize(ref serialized_struct);
-            value.serialize(ref serialized_struct);
             serialized_struct.span()
         }
     }

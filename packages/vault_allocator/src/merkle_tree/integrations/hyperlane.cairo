@@ -10,14 +10,13 @@ pub struct HyperlaneConfig {
     pub token_to_bridge: ContractAddress,
     pub token_to_claim: ContractAddress,
     pub destination_domain: u32,
-    pub recipient: ContractAddress,
+    pub recipient: u256,
 }
 
 
 pub fn _add_hyperlane_leafs(
     ref leafs: Array<ManageLeaf>,
     ref leaf_index: u256,
-    vault_allocator: ContractAddress,
     decoder_and_sanitizer: ContractAddress,
     hyperlane_configs: Span<HyperlaneConfig>,
 ) {
@@ -71,7 +70,7 @@ pub fn _add_hyperlane_leafs(
                         + " "
                         + "to spend"
                         + " "
-                        + get_symbol(token_to_bridge),
+                        + get_symbol(STRK()),
                 },
             );
         leaf_index += 1;
@@ -92,9 +91,8 @@ pub fn _add_hyperlane_leafs(
         recipient.serialize(ref argument_addresses_bridge);
 
         // Format addresses for description
-        let recipient_felt: felt252 = recipient.into();
         let recipient_str: ByteArray = FormatAsByteArray::format_as_byte_array(
-            @recipient_felt, 16,
+            @recipient, 16,
         );
         let domain_felt: felt252 = destination_domain.into();
         let domain_str: ByteArray = FormatAsByteArray::format_as_byte_array(@domain_felt, 16);
