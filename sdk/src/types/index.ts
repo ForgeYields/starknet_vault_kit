@@ -26,13 +26,28 @@ export interface ClaimRedeemParams {
   id: BigNumberish;
 }
 
-export interface InitiateTokenWithdrawParams {
+export interface BridgeTokenStarkgateParams {
   l1_token: string;
   l1_recipient: string;
   amount: BigNumberish;
 }
 
-export interface ClaimTokenBridgedBackParams {}
+export interface ClaimTokenStarkgateParams {}
+
+export interface BridgeTokenHyperlaneParams {
+  source_token: string;
+  destination_token: string;
+  amount: BigNumberish;
+  destination_domain: BigNumberish;
+  recipient: string;
+  strk_fee: BigNumberish;
+}
+
+export interface ClaimTokenHyperlaneParams {
+  token_to_bridge: string;
+  token_to_claim: string;
+  destination_domain: BigNumberish;
+}
 
 export interface VaultState {
   epoch: bigint;
