@@ -21,7 +21,8 @@
     "deploy:contract": "tsx deployContract.ts --contract",
     "deploy:vault": "tsx deployVault.ts",
     "vault:config": "tsx vaultConfig.ts",
-    "manager:config": "tsx managerConfig.ts"
+    "manager:config": "tsx managerConfig.ts",
+    "export:merkle": "tsx exportMerkle.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
