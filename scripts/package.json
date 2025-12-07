@@ -26,9 +26,10 @@
     "export:merkle": "tsx exportMerkle.ts"
   },
   "dependencies": {
+    "@ekubo/starknet-sdk": "^0.0.7",
+    "decimal.js": "^10.6.0",
     "dotenv": "^16.4.5",
-    "starknet": "7.6.4",
-    "decimal.js": "^10.2.1"
+    "starknet": "7.6.4"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",

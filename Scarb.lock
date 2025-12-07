@@ -24,6 +24,11 @@ source = "registry+https://scarbs.xyz/"
 checksum = "sha256:19160f0993a6643e8e71a3bce03e54a37f26b8cad94f21668d7cc9afd08d2047"
 
 [[package]]
+name = "ekubo"
+version = "0.1.0"
+source = "git+https://github.com/ekuboprotocol/starknet-contracts#cf2e95fd124bfb19491e1a7da9ffba4b63cc6c4e"
+
+[[package]]
 name = "openzeppelin"
 version = "3.0.0-alpha.1"
 source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
@@ -190,6 +195,7 @@ version = "0.1.0"
 dependencies = [
  "alexandria_bytes",
  "alexandria_math",
+ "ekubo",
  "openzeppelin",
  "snforge_std",
 ]
