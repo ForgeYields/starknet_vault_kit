@@ -13,7 +13,8 @@
  * - AVNU Ekubo Adapter: https://github.com/avnu-labs/avnu-contracts-v2/blob/48f22111c804f01c91131589f0b2c54f3a06b91b/src/adapters/ekubo_adapter.cairo#L103 
  */
 
-import { VaultCuratorSDK, VaultConfigData } from "../src/curator";
+import { VaultCuratorSDK, CalldataBuilder } from "../src";
+import { VaultConfigData } from "../src/curator";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -140,10 +141,10 @@ try {
             "0x5dd3d2f4429af886cd1a3b08289dbcea99a294197e9eb43b0e0325b4b", // Ekubo
           percent: "1000000000000", // 100% in 10**10 scale
           additional_swap_params: [
-            "1019618441185390768002816881958434916696817654219012887383733914098652499223", // token0 (sUSN)
-            "859269918549784330651726249330358515254775157189780347707111618370103808859", // token1 (USN)
-            "0x20c49ba5e353f80000000000000000", // fee
-            "0x3e8", // tick spacing
+            "859269918549784330651726249330358515254775157189780347707111618370103808859", // token0 (USN)
+            "1019618441185390768002816881958434916696817654219012887383733914098652499223", // token1 (sUSN)
+            "0x68db8bac710cb4000000000000000", // fee
+            "0xc8", // tick spacing
             "0x0", // extension
             "0x7ffffe04076bda2ab79a947f13420124fa58c8f7b6ffbc94", // sqrt ratio distance
           ],
@@ -182,6 +183,17 @@ try {
   console.log(JSON.stringify(example2Calls[0], null, 2));
   console.log("\n📋 Full call data (Call 1 - Swap with 2 routes):");
   console.log(JSON.stringify(example2Calls[1], null, 2));
+
+  // ============================================================================
+  // Demonstrate Explorer Formatter
+  // ============================================================================
+  console.log("\n\n3️⃣ Explorer-Ready Calldata Format");
+  console.log("=" .repeat(60));
+  console.log("Use CalldataBuilder.formatCalldataForExplorer() to format calldata");
+  console.log("for pasting into block explorers like Voyager or Starkscan.\n");
+
+  console.log("Example 1 - Call 1 (Swap) formatted for explorer:\n");
+  console.log(CalldataBuilder.formatCalldataForExplorer(example2Calls[1].calldata as string[]));
 
   console.log("\n🎉 Examples completed! Use the generated Call objects for transaction execution.");
 } catch (error) {

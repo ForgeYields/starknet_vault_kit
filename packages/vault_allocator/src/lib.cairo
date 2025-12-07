@@ -16,6 +16,7 @@ pub mod manager {
 
 pub mod integration_interfaces {
     pub mod avnu;
+    pub mod hyperlane;
     pub mod paradex_gigavault;
     pub mod pragma;
     pub mod starkgate;
@@ -52,6 +53,11 @@ pub mod middlewares {
         pub mod errors;
         pub mod interface;
         pub mod starkgate_middleware;
+    }
+    pub mod hyperlane_middleware {
+        pub mod errors;
+        pub mod interface;
+        pub mod hyperlane_middleware;
     }
 }
 
@@ -104,6 +110,10 @@ pub mod decoders_and_sanitizers {
         pub mod interface;
         pub mod starkgate_decoder_and_sanitizer;
     }
+    pub mod hyperlane_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod hyperlane_decoder_and_sanitizer;
+    }
 }
 
 pub mod mocks {
@@ -140,6 +150,7 @@ pub mod merkle_tree {
         pub mod avnu;
         pub mod erc4626;
         pub mod extended;
+        pub mod hyperlane;
         pub mod starkgate;
         pub mod starknet_vault_kit_strategies;
         pub mod vesu_v1;

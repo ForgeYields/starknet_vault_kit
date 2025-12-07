@@ -223,4 +223,34 @@ export class CalldataBuilder {
       calldata,
     };
   }
+
+  /**
+   * Format calldata array for block explorer (Voyager, Starkscan, etc.)
+   * Converts all values to hex format with one value per line, no commas or quotes
+   *
+   * @param calldata - Array of calldata values (can be strings, numbers, or BigNumberish)
+   * @returns Formatted string ready to paste into explorer
+   *
+   * @example
+   * const calldata = ["1", "255", "0x123"];
+   * const formatted = CalldataBuilder.formatCalldataForExplorer(calldata);
+   * // Returns:
+   * // 0x1
+   * // 0xff
+   * // 0x123
+   */
+  static formatCalldataForExplorer(calldata: (string | number | BigNumberish)[]): string {
+    return calldata
+      .map((item) => {
+        try {
+          // Convert to BigInt and then to hex
+          const num = BigInt(item.toString());
+          return '0x' + num.toString(16);
+        } catch {
+          // If conversion fails, return as-is
+          return item.toString();
+        }
+      })
+      .join('\n');
+  }
 }

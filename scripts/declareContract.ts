@@ -121,6 +121,13 @@ async function main() {
         "StarkgateMiddleware"
       );
       break;
+    case "HyperlaneMiddleware":
+      await declareContract(
+        envNetwork,
+        "vault_allocator",
+        "HyperlaneMiddleware"
+      );
+      break;
     case "AumProvider4626":
       await declareContract(envNetwork, "vault", "AumProvider4626");
       break;

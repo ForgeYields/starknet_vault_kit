@@ -16,6 +16,7 @@
     "declare:vesu-v2-specific-decoder-sanitizer": "tsx declareContract.ts --contract VesuV2SpecificDecoderAndSanitizer",
     "declare:forgeyields-paradex-decoder-sanitizer": "tsx declareContract.ts --contract ForgeyieldsParadexDecoderAndSanitizer",
     "declare:starkgate-middleware": "tsx declareContract.ts --contract StarkgateMiddleware",
+    "declare:hyperlane-middleware": "tsx declareContract.ts --contract HyperlaneMiddleware",
     "declare:paradex-gigavault-middleware": "tsx declareContract.ts --contract ParadexGigaVaultMiddleware",
     "declare:aum-provider-4626": "tsx declareContract.ts --contract AumProvider4626",
     "deploy:contract": "tsx deployContract.ts --contract",
