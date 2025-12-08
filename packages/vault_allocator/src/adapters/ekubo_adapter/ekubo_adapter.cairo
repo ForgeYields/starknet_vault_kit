@@ -10,12 +10,15 @@ pub mod EkuboAdapter {
     use ekubo::types::position::Position;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
+    use openzeppelin::interfaces::ownable::{IOwnableDispatcher, IOwnableDispatcherTrait};
     use openzeppelin::interfaces::upgrades::IUpgradeable;
     use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
     use vault_allocator::adapters::ekubo_adapter::errors::Errors;
-    use vault_allocator::adapters::ekubo_adapter::interface::IEkuboAdapter;
+    use vault_allocator::adapters::ekubo_adapter::interface::{
+        IEkuboAdapter, IRewardContractDispatcher, IRewardContractDispatcherTrait,
+    };
     use vault_allocator::integration_interfaces::ekubo::{
         Bounds, IEkuboCoreDispatcher, IEkuboCoreDispatcherTrait, IEkuboDispatcher,
         IEkuboDispatcherTrait, IEkuboNFTDispatcher, IEkuboNFTDispatcherTrait,
@@ -59,7 +62,6 @@ pub mod EkuboAdapter {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        owner: ContractAddress,
         vault_allocator: ContractAddress,
         ekubo_positions_contract: ContractAddress,
         bounds_settings: Bounds,
@@ -67,6 +69,7 @@ pub mod EkuboAdapter {
         ekubo_positions_nft: ContractAddress,
         ekubo_core: ContractAddress,
     ) {
+        let owner = IOwnableDispatcher { contract_address: vault_allocator }.owner();
         self.ownable.initializer(owner);
         self.vault_allocator.write(vault_allocator);
         self
@@ -240,6 +243,7 @@ pub mod EkuboAdapter {
         }
 
         fn collect_fees(ref self: ContractState) {
+            let vault_allocator = self._only_vault_allocator();
             let nft_id = self.contract_nft_id.read();
             if (nft_id.is_non_zero()) {
                 let pool_key = self.pool_key.read();
@@ -251,9 +255,9 @@ pub mod EkuboAdapter {
                     .read()
                     .collect_fees(nft_id, pool_key, bounds);
                 ERC20ABIDispatcher { contract_address: token0 }
-                    .transfer(self.vault_allocator.read(), fee0.into());
+                    .transfer(vault_allocator, fee0.into());
                 ERC20ABIDispatcher { contract_address: token1 }
-                    .transfer(self.vault_allocator.read(), fee1.into());
+                    .transfer(vault_allocator, fee1.into());
             }
         }
 
@@ -283,6 +287,20 @@ pub mod EkuboAdapter {
                 Errors::position_exists();
             }
             self.bounds_settings.write(bounds);
+        }
+
+        fn harvest(
+            ref self: ContractState,
+            reward_contract: ContractAddress,
+            amount: u128,
+            proof: Span<felt252>,
+            reward_token: ContractAddress,
+        ) {
+            let vault_allocator = self._only_vault_allocator();
+            IRewardContractDispatcher { contract_address: reward_contract }.claim(amount, proof);
+            let token_dispatcher = ERC20ABIDispatcher { contract_address: reward_token };
+            let balance = token_dispatcher.balance_of(starknet::get_contract_address());
+            token_dispatcher.transfer(vault_allocator, balance);
         }
     }
 

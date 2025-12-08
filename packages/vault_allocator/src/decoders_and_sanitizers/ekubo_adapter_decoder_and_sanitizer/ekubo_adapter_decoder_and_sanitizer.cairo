@@ -4,8 +4,8 @@
 
 #[starknet::component]
 pub mod EkuboAdapterDecoderAndSanitizerComponent {
+    use starknet::ContractAddress;
     use vault_allocator::decoders_and_sanitizers::ekubo_adapter_decoder_and_sanitizer::interface::IEkuboAdapterDecoderAndSanitizer;
-
     #[storage]
     pub struct Storage {}
 
@@ -38,6 +38,17 @@ pub mod EkuboAdapterDecoderAndSanitizerComponent {
 
         fn collect_fees(self: @ComponentState<TContractState>) -> Span<felt252> {
             // No addresses to sanitize - no parameters
+            let serialized_struct: Array<felt252> = ArrayTrait::new();
+            serialized_struct.span()
+        }
+
+        fn harvest(
+            self: @ComponentState<TContractState>,
+            reward_contract: ContractAddress,
+            amount: u128,
+            proof: Span<felt252>,
+            reward_token: ContractAddress,
+        ) -> Span<felt252> {
             let serialized_struct: Array<felt252> = ArrayTrait::new();
             serialized_struct.span()
         }

@@ -107,6 +107,13 @@ async function main() {
         "ForgeyieldsParadexDecoderAndSanitizer"
       );
       break;
+    case "FyWBTCDecoderAndSanitizer":
+      await declareContract(
+        envNetwork,
+        "vault_allocator",
+        "FyWBTCDecoderAndSanitizer"
+      );
+      break;
     case "ParadexGigaVaultMiddleware":
       await declareContract(
         envNetwork,
@@ -127,6 +134,9 @@ async function main() {
         "vault_allocator",
         "HyperlaneMiddleware"
       );
+      break;
+    case "EkuboAdapter":
+      await declareContract(envNetwork, "vault_allocator", "EkuboAdapter");
       break;
     case "AumProvider4626":
       await declareContract(envNetwork, "vault", "AumProvider4626");

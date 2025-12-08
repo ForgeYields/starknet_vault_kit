@@ -21,19 +21,22 @@
       "Vault": "0x225ca31b59b9f0e72dbbe72696aae6cf3431c68a2b993e9ecc10a62dd91ea04",
       "VaultAllocator": "0x4d838ecc1ef60da3461c1687bee3ce175a5d5c8f6f3bd645d70ef5efe86eb1f",
       "RedeemRequest": "0x6dff890f7d5976a343b111f5c275cccd5838498221d199558a1c46799d072cc",
-      "AvnuMiddleware": "0x061991d4c071181b102b97df406d2804c08c63d443cb011552fa4a93947de8e9",
+      "AvnuMiddleware": "0x26bf0fe3999a1944b38b4e8bdc1e64745b130e0d3d72fa4ccecefa616694942",
       "Manager": "0x23a91c52488034095902965133a91f4a271ba00e9cdf2c2f944965e28876c67",
       "PriceRouter": "0x0388513a8239b53c9dba7a19049e9159f73a9d196dcb10745489bdc7d65839e5",
       "SimpleDecoderAndSanitizer": "0x45cfd32b5555ba4665fe4dca3602bf88d7780a58f7a5dfe57ccb935b7cd2627",
       "AumProvider4626": "0x21aa3fcc7be5d6078d8551838e297e5e29f7e594c2f1338e3a27dbb11e127eb",
       "VesuV2SpecificDecoderAndSanitizer": "0x02da0e885beb8200e0c1e2793cd5afecd4567c41b4f19940a962d77cd0b34f29",
       "StarkgateMiddleware": "0x02ba274e79e43284d2003f18d059af27d87165594e2902792eb9f5876499c3a9",
-      "HyperlaneMiddleware": "0x4ed2b0b657e9894ef31c0cc2db747270290cdb8983e87caf8dd9f458ba5bab2"
+      "HyperlaneMiddleware": "0x4ed2b0b657e9894ef31c0cc2db747270290cdb8983e87caf8dd9f458ba5bab2",
+      "EkuboAdapter": "0x75c861c32455c2fa050217d0013b580824a3bbf3a2f8ceb6e37a1994cabba2a",
+      "FyWBTCDecoderAndSanitizer": "0x4fb068466b09959bfd9f67b36102f6bd996aef8d4fa5cffc8e80b30594c7f11"
     },
     "periphery": {
       "vesuSingleton": "0x000d8d6dfec4d33bfb6895de9f3852143a17c6f92fd2a21da3d6924d34870160",
       "avnuRouter": "0x04270219d365d6b017231b52e92b3fb5d7c8378b05e9abc97724537a80e93b0f",
-      "pragma": "0x02a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b"
+      "pragma": "0x02a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b",
+      "priceRouter": "0x0566440457a0c6189C5dCBb661bD8F9A09961c78bFb50F6648977e9ca5972619"
     }
   }
 }

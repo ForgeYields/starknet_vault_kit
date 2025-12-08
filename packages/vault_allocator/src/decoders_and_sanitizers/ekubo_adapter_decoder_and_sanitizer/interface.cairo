@@ -2,6 +2,8 @@
 // Copyright (c) 2025 Starknet Vault Kit
 // Licensed under the MIT License. See LICENSE file for details.
 
+use starknet::ContractAddress;
+
 #[starknet::interface]
 pub trait IEkuboAdapterDecoderAndSanitizer<T> {
     fn deposit_liquidity(self: @T, amount0: u256, amount1: u256) -> Span<felt252>;
@@ -9,4 +11,11 @@ pub trait IEkuboAdapterDecoderAndSanitizer<T> {
         self: @T, ratioWad: u256, min_token0: u128, min_token1: u128,
     ) -> Span<felt252>;
     fn collect_fees(self: @T) -> Span<felt252>;
+    fn harvest(
+        self: @T,
+        reward_contract: ContractAddress,
+        amount: u128,
+        proof: Span<felt252>,
+        reward_token: ContractAddress,
+    ) -> Span<felt252>;
 }
