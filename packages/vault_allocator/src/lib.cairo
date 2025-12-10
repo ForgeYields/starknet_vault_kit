@@ -16,6 +16,7 @@ pub mod manager {
 
 pub mod integration_interfaces {
     pub mod avnu;
+    pub mod cctp;
     pub mod ekubo;
     pub mod hyperlane;
     pub mod paradex_gigavault;
@@ -40,7 +41,6 @@ pub mod periphery {
 
 pub mod middlewares {
     pub mod paradex_gigavault_middleware {
-        // pub mod errors;
         pub mod interface;
         pub mod paradex_gigavault_middleware;
     }
@@ -58,6 +58,11 @@ pub mod middlewares {
     pub mod hyperlane_middleware {
         pub mod errors;
         pub mod hyperlane_middleware;
+        pub mod interface;
+    }
+    pub mod cctp_middleware {
+        pub mod cctp_middleware;
+        pub mod errors;
         pub mod interface;
     }
 }
@@ -125,6 +130,14 @@ pub mod decoders_and_sanitizers {
         pub mod hyperlane_decoder_and_sanitizer;
         pub mod interface;
     }
+    pub mod cctp_decoder_and_sanitizer {
+        pub mod cctp_decoder_and_sanitizer;
+        pub mod interface;
+    }
+    pub mod cctp_middleware_decoder_and_sanitizer {
+        pub mod cctp_middleware_decoder_and_sanitizer;
+        pub mod interface;
+    }
     pub mod ekubo_adapter_decoder_and_sanitizer {
         pub mod ekubo_adapter_decoder_and_sanitizer;
         pub mod interface;
@@ -174,6 +187,7 @@ pub mod merkle_tree {
     pub mod registery;
     pub mod integrations {
         pub mod avnu;
+        pub mod cctp;
         pub mod ekubo_adapter;
         pub mod erc4626;
         pub mod extended;
