@@ -69,10 +69,10 @@ fn test_creator() {
     avnu_configs
         .append(
             AvnuConfig {
-                sell_token: 0x0593e034DdA23eea82d2bA9a30960ED42CF4A01502Cc2351Dc9B9881F9931a68
+                sell_token: 0x03Fe2b97C1Fd336E750087D68B9b867997Fd64a2661fF3ca5A7C771641e8e7AC
                     .try_into()
                     .unwrap(),
-                buy_token: 0x03Fe2b97C1Fd336E750087D68B9b867997Fd64a2661fF3ca5A7C771641e8e7AC
+                buy_token: 0x0593e034DdA23eea82d2bA9a30960ED42CF4A01502Cc2351Dc9B9881F9931a68
                     .try_into()
                     .unwrap(),
             },

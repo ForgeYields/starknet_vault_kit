@@ -21,7 +21,7 @@
       "Vault": "0x225ca31b59b9f0e72dbbe72696aae6cf3431c68a2b993e9ecc10a62dd91ea04",
       "VaultAllocator": "0x4d838ecc1ef60da3461c1687bee3ce175a5d5c8f6f3bd645d70ef5efe86eb1f",
       "RedeemRequest": "0x6dff890f7d5976a343b111f5c275cccd5838498221d199558a1c46799d072cc",
-      "AvnuMiddleware": "0x26bf0fe3999a1944b38b4e8bdc1e64745b130e0d3d72fa4ccecefa616694942",
+      "AvnuMiddleware": "0x30c8c751cedb2339a65b1b4e518cd9a8ccb56b7c397c1609362b02ac482ae6a",
       "Manager": "0x23a91c52488034095902965133a91f4a271ba00e9cdf2c2f944965e28876c67",
       "PriceRouter": "0x0388513a8239b53c9dba7a19049e9159f73a9d196dcb10745489bdc7d65839e5",
       "SimpleDecoderAndSanitizer": "0x45cfd32b5555ba4665fe4dca3602bf88d7780a58f7a5dfe57ccb935b7cd2627",
@@ -30,7 +30,8 @@
       "StarkgateMiddleware": "0x02ba274e79e43284d2003f18d059af27d87165594e2902792eb9f5876499c3a9",
       "HyperlaneMiddleware": "0x4ed2b0b657e9894ef31c0cc2db747270290cdb8983e87caf8dd9f458ba5bab2",
       "EkuboAdapter": "0x75c861c32455c2fa050217d0013b580824a3bbf3a2f8ceb6e37a1994cabba2a",
-      "FyWBTCDecoderAndSanitizer": "0x4fb068466b09959bfd9f67b36102f6bd996aef8d4fa5cffc8e80b30594c7f11"
+      "FyWBTCDecoderAndSanitizer": "0x4fb068466b09959bfd9f67b36102f6bd996aef8d4fa5cffc8e80b30594c7f11",
+      "AssetTransferPod": "0x33a25fdbfb3104698d37bfead121bd7d09d1280ea04b26cbe6a9e0544e99fc1"
     },
     "periphery": {
       "vesuSingleton": "0x000d8d6dfec4d33bfb6895de9f3852143a17c6f92fd2a21da3d6924d34870160",

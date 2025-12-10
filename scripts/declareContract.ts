@@ -138,6 +138,9 @@ async function main() {
     case "EkuboAdapter":
       await declareContract(envNetwork, "vault_allocator", "EkuboAdapter");
       break;
+    case "AssetTransferPod":
+      await declareContract(envNetwork, "vault_allocator", "AssetTransferPod");
+      break;
     case "AumProvider4626":
       await declareContract(envNetwork, "vault", "AumProvider4626");
       break;
