@@ -95,13 +95,28 @@ export interface ClaimRedeemParams {
   id: BigNumberish;
 }
 
-export interface InitiateTokenWithdrawParams {
+export interface BridgeTokenStarkgateParams {
   l1_token: string;
   l1_recipient: string;
   amount: BigNumberish;
 }
 
-export interface ClaimTokenBridgedBackParams {}
+export interface ClaimTokenStarkgateParams {}
+
+export interface BridgeTokenHyperlaneParams {
+  source_token: string;
+  destination_token: string;
+  amount: BigNumberish;
+  destination_domain: BigNumberish;
+  recipient: string;
+  strk_fee: BigNumberish;
+}
+
+export interface ClaimTokenHyperlaneParams {
+  token_to_bridge: string;
+  token_to_claim: string;
+  destination_domain: BigNumberish;
+}
 
 export interface EkuboDepositLiquidityParams {
   target: string;
@@ -784,7 +799,7 @@ export class VaultCuratorSDK {
     };
   }
 
-  public initiateTokenWithdraw(params: InitiateTokenWithdrawParams): Call {
+  public bridgeTokenStarkgate(params: BridgeTokenStarkgateParams): Call {
     const initiateTokenWithdrawSelector = BigInt(
       selector.getSelectorFromName("initiate_token_withdraw")
     ).toString();
@@ -831,7 +846,7 @@ export class VaultCuratorSDK {
     };
   }
 
-  public claimTokenBridgedBack(params: ClaimTokenBridgedBackParams = {}): Call {
+  public claimTokenStarkgate(params: ClaimTokenStarkgateParams = {}): Call {
     const claimTokenBridgedBackSelector = BigInt(
       selector.getSelectorFromName("claim_token_bridged_back")
     ).toString();
@@ -865,6 +880,113 @@ export class VaultCuratorSDK {
         claimTokenBridgedBackLeaf.selector,
         "1", // calldatas array length
         "0", // calldata length (no parameters)
+      ],
+    };
+  }
+
+  public bridgeTokenHyperlane(params: BridgeTokenHyperlaneParams): Call {
+    // Convert recipient string to u256
+    const recipientUint256 = uint256.bnToUint256(params.recipient.toString());
+
+    // Convert hex to decimal strings for comparison
+    const recipientLowDecimal = BigInt(recipientUint256.low).toString();
+    const recipientHighDecimal = BigInt(recipientUint256.high).toString();
+
+    // Find the Hyperlane bridge leaf by matching argument addresses
+    // Note: argument_addresses[3] is recipient.low, argument_addresses[4] is recipient.high
+    const hyperlaneLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.argument_addresses.length >= 5 &&
+        leaf.argument_addresses[0] === params.source_token &&
+        leaf.argument_addresses[1] === params.destination_token &&
+        leaf.argument_addresses[2] === params.destination_domain.toString() &&
+        leaf.argument_addresses[3] === recipientLowDecimal &&
+        leaf.argument_addresses[4] === recipientHighDecimal
+    );
+
+    if (!hyperlaneLeaf) {
+      throw new Error(
+        "Hyperlane bridge operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      hyperlaneLeaf.leaf_hash
+    );
+
+    const amountUint256 = uint256.bnToUint256(params.amount.toString());
+    const feeUint256 = uint256.bnToUint256(params.strk_fee.toString());
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(), // proof length
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        hyperlaneLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        hyperlaneLeaf.target,
+        "1", // selectors array length
+        hyperlaneLeaf.selector,
+        "1", // calldatas array length
+        "9", // calldata length (source_token + destination_token + destination_domain + recipient_uint256 + amount_uint256 + fee_uint256 = 9 slots)
+        params.source_token,
+        params.destination_token,
+        params.destination_domain.toString(),
+        recipientLowDecimal,
+        recipientHighDecimal,
+        amountUint256.low.toString(),
+        amountUint256.high.toString(),
+        feeUint256.low.toString(),
+        feeUint256.high.toString(),
+      ],
+    };
+  }
+
+  public claimTokenHyperlane(params: ClaimTokenHyperlaneParams): Call {
+    const claimTokenSelector = BigInt(
+      selector.getSelectorFromName("claim_token")
+    ).toString();
+
+    // Find the Hyperlane claim_token leaf by matching the selector and argument addresses
+    const claimLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === claimTokenSelector &&
+        leaf.argument_addresses.length >= 3 &&
+        leaf.argument_addresses[0] === params.token_to_bridge &&
+        leaf.argument_addresses[1] === params.token_to_claim &&
+        leaf.argument_addresses[2] === params.destination_domain.toString()
+    );
+
+    if (!claimLeaf) {
+      throw new Error(
+        "Hyperlane claim_token operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(this.config.tree, claimLeaf.leaf_hash);
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(), // proof length
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        claimLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        claimLeaf.target,
+        "1", // selectors array length
+        claimLeaf.selector,
+        "1", // calldatas array length
+        "3", // calldata length (token_to_bridge + token_to_claim + destination_domain = 3 slots)
+        params.token_to_bridge,
+        params.token_to_claim,
+        params.destination_domain.toString(),
       ],
     };
   }
