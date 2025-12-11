@@ -14,6 +14,8 @@ export type {
   ClaimTokenStarkgateParams,
   BridgeTokenHyperlaneParams,
   ClaimTokenHyperlaneParams,
+  BridgeTokenCctpParams,
+  ClaimTokenCctpParams,
   VaultState,
   FeesConfig,
   ReportParams,

@@ -49,6 +49,23 @@ export interface ClaimTokenHyperlaneParams {
   destination_domain: BigNumberish;
 }
 
+export interface BridgeTokenCctpParams {
+  burn_token: string;
+  token_to_claim: string;
+  amount: BigNumberish;
+  destination_domain: BigNumberish;
+  mint_recipient: string;
+  destination_caller: string;
+  max_fee: BigNumberish;
+  min_finality_threshold: BigNumberish;
+}
+
+export interface ClaimTokenCctpParams {
+  burn_token: string;
+  token_to_claim: string;
+  destination_domain: BigNumberish;
+}
+
 export interface VaultState {
   epoch: bigint;
   handledEpochLen: bigint;

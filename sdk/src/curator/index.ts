@@ -118,6 +118,23 @@ export interface ClaimTokenHyperlaneParams {
   destination_domain: BigNumberish;
 }
 
+export interface BridgeTokenCctpParams {
+  burn_token: string;
+  token_to_claim: string;
+  amount: BigNumberish;
+  destination_domain: BigNumberish;
+  mint_recipient: string;
+  destination_caller: string;
+  max_fee: BigNumberish;
+  min_finality_threshold: BigNumberish;
+}
+
+export interface ClaimTokenCctpParams {
+  burn_token: string;
+  token_to_claim: string;
+  destination_domain: BigNumberish;
+}
+
 export interface EkuboDepositLiquidityParams {
   target: string;
   amount0: BigNumberish;
@@ -846,7 +863,7 @@ export class VaultCuratorSDK {
     };
   }
 
-  public claimTokenStarkgate(params: ClaimTokenStarkgateParams = {}): Call {
+  public claimTokenStarkgate(_params: ClaimTokenStarkgateParams = {}): Call {
     const claimTokenBridgedBackSelector = BigInt(
       selector.getSelectorFromName("claim_token_bridged_back")
     ).toString();
@@ -985,6 +1002,136 @@ export class VaultCuratorSDK {
         "1", // calldatas array length
         "3", // calldata length (token_to_bridge + token_to_claim + destination_domain = 3 slots)
         params.token_to_bridge,
+        params.token_to_claim,
+        params.destination_domain.toString(),
+      ],
+    };
+  }
+
+  public bridgeTokenCctp(params: BridgeTokenCctpParams): Call {
+    // Convert mint_recipient string to u256
+    const mintRecipientUint256 = uint256.bnToUint256(
+      params.mint_recipient.toString()
+    );
+    // Convert destination_caller string to u256
+    const destinationCallerUint256 = uint256.bnToUint256(
+      params.destination_caller.toString()
+    );
+
+    // Convert hex to decimal strings for comparison
+    const mintRecipientLowDecimal = BigInt(mintRecipientUint256.low).toString();
+    const mintRecipientHighDecimal = BigInt(
+      mintRecipientUint256.high
+    ).toString();
+    const destinationCallerLowDecimal = BigInt(
+      destinationCallerUint256.low
+    ).toString();
+    const destinationCallerHighDecimal = BigInt(
+      destinationCallerUint256.high
+    ).toString();
+
+    // Find the CCTP deposit_for_burn leaf by matching argument addresses
+    // argument_addresses structure from cctp.cairo:
+    // [0]: destination_domain
+    // [1]: mint_recipient.low
+    // [2]: mint_recipient.high
+    // [3]: burn_token
+    // [4]: token_to_claim
+    // [5]: destination_caller.low
+    // [6]: destination_caller.high
+    const cctpLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.argument_addresses.length >= 7 &&
+        leaf.argument_addresses[0] === params.destination_domain.toString() &&
+        leaf.argument_addresses[1] === mintRecipientLowDecimal &&
+        leaf.argument_addresses[2] === mintRecipientHighDecimal &&
+        leaf.argument_addresses[3] === params.burn_token &&
+        leaf.argument_addresses[4] === params.token_to_claim &&
+        leaf.argument_addresses[5] === destinationCallerLowDecimal &&
+        leaf.argument_addresses[6] === destinationCallerHighDecimal
+    );
+
+    if (!cctpLeaf) {
+      throw new Error(
+        "CCTP deposit_for_burn operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(this.config.tree, cctpLeaf.leaf_hash);
+
+    const amountUint256 = uint256.bnToUint256(params.amount.toString());
+    const maxFeeUint256 = uint256.bnToUint256(params.max_fee.toString());
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(), // proof length
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        cctpLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        cctpLeaf.target,
+        "1", // selectors array length
+        cctpLeaf.selector,
+        "1", // calldatas array length
+        "12", // calldata length (amount u256 + destination_domain u32 + mint_recipient u256 + burn_token + token_to_claim + destination_caller u256 + max_fee u256 + min_finality_threshold u32 = 12 slots)
+        amountUint256.low.toString(),
+        amountUint256.high.toString(),
+        params.destination_domain.toString(),
+        mintRecipientLowDecimal,
+        mintRecipientHighDecimal,
+        params.burn_token,
+        params.token_to_claim,
+        destinationCallerLowDecimal,
+        destinationCallerHighDecimal,
+        maxFeeUint256.low.toString(),
+        maxFeeUint256.high.toString(),
+        params.min_finality_threshold.toString(),
+      ],
+    };
+  }
+
+  public claimTokenCctp(params: ClaimTokenCctpParams): Call {
+    const claimTokenSelector = BigInt(
+      selector.getSelectorFromName("claim_token")
+    ).toString();
+
+    // Find the CCTP claim_token leaf by matching the selector and argument addresses
+    const claimLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === claimTokenSelector &&
+        leaf.argument_addresses.length >= 3 &&
+        leaf.argument_addresses[0] === params.burn_token &&
+        leaf.argument_addresses[1] === params.token_to_claim &&
+        leaf.argument_addresses[2] === params.destination_domain.toString()
+    );
+
+    if (!claimLeaf) {
+      throw new Error(
+        "CCTP claim_token operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(this.config.tree, claimLeaf.leaf_hash);
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(), // proof length
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        claimLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        claimLeaf.target,
+        "1", // selectors array length
+        claimLeaf.selector,
+        "1", // calldatas array length
+        "3", // calldata length (burn_token + token_to_claim + destination_domain = 3 slots)
+        params.burn_token,
         params.token_to_claim,
         params.destination_domain.toString(),
       ],
