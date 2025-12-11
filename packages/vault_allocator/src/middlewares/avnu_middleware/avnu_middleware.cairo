@@ -117,6 +117,25 @@ pub mod AvnuMiddleware {
         }
 
 
+        fn get_computed_min(
+            self: @ContractState,
+            sell_token_address: ContractAddress,
+            sell_token_amount: u256,
+            buy_token_address: ContractAddress,
+        ) -> u256 {
+            let quote_out = self
+                .price_router
+                .read()
+                .get_value(sell_token_address, sell_token_amount, buy_token_address);
+
+            math::u256_mul_div(
+                quote_out,
+                (BPS_SCALE - self.slippage.read()).into(),
+                BPS_SCALE.into(),
+                math::Rounding::Ceil,
+            )
+        }
+
         fn multi_route_swap(
             ref self: ContractState,
             sell_token_address: ContractAddress,
@@ -147,17 +166,9 @@ pub mod AvnuMiddleware {
             let avnu = IAvnuExchangeDispatcher { contract_address: AVNU_ROUTER() };
             sell.transfer_from(caller, this, sell_token_amount);
             sell.approve(avnu.contract_address, sell_token_amount);
-            let quote_out = self
-                .price_router
-                .read()
-                .get_value(sell_token_address, sell_token_amount, buy_token_address);
 
-            let computed_min = math::u256_mul_div(
-                quote_out,
-                (BPS_SCALE - self.slippage.read()).into(),
-                BPS_SCALE.into(),
-                math::Rounding::Ceil,
-            );
+            let computed_min = self
+                .get_computed_min(sell_token_address, sell_token_amount, buy_token_address);
 
             let min_out = if buy_token_min_amount < computed_min {
                 computed_min

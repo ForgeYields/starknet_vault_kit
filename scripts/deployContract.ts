@@ -1,4 +1,4 @@
-import { Account, RpcProvider, CallData, CairoUint256 } from "starknet";
+import { Account, RpcProvider, CallData } from "starknet";
 import dotenv from "dotenv";
 import { readConfigs } from "./configs/utils";
 import { getNetworkEnv } from "./utils";
@@ -74,6 +74,10 @@ export async function deploySimpleDecoderAndSanitizer(envNetwork: string) {
   return await deployContract(envNetwork, "SimpleDecoderAndSanitizer", []);
 }
 
+export async function deployFyWBTCDecoderAndSanitizer(envNetwork: string) {
+  return await deployContract(envNetwork, "FyWBTCDecoderAndSanitizer", []);
+}
+
 export async function deployPriceRouter(envNetwork: string) {
   const config = readConfigs();
   const networkConfig = config[envNetwork];
@@ -96,7 +100,10 @@ export async function deployPriceRouter(envNetwork: string) {
 
 export async function deployAvnuMiddleware(
   envNetwork: string,
-  slippage_tolerance_bps: number
+  vaultAllocator: string,
+  slippage: number,
+  period: number,
+  allowedCallsPerPeriod: number
 ) {
   const config = readConfigs();
   const networkConfig = config[envNetwork];
@@ -104,29 +111,20 @@ export async function deployAvnuMiddleware(
     throw new Error(`Configuration not found for network: ${envNetwork}`);
   }
 
-  const avnuRouter = networkConfig.periphery?.avnuRouter;
-  if (!avnuRouter) {
-    throw new Error(
-      `avnuRouter address not found for network: ${envNetwork}. Please add it to the config.`
-    );
-  }
-
-  const priceRouter = networkConfig.pricerouter;
+  const priceRouter = networkConfig.periphery?.priceRouter;
   if (!priceRouter) {
     throw new Error(
       `priceRouter address not found for network: ${envNetwork}. Please add it to the config.`
     );
   }
 
-  const slippage_tolerance_bps_uint256 = new CairoUint256(
-    slippage_tolerance_bps
-  );
-
   return await deployContract(envNetwork, "AvnuMiddleware", [
     owner.address,
-    avnuRouter,
+    vaultAllocator,
     priceRouter,
-    slippage_tolerance_bps_uint256,
+    slippage,
+    period,
+    allowedCallsPerPeriod,
   ]);
 }
 
@@ -141,32 +139,28 @@ export async function deployAumProvider4626(
   ]);
 }
 
-function validateSlippageTolerancePercentage(slippage: string): number {
-  const num = parseFloat(slippage);
-  if (isNaN(num) || num < 0 || num > 100) {
-    throw new Error(
-      `Invalid slippage tolerance: ${slippage}%. Must be between 0 and 100%`
-    );
-  }
-  return Math.floor(num * 100);
-}
-
 function parseArguments(contractName: string, args: string[]) {
   switch (contractName) {
     case "SimpleDecoderAndSanitizer":
+      return {};
+
+    case "FyWBTCDecoderAndSanitizer":
       return {};
 
     case "PriceRouter":
       return {};
 
     case "AvnuMiddleware":
-      if (args.length < 1) {
+      if (args.length < 4) {
         throw new Error(
-          "AvnuMiddleware requires: <slippage_tolerance_percentage>"
+          "AvnuMiddleware requires: <vault_allocator> <slippage_bps> <period> <allowed_calls_per_period>"
         );
       }
       return {
-        slippageToleranceBps: validateSlippageTolerancePercentage(args[0]),
+        vaultAllocator: args[0],
+        slippage: parseInt(args[1]),
+        period: parseInt(args[2]),
+        allowedCallsPerPeriod: parseInt(args[3]),
       };
 
     case "AumProvider4626":
@@ -196,12 +190,12 @@ async function main() {
       console.log("    Usage: --contract SimpleDecoderAndSanitizer");
       console.log("  - PriceRouter");
       console.log("    Usage: --contract PriceRouter");
-      console.log("  - AvnuMiddleware <slippage_tolerance_percentage>");
+      console.log("  - AvnuMiddleware <vault_allocator> <slippage_bps> <period> <allowed_calls_per_period>");
       console.log(
-        "    Usage: --contract AvnuMiddleware <slippage_tolerance_percentage>"
+        "    Usage: --contract AvnuMiddleware <vault_allocator> <slippage_bps> <period> <allowed_calls_per_period>"
       );
       console.log(
-        "    Note: slippage_tolerance_percentage should be between 0-100% (e.g., 2.5 for 2.5%)"
+        "    Note: slippage_bps is in basis points (e.g., 250 for 2.5%), period is in seconds"
       );
       console.log("  - AumProvider4626 <vault_address> <strategy4626_address>");
       console.log(
@@ -224,6 +218,9 @@ async function main() {
       case "SimpleDecoderAndSanitizer":
         deployedAddress = await deploySimpleDecoderAndSanitizer(envNetwork);
         break;
+      case "FyWBTCDecoderAndSanitizer":
+        deployedAddress = await deployFyWBTCDecoderAndSanitizer(envNetwork);
+        break;
 
       case "PriceRouter":
         deployedAddress = await deployPriceRouter(envNetwork);
@@ -232,7 +229,10 @@ async function main() {
       case "AvnuMiddleware":
         deployedAddress = await deployAvnuMiddleware(
           envNetwork,
-          parsedArgs.slippageToleranceBps as number
+          parsedArgs.vaultAllocator as string,
+          parsedArgs.slippage as number,
+          parsedArgs.period as number,
+          parsedArgs.allowedCallsPerPeriod as number
         );
         break;
 

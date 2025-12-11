@@ -17,7 +17,7 @@ pub mod AssetTransferPodComponent {
 
     #[storage]
     pub struct Storage {
-        pub vault: ContractAddress,
+        pub vault_allocator: ContractAddress,
         pub authorized_caller: ContractAddress,
     }
 
@@ -26,7 +26,7 @@ pub mod AssetTransferPodComponent {
     pub enum Event {
         AssetTransferred: AssetTransferred,
         AuthorizedCallerSet: AuthorizedCallerSet,
-        VaultSet: VaultSet,
+        VaultAllocatorSet: VaultAllocatorSet,
     }
 
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
@@ -43,9 +43,9 @@ pub mod AssetTransferPodComponent {
     }
 
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
-    pub struct VaultSet {
+    pub struct VaultAllocatorSet {
         #[key]
-        pub vault: ContractAddress,
+        pub vault_allocator: ContractAddress,
     }
 
 
@@ -67,15 +67,17 @@ pub mod AssetTransferPodComponent {
             self.emit(AuthorizedCallerSet { caller: authorized_caller });
         }
 
-        fn set_vault(ref self: ComponentState<TContractState>, vault: ContractAddress) {
+        fn set_vault_allocator(
+            ref self: ComponentState<TContractState>, vault_allocator: ContractAddress,
+        ) {
             let mut ownable_component = get_dep_component_mut!(ref self, Ownable);
             ownable_component.assert_only_owner();
 
-            if vault.is_zero() {
+            if vault_allocator.is_zero() {
                 Errors::zero_address();
             }
-            self.vault.write(vault);
-            self.emit(VaultSet { vault });
+            self.vault_allocator.write(vault_allocator);
+            self.emit(VaultAllocatorSet { vault_allocator });
         }
 
         fn transfer_assets(
@@ -86,11 +88,11 @@ pub mod AssetTransferPodComponent {
                 Errors::zero_amount();
             }
 
-            let vault = self.vault.read();
+            let vault_allocator = self.vault_allocator.read();
 
             // Transfer ERC20 token to vault
             let erc20 = ERC20ABIDispatcher { contract_address: asset };
-            let success = erc20.transfer(vault, amount);
+            let success = erc20.transfer(vault_allocator, amount);
             if !success {
                 Errors::transfer_failed();
             }
@@ -98,8 +100,8 @@ pub mod AssetTransferPodComponent {
             self.emit(AssetTransferred { asset, amount });
         }
 
-        fn get_vault(self: @ComponentState<TContractState>) -> ContractAddress {
-            self.vault.read()
+        fn get_vault_allocator(self: @ComponentState<TContractState>) -> ContractAddress {
+            self.vault_allocator.read()
         }
 
         fn get_authorized_caller(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -124,11 +126,11 @@ pub mod AssetTransferPodComponent {
     > of InternalTrait<TContractState> {
         fn initialize_asset_transfer_pod(
             ref self: ComponentState<TContractState>,
-            vault: ContractAddress,
+            vault_allocator: ContractAddress,
             owner: ContractAddress,
             authorized_caller: ContractAddress,
         ) {
-            if vault.is_zero() {
+            if vault_allocator.is_zero() {
                 Errors::zero_address();
             }
             if owner.is_zero() {
@@ -140,11 +142,11 @@ pub mod AssetTransferPodComponent {
             ownable_component.initializer(owner);
 
             // Set storage values
-            self.vault.write(vault);
+            self.vault_allocator.write(vault_allocator);
             self.authorized_caller.write(authorized_caller);
 
             // Emit events
-            self.emit(VaultSet { vault });
+            self.emit(VaultAllocatorSet { vault_allocator });
             self.emit(AuthorizedCallerSet { caller: authorized_caller });
         }
 

@@ -35,4 +35,21 @@ pub trait IEkuboAdapter<T> {
     /// @dev Only callable by owner and only when no position exists (contract_nft_id is zero)
     /// @param bounds The new bounds settings to set
     fn set_bounds_settings(ref self: T, bounds: Bounds);
+    /// @notice Claims rewards from a reward contract and sends them to vault allocator
+    /// @param reward_contract The contract to claim rewards from
+    /// @param amount The amount to claim
+    /// @param proof The merkle proof for claiming
+    /// @param reward_token The token address of the reward
+    fn harvest(
+        ref self: T,
+        reward_contract: ContractAddress,
+        amount: u128,
+        proof: Span<felt252>,
+        reward_token: ContractAddress,
+    );
+}
+
+#[starknet::interface]
+pub trait IRewardContract<T> {
+    fn claim(ref self: T, amount: u128, proof: Span<felt252>);
 }

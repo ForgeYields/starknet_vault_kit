@@ -57,10 +57,12 @@ pub mod AssetTransferPod {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        vault: ContractAddress,
+        vault_allocator: ContractAddress,
         owner: ContractAddress,
         authorized_caller: ContractAddress,
     ) {
-        self.asset_transfer_pod.initialize_asset_transfer_pod(vault, owner, authorized_caller);
+        self
+            .asset_transfer_pod
+            .initialize_asset_transfer_pod(vault_allocator, owner, authorized_caller);
     }
 }

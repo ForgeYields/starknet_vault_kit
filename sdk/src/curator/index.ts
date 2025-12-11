@@ -118,6 +118,31 @@ export interface ClaimTokenHyperlaneParams {
   destination_domain: BigNumberish;
 }
 
+export interface EkuboDepositLiquidityParams {
+  target: string;
+  amount0: BigNumberish;
+  amount1: BigNumberish;
+}
+
+export interface EkuboWithdrawLiquidityParams {
+  target: string;
+  ratioWad: BigNumberish;
+  minToken0: BigNumberish;
+  minToken1: BigNumberish;
+}
+
+export interface EkuboCollectFeesParams {
+  target: string;
+}
+
+export interface EkuboHarvestParams {
+  target: string;
+  rewardContract: string;
+  amount: BigNumberish;
+  proof: string[];
+  rewardToken: string;
+}
+
 export interface i257 {
   abs: BigNumberish;
   is_negative: boolean;
@@ -292,7 +317,7 @@ export class VaultCuratorSDK {
       calls.push(
         this.approve({
           target: this.config.metadata.underlying_asset,
-          spender: this.config.metadata.vault,
+          spender: this.config.metadata.vault_allocator,
           amount: params.shares,
         })
       );
@@ -307,8 +332,8 @@ export class VaultCuratorSDK {
       this.withdraw({
         target,
         assets,
-        receiver: this.config.metadata.vault,
-        owner: this.config.metadata.vault,
+        receiver: this.config.metadata.vault_allocator,
+        owner: this.config.metadata.vault_allocator,
       }),
     ];
   }
@@ -318,8 +343,8 @@ export class VaultCuratorSDK {
       this.redeem({
         target,
         shares,
-        receiver: this.config.metadata.vault,
-        owner: this.config.metadata.vault,
+        receiver: this.config.metadata.vault_allocator,
+        owner: this.config.metadata.vault_allocator,
       }),
     ];
   }
@@ -352,8 +377,8 @@ export class VaultCuratorSDK {
       this.requestRedeem({
         target,
         shares,
-        receiver: this.config.metadata.vault,
-        owner: this.config.metadata.vault,
+        receiver: this.config.metadata.vault_allocator,
+        owner: this.config.metadata.vault_allocator,
       }),
     ];
   }
@@ -368,7 +393,10 @@ export class VaultCuratorSDK {
       calls.push(this.approve(withApprovalCall));
     }
     calls.push(
-      this.modifyPositionV1({ ...params, user: this.config.metadata.vault })
+      this.modifyPositionV1({
+        ...params,
+        user: this.config.metadata.vault_allocator,
+      })
     );
     return calls;
   }
@@ -383,9 +411,61 @@ export class VaultCuratorSDK {
       calls.push(this.approve(withApprovalCall));
     }
     calls.push(
-      this.modifyPositionV2({ ...params, user: this.config.metadata.vault })
+      this.modifyPositionV2({
+        ...params,
+        user: this.config.metadata.vault_allocator,
+      })
     );
     return calls;
+  }
+
+  public ekuboDepositLiquidityHelper(
+    params: EkuboDepositLiquidityParams & {
+      token0: string;
+      token1: string;
+      withApproval?: boolean;
+    }
+  ): Call[] {
+    const calls: Call[] = [];
+
+    if (params.withApproval) {
+      calls.push(
+        this.approve({
+          target: params.token0,
+          spender: params.target,
+          amount: params.amount0,
+        })
+      );
+      calls.push(
+        this.approve({
+          target: params.token1,
+          spender: params.target,
+          amount: params.amount1,
+        })
+      );
+    }
+
+    calls.push(
+      this.ekuboDepositLiquidity({
+        target: params.target,
+        amount0: params.amount0,
+        amount1: params.amount1,
+      })
+    );
+    return calls;
+  }
+
+  public ekuboWithdrawLiquidityHelper(
+    params: EkuboWithdrawLiquidityParams
+  ): Call[] {
+    return [
+      this.ekuboWithdrawLiquidity({
+        target: params.target,
+        ratioWad: params.ratioWad,
+        minToken0: params.minToken0,
+        minToken1: params.minToken1,
+      }),
+    ];
   }
 
   public deposit(params: DepositParams): Call {
@@ -1044,6 +1124,186 @@ export class VaultCuratorSDK {
         modifyPositionLeaf.target,
         "1", // selectors array length
         modifyPositionLeaf.selector,
+        "1", // calldatas array length
+        calldata.length.toString(),
+        ...calldata,
+      ],
+    };
+  }
+
+  public ekuboDepositLiquidity(params: EkuboDepositLiquidityParams): Call {
+    const depositLiquiditySelector = BigInt(
+      selector.getSelectorFromName("deposit_liquidity")
+    ).toString();
+    const depositLiquidityLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === depositLiquiditySelector &&
+        leaf.target === params.target
+    );
+
+    if (!depositLiquidityLeaf) {
+      throw new Error(
+        "Ekubo deposit liquidity operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      depositLiquidityLeaf.leaf_hash
+    );
+
+    const amount0Uint256 = uint256.bnToUint256(params.amount0.toString());
+    const amount1Uint256 = uint256.bnToUint256(params.amount1.toString());
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(),
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        depositLiquidityLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        depositLiquidityLeaf.target,
+        "1", // selectors array length
+        depositLiquidityLeaf.selector,
+        "1", // calldatas array length
+        "4", // calldata length (2 uint256 = 4 slots)
+        amount0Uint256.low.toString(),
+        amount0Uint256.high.toString(),
+        amount1Uint256.low.toString(),
+        amount1Uint256.high.toString(),
+      ],
+    };
+  }
+
+  public ekuboWithdrawLiquidity(params: EkuboWithdrawLiquidityParams): Call {
+    const withdrawLiquiditySelector = BigInt(
+      selector.getSelectorFromName("withdraw_liquidity")
+    ).toString();
+    const withdrawLiquidityLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === withdrawLiquiditySelector &&
+        leaf.target === params.target
+    );
+
+    if (!withdrawLiquidityLeaf) {
+      throw new Error(
+        "Ekubo withdraw liquidity operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      withdrawLiquidityLeaf.leaf_hash
+    );
+
+    const ratioWadUint256 = uint256.bnToUint256(params.ratioWad.toString());
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(),
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        withdrawLiquidityLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        withdrawLiquidityLeaf.target,
+        "1", // selectors array length
+        withdrawLiquidityLeaf.selector,
+        "1", // calldatas array length
+        "4", // calldata length (uint256 + 2 u128 = 4 slots)
+        ratioWadUint256.low.toString(),
+        ratioWadUint256.high.toString(),
+        params.minToken0.toString(),
+        params.minToken1.toString(),
+      ],
+    };
+  }
+
+  public ekuboCollectFees(params: EkuboCollectFeesParams): Call {
+    const collectFeesSelector = BigInt(
+      selector.getSelectorFromName("collect_fees")
+    ).toString();
+    const collectFeesLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === collectFeesSelector && leaf.target === params.target
+    );
+
+    if (!collectFeesLeaf) {
+      throw new Error(
+        "Ekubo collect fees operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      collectFeesLeaf.leaf_hash
+    );
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(),
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        collectFeesLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        collectFeesLeaf.target,
+        "1", // selectors array length
+        collectFeesLeaf.selector,
+        "1", // calldatas array length
+        "0", // calldata length (no parameters)
+      ],
+    };
+  }
+
+  public ekuboHarvest(params: EkuboHarvestParams): Call {
+    const harvestSelector = BigInt(
+      selector.getSelectorFromName("harvest")
+    ).toString();
+    const harvestLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === harvestSelector && leaf.target === params.target
+    );
+
+    if (!harvestLeaf) {
+      throw new Error(
+        "Ekubo harvest operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      harvestLeaf.leaf_hash
+    );
+
+    const calldata = [
+      params.rewardContract,
+      params.amount.toString(), // u128 is a single felt
+      params.proof.length.toString(),
+      ...params.proof,
+      params.rewardToken,
+    ];
+
+    return {
+      contractAddress: this.config.metadata.manager,
+      entrypoint: "manage_vault_with_merkle_verification",
+      calldata: [
+        "1", // proofs array length
+        proofs.length.toString(),
+        ...proofs,
+        "1", // decoder_and_sanitizers array length
+        harvestLeaf.decoder_and_sanitizer,
+        "1", // targets array length
+        harvestLeaf.target,
+        "1", // selectors array length
+        harvestLeaf.selector,
         "1", // calldatas array length
         calldata.length.toString(),
         ...calldata,

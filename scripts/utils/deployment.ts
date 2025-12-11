@@ -7,14 +7,15 @@ interface DeploymentInfo {
   timestamp: number;
 }
 
+interface VaultDeployments {
+  vault?: DeploymentInfo;
+  redeemRequest?: DeploymentInfo;
+  vaultAllocator?: DeploymentInfo;
+  manager?: DeploymentInfo;
+}
+
 interface NetworkDeployments {
-  [contractName: string]: DeploymentInfo;
-  [symbol: string]: {
-    vault?: DeploymentInfo;
-    redeemRequest?: DeploymentInfo;
-    vaultAllocator?: DeploymentInfo;
-    manager?: DeploymentInfo;
-  };
+  [key: string]: DeploymentInfo | VaultDeployments;
 }
 
 interface DeploymentsJson {

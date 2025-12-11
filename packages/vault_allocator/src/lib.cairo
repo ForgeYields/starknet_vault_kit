@@ -16,6 +16,7 @@ pub mod manager {
 
 pub mod integration_interfaces {
     pub mod avnu;
+    pub mod cctp;
     pub mod ekubo;
     pub mod hyperlane;
     pub mod paradex_gigavault;
@@ -40,7 +41,6 @@ pub mod periphery {
 
 pub mod middlewares {
     pub mod paradex_gigavault_middleware {
-        // pub mod errors;
         pub mod interface;
         pub mod paradex_gigavault_middleware;
     }
@@ -58,6 +58,11 @@ pub mod middlewares {
     pub mod hyperlane_middleware {
         pub mod errors;
         pub mod hyperlane_middleware;
+        pub mod interface;
+    }
+    pub mod cctp_middleware {
+        pub mod cctp_middleware;
+        pub mod errors;
         pub mod interface;
     }
 }
@@ -84,6 +89,7 @@ pub mod decoders_and_sanitizers {
     pub mod base_decoder_and_sanitizer;
     pub mod decoder_custom_types;
     pub mod forgeyields_paradex_decoder_and_sanitizer;
+    pub mod fyWBTC_decoder_and_sanitizer;
     pub mod interface;
     pub mod simple_decoder_and_sanitizer;
     pub mod vesu_v2_specific_decoder_and_sanitizer;
@@ -124,8 +130,21 @@ pub mod decoders_and_sanitizers {
         pub mod hyperlane_decoder_and_sanitizer;
         pub mod interface;
     }
+    pub mod cctp_decoder_and_sanitizer {
+        pub mod cctp_decoder_and_sanitizer;
+        pub mod interface;
+    }
+    pub mod cctp_middleware_decoder_and_sanitizer {
+        pub mod cctp_middleware_decoder_and_sanitizer;
+        pub mod interface;
+    }
     pub mod ekubo_adapter_decoder_and_sanitizer {
         pub mod ekubo_adapter_decoder_and_sanitizer;
+        pub mod interface;
+    }
+
+    pub mod defi_spring_decoder_and_sanitizer {
+        pub mod defi_spring_decoder_and_sanitizer;
         pub mod interface;
     }
 }
@@ -139,25 +158,27 @@ pub mod mocks {
 
 #[cfg(test)]
 pub mod test {
-    pub mod creator;
+    pub mod creator {
+        // pub mod creator;
+        pub mod creator_fyWBTC;
+    }
+    // pub mod utils;
+// pub mod units {
+//     pub mod manager;
+//     pub mod vault_allocator;
+// }
+// pub mod integrations {
+//     pub mod avnu;
+//     pub mod vault_bring_liquidity;
+//     pub mod vesu_v1;
+// }
+// pub mod scenarios {
+//     pub mod stable_carry_loop;
+// }
 
-    pub mod utils;
-    pub mod units {
-        pub mod manager;
-        pub mod vault_allocator;
-    }
-    pub mod integrations {
-        pub mod avnu;
-        pub mod vault_bring_liquidity;
-        pub mod vesu_v1;
-    }
-    pub mod scenarios {
-        pub mod stable_carry_loop;
-    }
-
-    pub mod adapters {
-        pub mod ekubo_adapter;
-    }
+    // pub mod adapters {
+//     pub mod ekubo_adapter;
+// }
 }
 
 
@@ -166,6 +187,7 @@ pub mod merkle_tree {
     pub mod registery;
     pub mod integrations {
         pub mod avnu;
+        pub mod cctp;
         pub mod ekubo_adapter;
         pub mod erc4626;
         pub mod extended;

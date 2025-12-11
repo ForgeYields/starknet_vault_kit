@@ -27,7 +27,7 @@ pub fn _add_ekubo_adapter_leafs(
                 argument_addresses: array![ekubo_adapter.into()].span(),
                 description: "Approve"
                     + " "
-                    + get_symbol(ekubo_adapter)
+                    + "ekubo_adapter"
                     + " "
                     + "to spend"
                     + " "
@@ -46,7 +46,7 @@ pub fn _add_ekubo_adapter_leafs(
                 argument_addresses: array![ekubo_adapter.into()].span(),
                 description: "Approve"
                     + " "
-                    + get_symbol(ekubo_adapter)
+                    + "ekubo_adapter"
                     + " "
                     + "to spend"
                     + " "
@@ -63,7 +63,18 @@ pub fn _add_ekubo_adapter_leafs(
                 target: ekubo_adapter,
                 selector: selector!("deposit_liquidity"),
                 argument_addresses: array![].span(),
-                description: "Deposit liquidity to Ekubo via" + " " + get_symbol(ekubo_adapter),
+                description: "Deposit liquidity to Ekubo"
+                    + "for"
+                    + " "
+                    + get_symbol(token0)
+                    + " "
+                    + "and"
+                    + " "
+                    + get_symbol(token1)
+                    + " "
+                    + "via"
+                    + " "
+                    + "ekubo_adapter",
             },
         );
     leaf_index += 1;
@@ -76,7 +87,19 @@ pub fn _add_ekubo_adapter_leafs(
                 target: ekubo_adapter,
                 selector: selector!("withdraw_liquidity"),
                 argument_addresses: array![].span(),
-                description: "Withdraw liquidity from Ekubo via" + " " + get_symbol(ekubo_adapter),
+                description: "Withdraw liquidity from Ekubo"
+                    + " "
+                    + "for"
+                    + " "
+                    + get_symbol(token0)
+                    + " "
+                    + "and"
+                    + " "
+                    + get_symbol(token1)
+                    + " "
+                    + "via"
+                    + " "
+                    + "ekubo_adapter",
             },
         );
     leaf_index += 1;
@@ -89,7 +112,44 @@ pub fn _add_ekubo_adapter_leafs(
                 target: ekubo_adapter,
                 selector: selector!("collect_fees"),
                 argument_addresses: array![].span(),
-                description: "Collect fees from Ekubo via" + " " + get_symbol(ekubo_adapter),
+                description: "Collect fees from Ekubo"
+                    + " "
+                    + "for"
+                    + " "
+                    + get_symbol(token0)
+                    + " "
+                    + "and"
+                    + " "
+                    + get_symbol(token1)
+                    + " "
+                    + "via"
+                    + " "
+                    + "ekubo_adapter",
+            },
+        );
+    leaf_index += 1;
+
+    // Harvest rewards
+    leafs
+        .append(
+            ManageLeaf {
+                decoder_and_sanitizer,
+                target: ekubo_adapter,
+                selector: selector!("harvest"),
+                argument_addresses: array![].span(),
+                description: "Harvest rewards from Ekubo"
+                    + " "
+                    + "for"
+                    + " "
+                    + get_symbol(token0)
+                    + " "
+                    + "and"
+                    + " "
+                    + get_symbol(token1)
+                    + " "
+                    + "via"
+                    + " "
+                    + "ekubo_adapter",
             },
         );
     leaf_index += 1;

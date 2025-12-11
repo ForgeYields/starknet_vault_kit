@@ -15,7 +15,6 @@ pub mod ParadexGigaVaultMiddleware {
     use vault_allocator::middlewares::paradex_gigavault_middleware::interface::IParadexGigaVaultMiddleware;
     use vault_allocator::pods::components::asset_transfer_pod::AssetTransferPodComponent;
     use vault_allocator::pods::components::asset_transfer_pod::AssetTransferPodComponent::InternalTrait as AssetTransferPodInternalTrait;
-    use crate::pods::components::interface::IAssetTransferPod;
     // --- OpenZeppelin Component Integrations ---
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
@@ -80,7 +79,10 @@ pub mod ParadexGigaVaultMiddleware {
             };
             // Transfer assets from vault allocator vault to the middleware vault and approve +
             // request withdrawal from Paradex GigaVault
-            asset_dispatcher.transfer_from(self.get_vault(), get_contract_address(), shares);
+            asset_dispatcher
+                .transfer_from(
+                    self.asset_transfer_pod.get_vault_allocator(), get_contract_address(), shares,
+                );
             asset_dispatcher.approve(paradex_gigavault_vault.contract_address, shares);
             paradex_gigavault_vault.request_withdrawal(shares);
         }
