@@ -24,6 +24,7 @@ pub mod CctpDecoderAndSanitizerComponent {
             destination_domain: u32,
             mint_recipient: u256,
             burn_token: ContractAddress,
+            token_to_claim: ContractAddress,
             destination_caller: u256,
             max_fee: u256,
             min_finality_threshold: u32,
@@ -32,6 +33,7 @@ pub mod CctpDecoderAndSanitizerComponent {
             destination_domain.serialize(ref serialized_struct);
             mint_recipient.serialize(ref serialized_struct);
             burn_token.serialize(ref serialized_struct);
+            token_to_claim.serialize(ref serialized_struct);
             destination_caller.serialize(ref serialized_struct);
             serialized_struct.span()
         }

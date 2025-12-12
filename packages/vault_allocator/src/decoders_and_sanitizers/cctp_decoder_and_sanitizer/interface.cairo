@@ -12,6 +12,7 @@ pub trait ICctpDecoderAndSanitizer<T> {
         destination_domain: u32,
         mint_recipient: u256,
         burn_token: ContractAddress,
+        token_to_claim: ContractAddress,
         destination_caller: u256,
         max_fee: u256,
         min_finality_threshold: u32,

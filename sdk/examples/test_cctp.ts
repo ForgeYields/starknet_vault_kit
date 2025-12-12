@@ -1,4 +1,4 @@
-import { VaultCuratorSDK, BridgeTokenCctpParams } from "../src/index";
+import { VaultCuratorSDK } from "../src/index";
 import { CalldataBuilder } from "../src/utils/calldata";
 import * as fs from "fs";
 import * as path from "path";
@@ -15,7 +15,7 @@ console.log(`   Leafs: ${vaultConfig.metadata.leaf_used}/${vaultConfig.metadata.
 
 // Find the CCTP bridge leaf (deposit_for_burn)
 const cctpLeaf = vaultConfig.leafs.find(
-  (leaf: any) => leaf.description && leaf.description.includes("CCTP: burn")
+  (leaf: any) => leaf.description && leaf.description.includes("CCTP: bridge")
 );
 
 if (!cctpLeaf) {
@@ -44,7 +44,7 @@ if (!cctpLeaf) {
 
 // Find the approve leaf for burn_token to CCTP middleware
 const approveBurnTokenLeaf = vaultConfig.leafs.find(
-  (leaf: any) => leaf.description && leaf.description.includes("cctp_middleware") && !leaf.description.includes("CCTP: burn")
+  (leaf: any) => leaf.description && leaf.description.includes("Approve cctp_middleware")
 );
 
 if (!approveBurnTokenLeaf) {
@@ -66,9 +66,9 @@ try {
 
   console.log("\nVaultCuratorSDK initialized successfully");
 
-  // Bridge amount: example with 100 USDC (6 decimals)
-  const bridgeAmount = "100000000"; // 100 USDC with 6 decimals
-  const maxFee = "1000000"; // 1 USDC max fee
+  // Bridge amount: 1 USDC (6 decimals)
+  const bridgeAmount = "1000000"; // 1 USDC with 6 decimals
+  const maxFee = "500000"; // 0.5 USDC max fee
 
   // Reconstruct mint_recipient u256 from low and high parts
   const mintRecipientLow = BigInt(cctpLeaf.argument_addresses[1]);

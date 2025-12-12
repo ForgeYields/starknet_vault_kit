@@ -11,6 +11,7 @@ pub mod SimpleDecoderAndSanitizer {
     use vault_allocator::decoders_and_sanitizers::starknet_vault_kit_decoder_and_sanitizer::starknet_vault_kit_decoder_and_sanitizer::StarknetVaultKitDecoderAndSanitizerComponent;
     use vault_allocator::decoders_and_sanitizers::vesu_v2_decoder_and_sanitizer::vesu_v2_decoder_and_sanitizer::VesuV2DecoderAndSanitizerComponent;
     use vault_allocator::decoders_and_sanitizers::hyperlane_decoder_and_sanitizer::hyperlane_decoder_and_sanitizer::HyperlaneDecoderAndSanitizerComponent;
+    use vault_allocator::decoders_and_sanitizers::cctp_decoder_and_sanitizer::cctp_decoder_and_sanitizer::CctpDecoderAndSanitizerComponent;
 
     component!(
         path: BaseDecoderAndSanitizerComponent,
@@ -53,6 +54,12 @@ pub mod SimpleDecoderAndSanitizer {
         event: HyperlaneDecoderAndSanitizerEvent,
     );
 
+    component!(
+        path: CctpDecoderAndSanitizerComponent,
+        storage: cctp_decoder_and_sanitizer,
+        event: CctpDecoderAndSanitizerEvent,
+    );
+
     #[abi(embed_v0)]
     impl StarkgateDecoderAndSanitizerImpl =
         StarkgateDecoderAndSanitizerComponent::StarkgateDecoderAndSanitizerImpl<ContractState>;
@@ -86,6 +93,10 @@ pub mod SimpleDecoderAndSanitizer {
     impl HyperlaneDecoderAndSanitizerImpl =
         HyperlaneDecoderAndSanitizerComponent::HyperlaneDecoderAndSanitizerImpl<ContractState>;
 
+    #[abi(embed_v0)]
+    impl CctpDecoderAndSanitizerImpl =
+        CctpDecoderAndSanitizerComponent::CctpDecoderAndSanitizerImpl<ContractState>;
+
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
@@ -102,6 +113,8 @@ pub mod SimpleDecoderAndSanitizer {
         pub starkgate_decoder_and_sanitizer: StarkgateDecoderAndSanitizerComponent::Storage,
         #[substorage(v0)]
         pub hyperlane_decoder_and_sanitizer: HyperlaneDecoderAndSanitizerComponent::Storage,
+        #[substorage(v0)]
+        pub cctp_decoder_and_sanitizer: CctpDecoderAndSanitizerComponent::Storage,
     }
 
     #[event]
@@ -121,5 +134,7 @@ pub mod SimpleDecoderAndSanitizer {
         StarkgateDecoderAndSanitizerEvent: StarkgateDecoderAndSanitizerComponent::Event,
         #[flat]
         HyperlaneDecoderAndSanitizerEvent: HyperlaneDecoderAndSanitizerComponent::Event,
+        #[flat]
+        CctpDecoderAndSanitizerEvent: CctpDecoderAndSanitizerComponent::Event,
     }
 }
