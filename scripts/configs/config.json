@@ -24,7 +24,7 @@
       "AvnuMiddleware": "0x30c8c751cedb2339a65b1b4e518cd9a8ccb56b7c397c1609362b02ac482ae6a",
       "Manager": "0x23a91c52488034095902965133a91f4a271ba00e9cdf2c2f944965e28876c67",
       "PriceRouter": "0x0388513a8239b53c9dba7a19049e9159f73a9d196dcb10745489bdc7d65839e5",
-      "SimpleDecoderAndSanitizer": "0x1a43b1344a9ef7c2fbd5421178f9ad495d3a3f0daecd0e4232169fcc6395f38",
+      "SimpleDecoderAndSanitizer": "0x3ea3e9c7829e5b594f42f5ee0e8ee1e9a4263d082d2694b8aa0720a84db950b",
       "AumProvider4626": "0x21aa3fcc7be5d6078d8551838e297e5e29f7e594c2f1338e3a27dbb11e127eb",
       "VesuV2SpecificDecoderAndSanitizer": "0x02da0e885beb8200e0c1e2793cd5afecd4567c41b4f19940a962d77cd0b34f29",
       "StarkgateMiddleware": "0x02ba274e79e43284d2003f18d059af27d87165594e2902792eb9f5876499c3a9",

@@ -134,10 +134,6 @@ pub mod decoders_and_sanitizers {
         pub mod cctp_decoder_and_sanitizer;
         pub mod interface;
     }
-    pub mod cctp_middleware_decoder_and_sanitizer {
-        pub mod cctp_middleware_decoder_and_sanitizer;
-        pub mod interface;
-    }
     pub mod ekubo_adapter_decoder_and_sanitizer {
         pub mod ekubo_adapter_decoder_and_sanitizer;
         pub mod interface;
