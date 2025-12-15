@@ -172,10 +172,11 @@ pub mod mocks {
 
 #[cfg(test)]
 pub mod test {
-    // pub mod creator {
-    //     // pub mod creator;
-    //     pub mod creator_fyWBTC;
-    // }
+    pub mod creator {
+        pub mod creator;
+        pub mod creator_fyWBTC;
+        pub mod creator_sdk_test;
+    }
     pub mod utils;
     pub mod middleware {
         pub mod base_middleware;
@@ -208,6 +209,7 @@ pub mod merkle_tree {
     pub mod integrations {
         pub mod avnu;
         pub mod cctp;
+        pub mod defi_spring;
         pub mod ekubo_adapter;
         pub mod erc4626;
         pub mod extended;

@@ -3,7 +3,7 @@ set -euo pipefail
 
 # --- Config ---
 PKG="vault_allocator"
-TEST="vault_allocator::test::creator::creator_fyWBTC::test_creator"
+TEST="vault_allocator::test::creator::creator_sdk_test::test_creator"
 OUT_DIR="leafs"
 
 # Nom du fichier = premier argument (sinon "merkle")

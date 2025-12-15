@@ -16,7 +16,7 @@ fmt.workspace = true
 [[tool.snforge.fork]]
 name = "MAINNET"
 url = "https://rpc.starknet.lava.build"
-block_id.tag = "latest"
+block_id.number = "4343594"
 
 
 [[tool.snforge.fork]]
