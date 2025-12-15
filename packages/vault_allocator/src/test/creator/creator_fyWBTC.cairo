@@ -8,7 +8,7 @@ use vault_allocator::merkle_tree::base::{
 };
 use vault_allocator::merkle_tree::integrations::avnu::{AvnuConfig, _add_avnu_leafs};
 use vault_allocator::merkle_tree::integrations::ekubo_adapter::_add_ekubo_adapter_leafs;
-use vault_allocator::merkle_tree::integrations::starkgate::_add_starkgate_leafs;
+use vault_allocator::merkle_tree::integrations::starkgate::{StarkgateConfig, _add_starkgate_leafs};
 #[derive(PartialEq, Drop, Serde, Debug, Clone)]
 pub struct ManageLeafAdditionalData {
     pub decoder_and_sanitizer: ContractAddress,
@@ -134,13 +134,18 @@ fn _generate_merkle_tree(
         avnu_configs,
     );
 
+    let mut starkgate_configs: Array<StarkgateConfig> = ArrayTrait::new();
+    starkgate_configs
+        .append(
+            StarkgateConfig {
+                l2_bridge: starkgate_bridge,
+                l2_token: starkgate_token,
+                l1_recipient: starkgate_l1_recipient,
+            },
+        );
+
     _add_starkgate_leafs(
-        ref leafs,
-        ref leaf_index,
-        starkgate_bridge,
-        starkgate_token,
-        starkgate_l1_recipient,
-        vault_decoder_and_sanitizer,
+        ref leafs, ref leaf_index, vault_decoder_and_sanitizer, starkgate_configs.span(),
     );
 
     _add_ekubo_adapter_leafs(
