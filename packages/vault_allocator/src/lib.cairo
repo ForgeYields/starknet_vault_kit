@@ -60,8 +60,14 @@ pub mod middlewares {
         pub mod hyperlane_middleware;
         pub mod interface;
     }
+
     pub mod cctp_middleware {
         pub mod cctp_middleware;
+        pub mod errors;
+        pub mod interface;
+    }
+    pub mod base_middleware {
+        pub mod base_middleware;
         pub mod errors;
         pub mod interface;
     }
@@ -126,8 +132,16 @@ pub mod decoders_and_sanitizers {
         pub mod interface;
         pub mod starkgate_decoder_and_sanitizer;
     }
+    pub mod starkgate_middleware_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod starkgate_middleware_decoder_and_sanitizer;
+    }
     pub mod hyperlane_decoder_and_sanitizer {
         pub mod hyperlane_decoder_and_sanitizer;
+        pub mod interface;
+    }
+    pub mod hyperlane_middleware_decoder_and_sanitizer {
+        pub mod hyperlane_middleware_decoder_and_sanitizer;
         pub mod interface;
     }
     pub mod cctp_decoder_and_sanitizer {
