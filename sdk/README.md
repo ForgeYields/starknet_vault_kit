@@ -107,29 +107,80 @@ console.log("Total pending assets:", pendingRedemptions.totalPendingAssets);
 
 ### VaultCuratorSDK
 
-#### Calldata Generation
+The `VaultCuratorSDK` enables curators to execute DeFi operations through the vault allocator using Merkle-verified calldata. It supports multiple protocol integrations.
 
-- `buildReportCalldata(params)` - Generate AUM report calldata
-- `buildBringLiquidityCalldata(params)` - Generate bring liquidity calldata
-- `buildPauseCalldata()` - Generate pause calldata
-- `buildUnpauseCalldata()` - Generate unpause calldata
-- `buildSetFeesConfigCalldata(...)` - Generate fee configuration calldata
-- `buildSetReportDelayCalldata(delay)` - Generate report delay calldata
-- `buildSetMaxDeltaCalldata(delta)` - Generate max delta calldata
+#### Initialization
 
-#### View Methods
+```typescript
+import { VaultCuratorSDK } from '@starknet-vault-kit/sdk';
 
-- `getFeesConfig()` - Get current fee configuration
-- `getReportDelay()` - Get minimum report delay
-- `getMaxDelta()` - Get maximum AUM delta per report
-- `getLastReportTimestamp()` - Get last report timestamp
-- `canReport()` - Check if report can be made
-- `getTimeUntilNextReport()` - Get time until next report allowed
-- `getPendingRedemptionRequirements()` - Get pending redemption info
-- `isPaused()` - Check if vault is paused
-- `getCurrentEpoch()` - Get current epoch
-- `getBuffer()` - Get current buffer amount
-- `getAum()` - Get current AUM
+// Load from a vault config JSON file
+const sdk = VaultCuratorSDK.fromFile('./vault-config.json');
+
+// Or initialize with config object
+const sdk = new VaultCuratorSDK(vaultConfig);
+```
+
+#### Core Methods
+
+- `buildCall(operations)` - Build a multicall from multiple `MerkleOperation` objects
+- `bringLiquidity(params)` - Move liquidity from buffer to allocator
+- `approve(params)` - Approve tokens for a spender
+
+#### Integrations
+
+##### ERC4626 (Nested Vault Operations)
+
+Interact with other ERC-4626 vaults:
+
+- `deposit(params)` - Deposit assets into a vault
+- `mint(params)` - Mint shares from a vault
+- `withdraw(params)` - Withdraw assets from a vault
+- `redeem(params)` - Redeem shares for assets
+- `requestRedeem(params)` - Request async redemption (epoched vaults)
+- `claimRedeem(params)` - Claim completed async redemption
+
+##### AVNU (DEX Aggregator)
+
+Execute token swaps via AVNU:
+
+- `multiRouteSwap(params)` - Execute multi-hop token swaps with optimal routing
+
+##### Vesu V2 (Lending Protocol)
+
+Manage lending positions on Vesu V2:
+
+- `modifyPositionV2(params)` - Supply collateral, borrow, repay, or withdraw
+
+##### Ekubo (DEX Liquidity)
+
+Provide liquidity on Ekubo DEX:
+
+- `ekuboDepositLiquidity(params)` - Deposit liquidity to a pool
+- `ekuboWithdrawLiquidity(params)` - Withdraw liquidity from a pool
+- `ekuboCollectFees(params)` - Collect accumulated trading fees
+- `ekuboHarvest(params)` - Harvest farming rewards
+
+##### Starkgate (L1 Bridge)
+
+Bridge tokens between Starknet and Ethereum:
+
+- `bridgeTokenStarkgate(params)` - Initiate token withdrawal to L1
+- `claimTokenStarkgate(params)` - Claim tokens bridged back from L1
+
+##### Hyperlane (Cross-Chain Bridge)
+
+Bridge tokens across chains via Hyperlane:
+
+- `bridgeTokenHyperlane(params)` - Bridge tokens to another chain
+- `claimTokenHyperlane(params)` - Claim bridged tokens
+
+##### CCTP (Circle Cross-Chain Transfer)
+
+Bridge USDC via Circle's CCTP:
+
+- `bridgeTokenCctp(params)` - Bridge USDC to another chain
+- `claimTokenCctp(params)` - Claim bridged USDC
 
 ## Types
 
@@ -241,44 +292,60 @@ const redeemTx = await account.execute([{
 console.log("Redeem request tx:", redeemTx.transaction_hash);
 ```
 
-### Curator Operations
+### Curator Operations (Allocator SDK)
 
 ```typescript
 import { VaultCuratorSDK } from '@starknet-vault-kit/sdk';
+import { Account, RpcProvider } from 'starknet';
 
-const curatorSDK = new VaultCuratorSDK(vaultConfig, provider);
+// Load SDK from vault config file
+const sdk = VaultCuratorSDK.fromFile('./vault-config.json');
 
-// Check report status
-const canReport = await curatorSDK.canReport();
-if (!canReport) {
-  const timeUntilReport = await curatorSDK.getTimeUntilNextReport();
-  console.log(`Must wait ${timeUntilReport} seconds before next report`);
-  return;
-}
+const provider = new RpcProvider({ nodeUrl: "your-node-url" });
+const curatorAccount = new Account(provider, "0x...", "your-private-key");
 
-// Get current state for report
-const [currentAum, buffer, pendingRedemptions] = await Promise.all([
-  curatorSDK.getAum(),
-  curatorSDK.getBuffer(),
-  curatorSDK.getPendingRedemptionRequirements()
-]);
+// Example 1: Swap tokens via AVNU
+const swapOp = sdk.multiRouteSwap({
+  target: "0x...", // AVNU middleware address
+  sell_token_address: "0x...", // STRK
+  sell_token_amount: "1000000000000000000", // 1 STRK
+  buy_token_address: "0x...", // USDC
+  buy_token_amount: "500000", // Expected USDC
+  buy_token_min_amount: "490000", // Min USDC (slippage)
+  beneficiary: "0x...", // Vault allocator
+  integrator_fee_amount_bps: 0,
+  integrator_fee_recipient: "0x0",
+  routes: [/* route data from AVNU API */]
+});
 
-console.log("Current AUM:", currentAum);
-console.log("Buffer:", buffer);
-console.log("Pending redemptions:", pendingRedemptions.totalPendingAssets);
+// Example 2: Supply collateral to Vesu V2
+const vesuOp = sdk.modifyPositionV2({
+  target: "0x...", // Vesu pool
+  collateral_asset: "0x...", // USDC
+  debt_asset: "0x...", // ETH
+  user: "0x...", // Vault allocator
+  collateral: { denomination: "Native", value: { abs: "1000000", is_negative: false } },
+  debt: { denomination: "Native", value: { abs: "0", is_negative: false } }
+});
 
-// Generate report with new AUM
-const newAum = "5500000000"; // Updated AUM from strategy
-const reportCalldata = curatorSDK.buildReportCalldata({ newAum });
+// Example 3: Provide liquidity on Ekubo
+const ekuboOp = sdk.ekuboDepositLiquidity({
+  target: "0x...", // Ekubo adapter
+  amount0: "1000000",
+  amount1: "1000000"
+});
 
-// Execute report
-const reportTx = await curatorAccount.execute([{
-  contractAddress: reportCalldata.contractAddress,
-  entrypoint: reportCalldata.entrypoint,
-  calldata: reportCalldata.calldata
-}]);
+// Build and execute a multicall with multiple operations
+const approveOp = sdk.approve({
+  target: "0x...", // Token to approve
+  spender: "0x...", // Protocol contract
+  amount: "1000000000"
+});
 
-console.log("Report tx:", reportTx.transaction_hash);
+const call = sdk.buildCall([approveOp, swapOp]);
+
+const tx = await curatorAccount.execute(call);
+console.log("Transaction hash:", tx.transaction_hash);
 ```
 
 ## License
