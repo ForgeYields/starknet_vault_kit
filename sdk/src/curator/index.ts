@@ -165,29 +165,9 @@ export interface i257 {
   is_negative: boolean;
 }
 
-export interface Amount {
-  amount_type: "Delta" | "Target";
-  denomination: "Native" | "Assets";
-  value: i257;
-}
-
 export interface AmountV2 {
   denomination: "Native" | "Assets";
   value: i257;
-}
-
-export interface ModifyPositionV1ParamsInput {
-  target: string;
-  pool_id: string;
-  collateral_asset: string;
-  debt_asset: string;
-  collateral: Amount;
-  debt: Amount;
-  data: string[];
-}
-
-export interface ModifyPositionV1Params extends ModifyPositionV1ParamsInput {
-  user: string;
 }
 
 export interface ModifyPositionParamsV2Input {
@@ -398,24 +378,6 @@ export class VaultCuratorSDK {
         owner: this.config.metadata.vault_allocator,
       }),
     ];
-  }
-
-  public ModifyPositionV1Helper(
-    params: ModifyPositionV1ParamsInput,
-    withApprovalCall?: ApproveParams
-  ): Call[] {
-    const calls: Call[] = [];
-
-    if (withApprovalCall) {
-      calls.push(this.approve(withApprovalCall));
-    }
-    calls.push(
-      this.modifyPositionV1({
-        ...params,
-        user: this.config.metadata.vault_allocator,
-      })
-    );
-    return calls;
   }
 
   public ModifyPositionV2Helper(
@@ -1134,79 +1096,6 @@ export class VaultCuratorSDK {
         params.burn_token,
         params.token_to_claim,
         params.destination_domain.toString(),
-      ],
-    };
-  }
-
-  public modifyPositionV1(params: ModifyPositionV1Params): Call {
-    const modifyPositionSelector = BigInt(
-      selector.getSelectorFromName("modify_position")
-    ).toString();
-    const modifyPositionLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === modifyPositionSelector &&
-        leaf.target === params.target
-    );
-
-    if (!modifyPositionLeaf) {
-      throw new Error(
-        "Modify position operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      modifyPositionLeaf.leaf_hash
-    );
-
-    // Serialize ModifyPositionParams according to Cairo implementation
-    const collateralAbsUint256 = uint256.bnToUint256(
-      params.collateral.value.abs.toString()
-    );
-    const debtAbsUint256 = uint256.bnToUint256(
-      params.debt.value.abs.toString()
-    );
-
-    const calldata = [
-      params.pool_id,
-      params.collateral_asset,
-      params.debt_asset,
-      params.user,
-      // collateral Amount
-      params.collateral.amount_type === "Delta" ? "0" : "1", // AmountType enum
-      params.collateral.denomination === "Native" ? "0" : "1", // AmountDenomination enum
-      // collateral i257 value
-      collateralAbsUint256.low.toString(),
-      collateralAbsUint256.high.toString(),
-      params.collateral.value.is_negative ? "1" : "0",
-      // debt Amount
-      params.debt.amount_type === "Delta" ? "0" : "1",
-      params.debt.denomination === "Native" ? "0" : "1",
-      // debt i257 value
-      debtAbsUint256.low.toString(),
-      debtAbsUint256.high.toString(),
-      params.debt.value.is_negative ? "1" : "0",
-      // data array
-      params.data.length.toString(),
-      ...params.data,
-    ];
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        modifyPositionLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        modifyPositionLeaf.target,
-        "1", // selectors array length
-        modifyPositionLeaf.selector,
-        "1", // calldatas array length
-        calldata.length.toString(),
-        ...calldata,
       ],
     };
   }
