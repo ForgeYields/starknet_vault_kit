@@ -172,27 +172,33 @@ pub mod mocks {
 
 #[cfg(test)]
 pub mod test {
-    pub mod creator {
-        // pub mod creator;
-        pub mod creator_fyWBTC;
+    // pub mod creator {
+    //     // pub mod creator;
+    //     pub mod creator_fyWBTC;
+    // }
+    pub mod utils;
+    pub mod middleware {
+        pub mod base_middleware;
+        pub mod cctp_middleware;
+        pub mod hyperlane_middleware;
+        pub mod starkgate_middleware;
     }
-    // pub mod utils;
-// pub mod units {
-//     pub mod manager;
-//     pub mod vault_allocator;
-// }
-// pub mod integrations {
-//     pub mod avnu;
-//     pub mod vault_bring_liquidity;
-//     pub mod vesu_v1;
-// }
-// pub mod scenarios {
-//     pub mod stable_carry_loop;
-// }
+    pub mod units {
+        pub mod manager;
+        pub mod vault_allocator;
+    }
+    pub mod integrations {
+        pub mod avnu;
+        pub mod vault_bring_liquidity;
+        pub mod vesu_v1;
+    }
+    pub mod scenarios {
+        pub mod stable_carry_loop;
+    }
 
-    // pub mod adapters {
-//     pub mod ekubo_adapter;
-// }
+    pub mod adapters {
+        pub mod ekubo_adapter;
+    }
 }
 
 

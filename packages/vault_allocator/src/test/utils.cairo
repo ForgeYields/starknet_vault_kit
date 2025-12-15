@@ -3,7 +3,10 @@
 // Licensed under the MIT License. See LICENSE file for details.
 
 use openzeppelin::merkle_tree::hashes::PedersenCHasher;
-use snforge_std::{CheatSpan, ContractClassTrait, DeclareResultTrait, cheat_caller_address, declare};
+use snforge_std::{
+    CheatSpan, ContractClassTrait, DeclareResultTrait, cheat_caller_address, declare,
+    map_entry_address, store,
+};
 use starknet::{ClassHash, ContractAddress};
 use vault_allocator::adapters::ekubo_adapter::interface::IEkuboAdapterDispatcher;
 use vault_allocator::integration_interfaces::ekubo::{Bounds, PoolKey};
@@ -183,5 +186,28 @@ pub fn cheat_caller_address_once(
     contract_address: ContractAddress, caller_address: ContractAddress,
 ) {
     cheat_caller_address(:contract_address, :caller_address, span: CheatSpan::TargetCalls(1));
+}
+
+/// Sets the ERC20 balance of `account` for the given `token` to `amount`.
+/// This directly writes to the contract storage, bypassing normal transfer logic.
+pub fn set_token_balance(token: ContractAddress, account: ContractAddress, amount: u256) {
+    let mut calldata = ArrayTrait::new();
+    amount.serialize(ref calldata);
+    store(
+        token,
+        map_entry_address(selector!("ERC20_balances"), array![account.into()].span()),
+        calldata.span(),
+    );
+}
+
+/// Sets the ERC20 balance for tokens that use 'balances' storage selector (e.g., Circle USDC_CCTP).
+pub fn set_token_balance_circle(token: ContractAddress, account: ContractAddress, amount: u256) {
+    let mut calldata = ArrayTrait::new();
+    amount.serialize(ref calldata);
+    store(
+        token,
+        map_entry_address(selector!("balances"), array![account.into()].span()),
+        calldata.span(),
+    );
 }
 
