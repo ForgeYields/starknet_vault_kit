@@ -16,7 +16,29 @@ fmt.workspace = true
 [[tool.snforge.fork]]
 name = "MAINNET"
 url = "https://rpc.starknet.lava.build"
-block_id.tag = "latest"
+block_id.number = "4343594"
+
+
+[[tool.snforge.fork]]
+name = "STARKGATE_MIDDLEWARE"
+url = "https://rpc.starknet.lava.build"
+block_id.number = "4336541"
+
+[[tool.snforge.fork]]
+name = "CCTP_MIDDLEWARE"
+url = "https://rpc.starknet.lava.build"
+block_id.number = "4336541"
+
+[[tool.snforge.fork]]
+name = "HYPERLANE_MIDDLEWARE"
+url = "https://rpc.starknet.lava.build"
+block_id.number = "4336541"
+
+[[tool.snforge.fork]]
+name = "BASE_MIDDLEWARE"
+url = "https://rpc.starknet.lava.build"
+block_id.number = "4336541"
+
 
 [[tool.snforge.fork]]
 name = "AVNU"
@@ -29,20 +51,14 @@ name = "EKUBO"
 url = "https://rpc.starknet.lava.build"
 block_id.number = "4077824"
 
-
-
-
-
-
-
 [[tool.snforge.fork]]
 name = "SSCL"
-url = "https://starknet-mainnet.public.blastapi.io/rpc/v0_8"
+url = "https://rpc.starknet.lava.build"
 block_id.number = "1784627"
 
 [[tool.snforge.fork]]
 name = "SLLSE"
-url = "https://starknet-mainnet.public.blastapi.io/rpc/v0_8"
+url = "https://rpc.starknet.lava.build"
 block_id.number = "1794270"
 
 [dependencies]

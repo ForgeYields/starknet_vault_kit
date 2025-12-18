@@ -8,7 +8,7 @@ pub struct AvnuConfig {
     pub buy_token: ContractAddress,
 }
 
-
+// work for interacting directly with the avnu router or using the avnu middleware
 pub fn _add_avnu_leafs(
     ref leafs: Array<ManageLeaf>,
     ref leaf_index: u256,

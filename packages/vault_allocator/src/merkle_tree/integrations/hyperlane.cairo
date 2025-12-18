@@ -6,10 +6,8 @@ use vault_allocator::merkle_tree::registery::STRK;
 
 #[derive(PartialEq, Drop, Serde, Debug, Clone)]
 pub struct HyperlaneConfig {
-    pub middleware: ContractAddress,
-    pub token_to_bridge: ContractAddress,
-    pub token_to_claim: ContractAddress,
-    pub destination_domain: u32,
+    pub warp_route_token: ContractAddress,
+    pub destination: u32,
     pub recipient: u256,
 }
 
@@ -22,6 +20,86 @@ pub fn _add_hyperlane_leafs(
 ) {
     for i in 0..hyperlane_configs.len() {
         let config = hyperlane_configs.at(i);
+        let warp_route_token = *config.warp_route_token;
+        let destination = *config.destination;
+        let recipient = *config.recipient;
+
+        // Approval for STRK (gas token) to the warp route token
+        leafs
+            .append(
+                ManageLeaf {
+                    decoder_and_sanitizer,
+                    target: STRK(),
+                    selector: selector!("approve"),
+                    argument_addresses: array![warp_route_token.into()].span(),
+                    description: "Approve"
+                        + " "
+                        + "hyperlane"
+                        + " "
+                        + "to spend"
+                        + " "
+                        + get_symbol(STRK()),
+                },
+            );
+        leaf_index += 1;
+
+        // Transfer remote operation
+        let mut argument_addresses_transfer = ArrayTrait::new();
+
+        // destination
+        destination.serialize(ref argument_addresses_transfer);
+
+        // recipient
+        recipient.serialize(ref argument_addresses_transfer);
+
+        // Format addresses for description
+        let recipient_str: ByteArray = FormatAsByteArray::format_as_byte_array(@recipient, 16);
+        let domain_felt: felt252 = destination.into();
+        let domain_str: ByteArray = FormatAsByteArray::format_as_byte_array(@domain_felt, 16);
+
+        leafs
+            .append(
+                ManageLeaf {
+                    decoder_and_sanitizer,
+                    target: warp_route_token,
+                    selector: selector!("transfer_remote"),
+                    argument_addresses: argument_addresses_transfer.span(),
+                    description: "Hyperlane: transfer"
+                        + " "
+                        + get_symbol(warp_route_token)
+                        + " "
+                        + "on domain"
+                        + " "
+                        + domain_str
+                        + " "
+                        + "to recipient"
+                        + " "
+                        + recipient_str,
+                },
+            );
+        leaf_index += 1;
+    }
+}
+
+
+#[derive(PartialEq, Drop, Serde, Debug, Clone)]
+pub struct HyperlaneMiddlewareConfig {
+    pub middleware: ContractAddress,
+    pub token_to_bridge: ContractAddress,
+    pub token_to_claim: ContractAddress,
+    pub destination_domain: u32,
+    pub recipient: u256,
+}
+
+
+pub fn _add_hyperlane_middleware_leafs(
+    ref leafs: Array<ManageLeaf>,
+    ref leaf_index: u256,
+    decoder_and_sanitizer: ContractAddress,
+    hyperlane_configs: Span<HyperlaneMiddlewareConfig>,
+) {
+    for i in 0..hyperlane_configs.len() {
+        let config = hyperlane_configs.at(i);
         let middleware = *config.middleware;
         let token_to_bridge = *config.token_to_bridge;
         let token_to_claim = *config.token_to_claim;
@@ -29,7 +107,7 @@ pub fn _add_hyperlane_leafs(
         let recipient = *config.recipient;
 
         let middleware_felt: felt252 = middleware.into();
-        let mut middleware_str: ByteArray = FormatAsByteArray::format_as_byte_array(
+        let middleware_str: ByteArray = FormatAsByteArray::format_as_byte_array(
             @middleware_felt, 16,
         );
 
@@ -91,9 +169,7 @@ pub fn _add_hyperlane_leafs(
         recipient.serialize(ref argument_addresses_bridge);
 
         // Format addresses for description
-        let recipient_str: ByteArray = FormatAsByteArray::format_as_byte_array(
-            @recipient, 16,
-        );
+        let recipient_str: ByteArray = FormatAsByteArray::format_as_byte_array(@recipient, 16);
         let domain_felt: felt252 = destination_domain.into();
         let domain_str: ByteArray = FormatAsByteArray::format_as_byte_array(@domain_felt, 16);
 

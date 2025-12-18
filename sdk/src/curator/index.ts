@@ -1,206 +1,42 @@
-import { Call, BigNumberish, uint256, hash, selector } from "starknet";
+import { Call, uint256, hash, selector } from "starknet";
 import * as fs from "fs";
 
-export interface VaultConfigData {
-  metadata: {
-    vault: string;
-    underlying_asset: string;
-    vault_allocator: string;
-    manager: string;
-    root: string;
-    tree_capacity: number;
-    leaf_used: number;
-  };
-  leafs: Array<{
-    decoder_and_sanitizer: string;
-    target: string;
-    selector: string;
-    argument_addresses: string[];
-    description: string;
-    leaf_index: number;
-    leaf_hash: string;
-  }>;
-  tree: Array<string[]>;
-}
+// Re-export all types
+export * from "./types";
 
-export interface BringLiquidityParams {
-  amount: BigNumberish;
-}
+// Import integration modules
+import * as erc4626 from "./integrations/erc4626";
+import * as avnu from "./integrations/avnu";
+import * as starkgate from "./integrations/starkgate";
+import * as hyperlane from "./integrations/hyperlane";
+import * as cctp from "./integrations/cctp";
+import * as vesu from "./integrations/vesu";
+import * as ekubo from "./integrations/ekubo";
 
-export interface ApproveParams {
-  target: string;
-  spender: string;
-  amount: BigNumberish;
-}
-
-export interface DepositParams {
-  target: string;
-  assets: BigNumberish;
-  receiver: string;
-}
-
-export interface MintParams {
-  target: string;
-  shares: BigNumberish;
-  receiver: string;
-}
-
-export interface WithdrawParams {
-  target: string;
-  assets: BigNumberish;
-  receiver: string;
-  owner: string;
-}
-
-export interface RedeemParams {
-  target: string;
-  shares: BigNumberish;
-  receiver: string;
-  owner: string;
-}
-
-export interface Route {
-  sell_token: string;
-  buy_token: string;
-  exchange_address: string;
-  percent: BigNumberish;
-  additional_swap_params: string[];
-}
-
-export interface MultiRouteSwapParamsInput {
-  target: string;
-  sell_token_address: string;
-  sell_token_amount: BigNumberish;
-  buy_token_address: string;
-  buy_token_amount: BigNumberish;
-  buy_token_min_amount: BigNumberish;
-  integrator_fee_amount_bps: BigNumberish;
-  integrator_fee_recipient: string;
-  routes: Route[];
-}
-
-export interface MultiRouteSwapParams extends MultiRouteSwapParamsInput {
-  beneficiary: string;
-}
-
-export interface RequestRedeemParams {
-  target: string;
-  shares: BigNumberish;
-  receiver: string;
-  owner: string;
-}
-
-export interface ClaimRedeemParams {
-  target: string;
-  id: BigNumberish;
-}
-
-export interface BridgeTokenStarkgateParams {
-  l1_token: string;
-  l1_recipient: string;
-  amount: BigNumberish;
-}
-
-export interface ClaimTokenStarkgateParams {}
-
-export interface BridgeTokenHyperlaneParams {
-  source_token: string;
-  destination_token: string;
-  amount: BigNumberish;
-  destination_domain: BigNumberish;
-  recipient: string;
-  strk_fee: BigNumberish;
-}
-
-export interface ClaimTokenHyperlaneParams {
-  token_to_bridge: string;
-  token_to_claim: string;
-  destination_domain: BigNumberish;
-}
-
-export interface BridgeTokenCctpParams {
-  burn_token: string;
-  token_to_claim: string;
-  amount: BigNumberish;
-  destination_domain: BigNumberish;
-  mint_recipient: string;
-  destination_caller: string;
-  max_fee: BigNumberish;
-  min_finality_threshold: BigNumberish;
-}
-
-export interface ClaimTokenCctpParams {
-  burn_token: string;
-  token_to_claim: string;
-  destination_domain: BigNumberish;
-}
-
-export interface EkuboDepositLiquidityParams {
-  target: string;
-  amount0: BigNumberish;
-  amount1: BigNumberish;
-}
-
-export interface EkuboWithdrawLiquidityParams {
-  target: string;
-  ratioWad: BigNumberish;
-  minToken0: BigNumberish;
-  minToken1: BigNumberish;
-}
-
-export interface EkuboCollectFeesParams {
-  target: string;
-}
-
-export interface EkuboHarvestParams {
-  target: string;
-  rewardContract: string;
-  amount: BigNumberish;
-  proof: string[];
-  rewardToken: string;
-}
-
-export interface i257 {
-  abs: BigNumberish;
-  is_negative: boolean;
-}
-
-export interface Amount {
-  amount_type: "Delta" | "Target";
-  denomination: "Native" | "Assets";
-  value: i257;
-}
-
-export interface AmountV2 {
-  denomination: "Native" | "Assets";
-  value: i257;
-}
-
-export interface ModifyPositionV1ParamsInput {
-  target: string;
-  pool_id: string;
-  collateral_asset: string;
-  debt_asset: string;
-  collateral: Amount;
-  debt: Amount;
-  data: string[];
-}
-
-export interface ModifyPositionV1Params extends ModifyPositionV1ParamsInput {
-  user: string;
-}
-
-export interface ModifyPositionParamsV2Input {
-  target: string;
-  collateral_asset: string;
-  debt_asset: string;
-  collateral: AmountV2;
-  debt: AmountV2;
-}
-
-export interface ModifyPositionParamsV2 extends ModifyPositionParamsV2Input {
-  user: string;
-}
+import {
+  VaultConfigData,
+  MerkleOperation,
+  BringLiquidityParams,
+  ApproveParams,
+  DepositParams,
+  MintParams,
+  WithdrawParams,
+  RedeemParams,
+  MultiRouteSwapParams,
+  RequestRedeemParams,
+  ClaimRedeemParams,
+  BridgeTokenStarkgateParams,
+  ClaimTokenStarkgateParams,
+  BridgeTokenHyperlaneParams,
+  ClaimTokenHyperlaneParams,
+  BridgeTokenCctpParams,
+  ClaimTokenCctpParams,
+  ModifyPositionParamsV2,
+  EkuboDepositLiquidityParams,
+  EkuboWithdrawLiquidityParams,
+  EkuboCollectFeesParams,
+  EkuboHarvestParams,
+} from "./types";
 
 export class VaultCuratorSDK {
   private config: VaultConfigData;
@@ -214,1246 +50,43 @@ export class VaultCuratorSDK {
     return new VaultCuratorSDK(config);
   }
 
-  public bringLiquidity(params: BringLiquidityParams): Call {
-    const bringLiquidityLeaf = this.config.leafs.find((leaf) =>
-      leaf.description.toLowerCase().includes("bring liquidity")
-    );
+  // ============================================
+  // Core methods
+  // ============================================
 
-    if (!bringLiquidityLeaf) {
-      throw new Error(
-        "Bring liquidity operation not found in vault configuration"
-      );
+  public buildCall(operations: MerkleOperation[]): Call {
+    if (operations.length === 0) {
+      throw new Error("No operations provided");
     }
 
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      bringLiquidityLeaf.leaf_hash
-    );
+    const manageProofs: string[] = [];
+    const decodersAndSanitizers: string[] = [];
+    const targets: string[] = [];
+    const selectors: string[] = [];
+    const calldatas: string[] = [];
 
-    const amountUint256 = uint256.bnToUint256(params.amount.toString());
+    for (const op of operations) {
+      manageProofs.push(op.manageProofs.length.toString(), ...op.manageProofs);
+      decodersAndSanitizers.push(op.decoderAndSanitizer);
+      targets.push(op.target);
+      selectors.push(op.selector);
+      calldatas.push(op.calldata.length.toString(), ...op.calldata);
+    }
 
     return {
       contractAddress: this.config.metadata.manager,
       entrypoint: "manage_vault_with_merkle_verification",
       calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        bringLiquidityLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        bringLiquidityLeaf.target,
-        "1", // selectors array length
-        bringLiquidityLeaf.selector,
-        "1", // calldatas array length
-        "2", // calldata length (uint256 = 2 slots)
-        amountUint256.low.toString(),
-        amountUint256.high.toString(),
-      ],
-    };
-  }
-
-  public approve(approveParams: ApproveParams): Call {
-    const approveSelector = BigInt(
-      selector.getSelectorFromName("approve")
-    ).toString();
-    const approveLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === approveSelector &&
-        leaf.target === approveParams.target &&
-        leaf.argument_addresses.includes(approveParams.spender)
-    );
-    if (!approveLeaf) {
-      throw new Error("Approve operation not found in vault configuration");
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      approveLeaf.leaf_hash
-    );
-    const amountUint256 = uint256.bnToUint256(approveParams.amount.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(),
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        approveLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        approveLeaf.target,
-        "1", // selectors array length
-        approveLeaf.selector,
-        "1", // calldatas array length
-        "3", // calldata length (spender + uint256 = 3 slots)
-        approveParams.spender,
-        amountUint256.low.toString(),
-        amountUint256.high.toString(),
-      ],
-    };
-  }
-
-  bringLiquidityHelper(shouldApprove: boolean, amount: BigNumberish): Call[] {
-    const calls: Call[] = [];
-    if (shouldApprove) {
-      calls.push(
-        this.approve({
-          target: this.config.metadata.underlying_asset,
-          spender: this.config.metadata.vault,
-          amount,
-        })
-      );
-    }
-    calls.push(this.bringLiquidity({ amount }));
-    return calls;
-  }
-
-  depositHelper(params: DepositParams & { withApproval?: boolean }): Call[] {
-    const calls: Call[] = [];
-
-    if (params.withApproval) {
-      calls.push(
-        this.approve({
-          target: this.config.metadata.underlying_asset,
-          spender: params.target,
-          amount: params.assets,
-        })
-      );
-    }
-
-    calls.push(this.deposit(params));
-    return calls;
-  }
-
-  mintHelper(params: MintParams & { withApproval?: boolean }): Call[] {
-    const calls: Call[] = [];
-
-    if (params.withApproval) {
-      calls.push(
-        this.approve({
-          target: this.config.metadata.underlying_asset,
-          spender: this.config.metadata.vault_allocator,
-          amount: params.shares,
-        })
-      );
-    }
-
-    calls.push(this.mint(params));
-    return calls;
-  }
-
-  withdrawHelper(target: string, assets: BigNumberish): Call[] {
-    return [
-      this.withdraw({
-        target,
-        assets,
-        receiver: this.config.metadata.vault_allocator,
-        owner: this.config.metadata.vault_allocator,
-      }),
-    ];
-  }
-
-  redeemHelper(target: string, shares: BigNumberish): Call[] {
-    return [
-      this.redeem({
-        target,
-        shares,
-        receiver: this.config.metadata.vault_allocator,
-        owner: this.config.metadata.vault_allocator,
-      }),
-    ];
-  }
-
-  multiRouteSwapHelper(
-    params: MultiRouteSwapParamsInput,
-    { withApproval }: { withApproval?: boolean } = { withApproval: true }
-  ): Call[] {
-    const calls: Call[] = [];
-    if (withApproval) {
-      calls.push(
-        this.approve({
-          target: params.sell_token_address,
-          spender: params.target,
-          amount: params.sell_token_amount,
-        })
-      );
-    }
-    calls.push(
-      this.multiRouteSwap({
-        ...params,
-        beneficiary: this.config.metadata.vault_allocator,
-      })
-    );
-    return calls;
-  }
-
-  public requestRedeemHelper(target: string, shares: BigNumberish): Call[] {
-    return [
-      this.requestRedeem({
-        target,
-        shares,
-        receiver: this.config.metadata.vault_allocator,
-        owner: this.config.metadata.vault_allocator,
-      }),
-    ];
-  }
-
-  public ModifyPositionV1Helper(
-    params: ModifyPositionV1ParamsInput,
-    withApprovalCall?: ApproveParams
-  ): Call[] {
-    const calls: Call[] = [];
-
-    if (withApprovalCall) {
-      calls.push(this.approve(withApprovalCall));
-    }
-    calls.push(
-      this.modifyPositionV1({
-        ...params,
-        user: this.config.metadata.vault_allocator,
-      })
-    );
-    return calls;
-  }
-
-  public ModifyPositionV2Helper(
-    params: ModifyPositionParamsV2Input,
-    withApprovalCall?: ApproveParams
-  ): Call[] {
-    const calls: Call[] = [];
-
-    if (withApprovalCall) {
-      calls.push(this.approve(withApprovalCall));
-    }
-    calls.push(
-      this.modifyPositionV2({
-        ...params,
-        user: this.config.metadata.vault_allocator,
-      })
-    );
-    return calls;
-  }
-
-  public ekuboDepositLiquidityHelper(
-    params: EkuboDepositLiquidityParams & {
-      token0: string;
-      token1: string;
-      withApproval?: boolean;
-    }
-  ): Call[] {
-    const calls: Call[] = [];
-
-    if (params.withApproval) {
-      calls.push(
-        this.approve({
-          target: params.token0,
-          spender: params.target,
-          amount: params.amount0,
-        })
-      );
-      calls.push(
-        this.approve({
-          target: params.token1,
-          spender: params.target,
-          amount: params.amount1,
-        })
-      );
-    }
-
-    calls.push(
-      this.ekuboDepositLiquidity({
-        target: params.target,
-        amount0: params.amount0,
-        amount1: params.amount1,
-      })
-    );
-    return calls;
-  }
-
-  public ekuboWithdrawLiquidityHelper(
-    params: EkuboWithdrawLiquidityParams
-  ): Call[] {
-    return [
-      this.ekuboWithdrawLiquidity({
-        target: params.target,
-        ratioWad: params.ratioWad,
-        minToken0: params.minToken0,
-        minToken1: params.minToken1,
-      }),
-    ];
-  }
-
-  public deposit(params: DepositParams): Call {
-    const depositSelector = BigInt(
-      selector.getSelectorFromName("deposit")
-    ).toString();
-    const depositLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === depositSelector && leaf.target === params.target
-    );
-
-    if (!depositLeaf) {
-      throw new Error("Deposit operation not found in vault configuration");
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      depositLeaf.leaf_hash
-    );
-
-    const assetsUint256 = uint256.bnToUint256(params.assets.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        depositLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        depositLeaf.target,
-        "1", // selectors array length
-        depositLeaf.selector,
-        "1", // calldatas array length
-        "3", // calldata length (uint256 + address = 3 slots)
-        assetsUint256.low.toString(),
-        assetsUint256.high.toString(),
-        params.receiver,
-      ],
-    };
-  }
-
-  public mint(params: MintParams): Call {
-    const mintSelector = BigInt(
-      selector.getSelectorFromName("mint")
-    ).toString();
-    const mintLeaf = this.config.leafs.find(
-      (leaf) => leaf.selector === mintSelector && leaf.target === params.target
-    );
-
-    if (!mintLeaf) {
-      throw new Error("Mint operation not found in vault configuration");
-    }
-
-    const proofs = this.getManageProofs(this.config.tree, mintLeaf.leaf_hash);
-
-    const sharesUint256 = uint256.bnToUint256(params.shares.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        mintLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        mintLeaf.target,
-        "1", // selectors array length
-        mintLeaf.selector,
-        "1", // calldatas array length
-        "3", // calldata length (uint256 + address = 3 slots)
-        sharesUint256.low.toString(),
-        sharesUint256.high.toString(),
-        params.receiver,
-      ],
-    };
-  }
-
-  public withdraw(params: WithdrawParams): Call {
-    const withdrawSelector = BigInt(
-      selector.getSelectorFromName("withdraw")
-    ).toString();
-    const withdrawLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === withdrawSelector && leaf.target === params.target
-    );
-
-    if (!withdrawLeaf) {
-      throw new Error("Withdraw operation not found in vault configuration");
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      withdrawLeaf.leaf_hash
-    );
-
-    const assetsUint256 = uint256.bnToUint256(params.assets.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        withdrawLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        withdrawLeaf.target,
-        "1", // selectors array length
-        withdrawLeaf.selector,
-        "1", // calldatas array length
-        "4", // calldata length (uint256 + 2 addresses = 4 slots)
-        assetsUint256.low.toString(),
-        assetsUint256.high.toString(),
-        params.receiver,
-        params.owner,
-      ],
-    };
-  }
-
-  public redeem(params: RedeemParams): Call {
-    const redeemSelector = BigInt(
-      selector.getSelectorFromName("redeem")
-    ).toString();
-    const redeemLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === redeemSelector && leaf.target === params.target
-    );
-
-    if (!redeemLeaf) {
-      throw new Error("Redeem operation not found in vault configuration");
-    }
-
-    const proofs = this.getManageProofs(this.config.tree, redeemLeaf.leaf_hash);
-
-    const sharesUint256 = uint256.bnToUint256(params.shares.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        redeemLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        redeemLeaf.target,
-        "1", // selectors array length
-        redeemLeaf.selector,
-        "1", // calldatas array length
-        "4", // calldata length (uint256 + 2 addresses = 4 slots)
-        sharesUint256.low.toString(),
-        sharesUint256.high.toString(),
-        params.receiver,
-        params.owner,
-      ],
-    };
-  }
-
-  public multiRouteSwap(params: MultiRouteSwapParams): Call {
-    const multiRouteSwapSelector = BigInt(
-      selector.getSelectorFromName("multi_route_swap")
-    ).toString();
-    const swapLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === multiRouteSwapSelector &&
-        leaf.target === params.target &&
-        leaf.argument_addresses.length === 3 &&
-        leaf.argument_addresses[0] === params.sell_token_address &&
-        leaf.argument_addresses[1] === params.buy_token_address &&
-        leaf.argument_addresses[2] === this.config.metadata.vault_allocator
-    );
-
-    if (!swapLeaf) {
-      throw new Error(
-        "Multi route swap operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(this.config.tree, swapLeaf.leaf_hash);
-
-    const sellAmountUint256 = uint256.bnToUint256(
-      params.sell_token_amount.toString()
-    );
-    const buyAmountUint256 = uint256.bnToUint256(
-      params.buy_token_amount.toString()
-    );
-    const buyMinAmountUint256 = uint256.bnToUint256(
-      params.buy_token_min_amount.toString()
-    );
-
-    // Serialize routes array
-    const routesCalldata: string[] = [];
-    routesCalldata.push(params.routes.length.toString()); // routes array length
-
-    for (const route of params.routes) {
-      routesCalldata.push(route.sell_token);
-      routesCalldata.push(route.buy_token);
-      routesCalldata.push(route.exchange_address);
-      routesCalldata.push(route.percent.toString()); // u128 is a single felt
-      routesCalldata.push(route.additional_swap_params.length.toString());
-      routesCalldata.push(...route.additional_swap_params);
-    }
-
-    const calldata = [
-      params.sell_token_address,
-      sellAmountUint256.low.toString(),
-      sellAmountUint256.high.toString(),
-      params.buy_token_address,
-      buyAmountUint256.low.toString(),
-      buyAmountUint256.high.toString(),
-      buyMinAmountUint256.low.toString(),
-      buyMinAmountUint256.high.toString(),
-      params.beneficiary,
-      params.integrator_fee_amount_bps.toString(),
-      params.integrator_fee_recipient,
-      ...routesCalldata,
-    ];
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        swapLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        swapLeaf.target,
-        "1", // selectors array length
-        swapLeaf.selector,
-        "1", // calldatas array length
-        calldata.length.toString(),
-        ...calldata,
-      ],
-    };
-  }
-
-  public requestRedeem(params: RequestRedeemParams): Call {
-    const requestRedeemSelector = BigInt(
-      selector.getSelectorFromName("request_redeem")
-    ).toString();
-    const requestRedeemLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === requestRedeemSelector && leaf.target === params.target
-    );
-
-    if (!requestRedeemLeaf) {
-      throw new Error(
-        "Request redeem operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      requestRedeemLeaf.leaf_hash
-    );
-
-    const sharesUint256 = uint256.bnToUint256(params.shares.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        requestRedeemLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        requestRedeemLeaf.target,
-        "1", // selectors array length
-        requestRedeemLeaf.selector,
-        "1", // calldatas array length
-        "4", // calldata length (uint256 + 2 addresses = 4 slots)
-        sharesUint256.low.toString(),
-        sharesUint256.high.toString(),
-        params.receiver,
-        params.owner,
-      ],
-    };
-  }
-
-  public claimRedeem(params: ClaimRedeemParams): Call {
-    const claimRedeemSelector = BigInt(
-      selector.getSelectorFromName("claim_redeem")
-    ).toString();
-    const claimRedeemLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === claimRedeemSelector && leaf.target === params.target
-    );
-
-    if (!claimRedeemLeaf) {
-      throw new Error(
-        "Claim redeem operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      claimRedeemLeaf.leaf_hash
-    );
-
-    const idUint256 = uint256.bnToUint256(params.id.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        claimRedeemLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        claimRedeemLeaf.target,
-        "1", // selectors array length
-        claimRedeemLeaf.selector,
-        "1", // calldatas array length
-        "2", // calldata length (uint256 = 2 slots)
-        idUint256.low.toString(),
-        idUint256.high.toString(),
-      ],
-    };
-  }
-
-  public bridgeTokenStarkgate(params: BridgeTokenStarkgateParams): Call {
-    const initiateTokenWithdrawSelector = BigInt(
-      selector.getSelectorFromName("initiate_token_withdraw")
-    ).toString();
-    const initiateTokenWithdrawLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === initiateTokenWithdrawSelector &&
-        leaf.argument_addresses.includes(params.l1_token) &&
-        leaf.argument_addresses.includes(params.l1_recipient)
-    );
-
-    if (!initiateTokenWithdrawLeaf) {
-      throw new Error(
-        "Initiate token withdraw operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      initiateTokenWithdrawLeaf.leaf_hash
-    );
-
-    const amountUint256 = uint256.bnToUint256(params.amount.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        initiateTokenWithdrawLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        initiateTokenWithdrawLeaf.target,
-        "1", // selectors array length
-        initiateTokenWithdrawLeaf.selector,
-        "1", // calldatas array length
-        "4", // calldata length (l1_token + l1_recipient + amount uint256 = 4 slots)
-        params.l1_token,
-        params.l1_recipient,
-        amountUint256.low.toString(),
-        amountUint256.high.toString(),
-      ],
-    };
-  }
-
-  public claimTokenStarkgate(_params: ClaimTokenStarkgateParams = {}): Call {
-    const claimTokenBridgedBackSelector = BigInt(
-      selector.getSelectorFromName("claim_token_bridged_back")
-    ).toString();
-    const claimTokenBridgedBackLeaf = this.config.leafs.find(
-      (leaf) => leaf.selector === claimTokenBridgedBackSelector
-    );
-
-    if (!claimTokenBridgedBackLeaf) {
-      throw new Error(
-        "Claim token bridged back operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      claimTokenBridgedBackLeaf.leaf_hash
-    );
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        claimTokenBridgedBackLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        claimTokenBridgedBackLeaf.target,
-        "1", // selectors array length
-        claimTokenBridgedBackLeaf.selector,
-        "1", // calldatas array length
-        "0", // calldata length (no parameters)
-      ],
-    };
-  }
-
-  public bridgeTokenHyperlane(params: BridgeTokenHyperlaneParams): Call {
-    // Convert recipient string to u256
-    const recipientUint256 = uint256.bnToUint256(params.recipient.toString());
-
-    // Convert hex to decimal strings for comparison
-    const recipientLowDecimal = BigInt(recipientUint256.low).toString();
-    const recipientHighDecimal = BigInt(recipientUint256.high).toString();
-
-    // Find the Hyperlane bridge leaf by matching argument addresses
-    // Note: argument_addresses[3] is recipient.low, argument_addresses[4] is recipient.high
-    const hyperlaneLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.argument_addresses.length >= 5 &&
-        leaf.argument_addresses[0] === params.source_token &&
-        leaf.argument_addresses[1] === params.destination_token &&
-        leaf.argument_addresses[2] === params.destination_domain.toString() &&
-        leaf.argument_addresses[3] === recipientLowDecimal &&
-        leaf.argument_addresses[4] === recipientHighDecimal
-    );
-
-    if (!hyperlaneLeaf) {
-      throw new Error(
-        "Hyperlane bridge operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      hyperlaneLeaf.leaf_hash
-    );
-
-    const amountUint256 = uint256.bnToUint256(params.amount.toString());
-    const feeUint256 = uint256.bnToUint256(params.strk_fee.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        hyperlaneLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        hyperlaneLeaf.target,
-        "1", // selectors array length
-        hyperlaneLeaf.selector,
-        "1", // calldatas array length
-        "9", // calldata length (source_token + destination_token + destination_domain + recipient_uint256 + amount_uint256 + fee_uint256 = 9 slots)
-        params.source_token,
-        params.destination_token,
-        params.destination_domain.toString(),
-        recipientLowDecimal,
-        recipientHighDecimal,
-        amountUint256.low.toString(),
-        amountUint256.high.toString(),
-        feeUint256.low.toString(),
-        feeUint256.high.toString(),
-      ],
-    };
-  }
-
-  public claimTokenHyperlane(params: ClaimTokenHyperlaneParams): Call {
-    const claimTokenSelector = BigInt(
-      selector.getSelectorFromName("claim_token")
-    ).toString();
-
-    // Find the Hyperlane claim_token leaf by matching the selector and argument addresses
-    const claimLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === claimTokenSelector &&
-        leaf.argument_addresses.length >= 3 &&
-        leaf.argument_addresses[0] === params.token_to_bridge &&
-        leaf.argument_addresses[1] === params.token_to_claim &&
-        leaf.argument_addresses[2] === params.destination_domain.toString()
-    );
-
-    if (!claimLeaf) {
-      throw new Error(
-        "Hyperlane claim_token operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(this.config.tree, claimLeaf.leaf_hash);
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        claimLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        claimLeaf.target,
-        "1", // selectors array length
-        claimLeaf.selector,
-        "1", // calldatas array length
-        "3", // calldata length (token_to_bridge + token_to_claim + destination_domain = 3 slots)
-        params.token_to_bridge,
-        params.token_to_claim,
-        params.destination_domain.toString(),
-      ],
-    };
-  }
-
-  public bridgeTokenCctp(params: BridgeTokenCctpParams): Call {
-    // Convert mint_recipient string to u256
-    const mintRecipientUint256 = uint256.bnToUint256(
-      params.mint_recipient.toString()
-    );
-    // Convert destination_caller string to u256
-    const destinationCallerUint256 = uint256.bnToUint256(
-      params.destination_caller.toString()
-    );
-
-    // Convert hex to decimal strings for comparison
-    const mintRecipientLowDecimal = BigInt(mintRecipientUint256.low).toString();
-    const mintRecipientHighDecimal = BigInt(
-      mintRecipientUint256.high
-    ).toString();
-    const destinationCallerLowDecimal = BigInt(
-      destinationCallerUint256.low
-    ).toString();
-    const destinationCallerHighDecimal = BigInt(
-      destinationCallerUint256.high
-    ).toString();
-
-    // Find the CCTP deposit_for_burn leaf by matching argument addresses
-    // argument_addresses structure from cctp.cairo:
-    // [0]: destination_domain
-    // [1]: mint_recipient.low
-    // [2]: mint_recipient.high
-    // [3]: burn_token
-    // [4]: token_to_claim
-    // [5]: destination_caller.low
-    // [6]: destination_caller.high
-    const cctpLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.argument_addresses.length >= 7 &&
-        leaf.argument_addresses[0] === params.destination_domain.toString() &&
-        leaf.argument_addresses[1] === mintRecipientLowDecimal &&
-        leaf.argument_addresses[2] === mintRecipientHighDecimal &&
-        leaf.argument_addresses[3] === params.burn_token &&
-        leaf.argument_addresses[4] === params.token_to_claim &&
-        leaf.argument_addresses[5] === destinationCallerLowDecimal &&
-        leaf.argument_addresses[6] === destinationCallerHighDecimal
-    );
-
-    if (!cctpLeaf) {
-      throw new Error(
-        "CCTP deposit_for_burn operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(this.config.tree, cctpLeaf.leaf_hash);
-
-    const amountUint256 = uint256.bnToUint256(params.amount.toString());
-    const maxFeeUint256 = uint256.bnToUint256(params.max_fee.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        cctpLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        cctpLeaf.target,
-        "1", // selectors array length
-        cctpLeaf.selector,
-        "1", // calldatas array length
-        "12", // calldata length (amount u256 + destination_domain u32 + mint_recipient u256 + burn_token + token_to_claim + destination_caller u256 + max_fee u256 + min_finality_threshold u32 = 12 slots)
-        amountUint256.low.toString(),
-        amountUint256.high.toString(),
-        params.destination_domain.toString(),
-        mintRecipientLowDecimal,
-        mintRecipientHighDecimal,
-        params.burn_token,
-        params.token_to_claim,
-        destinationCallerLowDecimal,
-        destinationCallerHighDecimal,
-        maxFeeUint256.low.toString(),
-        maxFeeUint256.high.toString(),
-        params.min_finality_threshold.toString(),
-      ],
-    };
-  }
-
-  public claimTokenCctp(params: ClaimTokenCctpParams): Call {
-    const claimTokenSelector = BigInt(
-      selector.getSelectorFromName("claim_token")
-    ).toString();
-
-    // Find the CCTP claim_token leaf by matching the selector and argument addresses
-    const claimLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === claimTokenSelector &&
-        leaf.argument_addresses.length >= 3 &&
-        leaf.argument_addresses[0] === params.burn_token &&
-        leaf.argument_addresses[1] === params.token_to_claim &&
-        leaf.argument_addresses[2] === params.destination_domain.toString()
-    );
-
-    if (!claimLeaf) {
-      throw new Error(
-        "CCTP claim_token operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(this.config.tree, claimLeaf.leaf_hash);
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        claimLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        claimLeaf.target,
-        "1", // selectors array length
-        claimLeaf.selector,
-        "1", // calldatas array length
-        "3", // calldata length (burn_token + token_to_claim + destination_domain = 3 slots)
-        params.burn_token,
-        params.token_to_claim,
-        params.destination_domain.toString(),
-      ],
-    };
-  }
-
-  public modifyPositionV1(params: ModifyPositionV1Params): Call {
-    const modifyPositionSelector = BigInt(
-      selector.getSelectorFromName("modify_position")
-    ).toString();
-    const modifyPositionLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === modifyPositionSelector &&
-        leaf.target === params.target
-    );
-
-    if (!modifyPositionLeaf) {
-      throw new Error(
-        "Modify position operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      modifyPositionLeaf.leaf_hash
-    );
-
-    // Serialize ModifyPositionParams according to Cairo implementation
-    const collateralAbsUint256 = uint256.bnToUint256(
-      params.collateral.value.abs.toString()
-    );
-    const debtAbsUint256 = uint256.bnToUint256(
-      params.debt.value.abs.toString()
-    );
-
-    const calldata = [
-      params.pool_id,
-      params.collateral_asset,
-      params.debt_asset,
-      params.user,
-      // collateral Amount
-      params.collateral.amount_type === "Delta" ? "0" : "1", // AmountType enum
-      params.collateral.denomination === "Native" ? "0" : "1", // AmountDenomination enum
-      // collateral i257 value
-      collateralAbsUint256.low.toString(),
-      collateralAbsUint256.high.toString(),
-      params.collateral.value.is_negative ? "1" : "0",
-      // debt Amount
-      params.debt.amount_type === "Delta" ? "0" : "1",
-      params.debt.denomination === "Native" ? "0" : "1",
-      // debt i257 value
-      debtAbsUint256.low.toString(),
-      debtAbsUint256.high.toString(),
-      params.debt.value.is_negative ? "1" : "0",
-      // data array
-      params.data.length.toString(),
-      ...params.data,
-    ];
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        modifyPositionLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        modifyPositionLeaf.target,
-        "1", // selectors array length
-        modifyPositionLeaf.selector,
-        "1", // calldatas array length
-        calldata.length.toString(),
-        ...calldata,
-      ],
-    };
-  }
-
-  public modifyPositionV2(params: ModifyPositionParamsV2): Call {
-    const modifyPositionSelector = BigInt(
-      selector.getSelectorFromName("modify_position")
-    ).toString();
-    const modifyPositionLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === modifyPositionSelector &&
-        leaf.target === params.target
-    );
-
-    if (!modifyPositionLeaf) {
-      throw new Error(
-        "Modify position V2 operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      modifyPositionLeaf.leaf_hash
-    );
-
-    // Serialize ModifyPositionParamsV2 according to Cairo implementation
-    const collateralAbsUint256 = uint256.bnToUint256(
-      params.collateral.value.abs.toString()
-    );
-    const debtAbsUint256 = uint256.bnToUint256(
-      params.debt.value.abs.toString()
-    );
-
-    const calldata = [
-      params.collateral_asset,
-      params.debt_asset,
-      params.user,
-      // collateral AmountV2
-      params.collateral.denomination === "Native" ? "0" : "1", // AmountDenomination enum
-      // collateral i257 value
-      collateralAbsUint256.low.toString(),
-      collateralAbsUint256.high.toString(),
-      params.collateral.value.is_negative ? "1" : "0",
-      // debt AmountV2
-      params.debt.denomination === "Native" ? "0" : "1",
-      // debt i257 value
-      debtAbsUint256.low.toString(),
-      debtAbsUint256.high.toString(),
-      params.debt.value.is_negative ? "1" : "0",
-    ];
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(), // proof length
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        modifyPositionLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        modifyPositionLeaf.target,
-        "1", // selectors array length
-        modifyPositionLeaf.selector,
-        "1", // calldatas array length
-        calldata.length.toString(),
-        ...calldata,
-      ],
-    };
-  }
-
-  public ekuboDepositLiquidity(params: EkuboDepositLiquidityParams): Call {
-    const depositLiquiditySelector = BigInt(
-      selector.getSelectorFromName("deposit_liquidity")
-    ).toString();
-    const depositLiquidityLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === depositLiquiditySelector &&
-        leaf.target === params.target
-    );
-
-    if (!depositLiquidityLeaf) {
-      throw new Error(
-        "Ekubo deposit liquidity operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      depositLiquidityLeaf.leaf_hash
-    );
-
-    const amount0Uint256 = uint256.bnToUint256(params.amount0.toString());
-    const amount1Uint256 = uint256.bnToUint256(params.amount1.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(),
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        depositLiquidityLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        depositLiquidityLeaf.target,
-        "1", // selectors array length
-        depositLiquidityLeaf.selector,
-        "1", // calldatas array length
-        "4", // calldata length (2 uint256 = 4 slots)
-        amount0Uint256.low.toString(),
-        amount0Uint256.high.toString(),
-        amount1Uint256.low.toString(),
-        amount1Uint256.high.toString(),
-      ],
-    };
-  }
-
-  public ekuboWithdrawLiquidity(params: EkuboWithdrawLiquidityParams): Call {
-    const withdrawLiquiditySelector = BigInt(
-      selector.getSelectorFromName("withdraw_liquidity")
-    ).toString();
-    const withdrawLiquidityLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === withdrawLiquiditySelector &&
-        leaf.target === params.target
-    );
-
-    if (!withdrawLiquidityLeaf) {
-      throw new Error(
-        "Ekubo withdraw liquidity operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      withdrawLiquidityLeaf.leaf_hash
-    );
-
-    const ratioWadUint256 = uint256.bnToUint256(params.ratioWad.toString());
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(),
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        withdrawLiquidityLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        withdrawLiquidityLeaf.target,
-        "1", // selectors array length
-        withdrawLiquidityLeaf.selector,
-        "1", // calldatas array length
-        "4", // calldata length (uint256 + 2 u128 = 4 slots)
-        ratioWadUint256.low.toString(),
-        ratioWadUint256.high.toString(),
-        params.minToken0.toString(),
-        params.minToken1.toString(),
-      ],
-    };
-  }
-
-  public ekuboCollectFees(params: EkuboCollectFeesParams): Call {
-    const collectFeesSelector = BigInt(
-      selector.getSelectorFromName("collect_fees")
-    ).toString();
-    const collectFeesLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === collectFeesSelector && leaf.target === params.target
-    );
-
-    if (!collectFeesLeaf) {
-      throw new Error(
-        "Ekubo collect fees operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      collectFeesLeaf.leaf_hash
-    );
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(),
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        collectFeesLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        collectFeesLeaf.target,
-        "1", // selectors array length
-        collectFeesLeaf.selector,
-        "1", // calldatas array length
-        "0", // calldata length (no parameters)
-      ],
-    };
-  }
-
-  public ekuboHarvest(params: EkuboHarvestParams): Call {
-    const harvestSelector = BigInt(
-      selector.getSelectorFromName("harvest")
-    ).toString();
-    const harvestLeaf = this.config.leafs.find(
-      (leaf) =>
-        leaf.selector === harvestSelector && leaf.target === params.target
-    );
-
-    if (!harvestLeaf) {
-      throw new Error(
-        "Ekubo harvest operation not found in vault configuration"
-      );
-    }
-
-    const proofs = this.getManageProofs(
-      this.config.tree,
-      harvestLeaf.leaf_hash
-    );
-
-    const calldata = [
-      params.rewardContract,
-      params.amount.toString(), // u128 is a single felt
-      params.proof.length.toString(),
-      ...params.proof,
-      params.rewardToken,
-    ];
-
-    return {
-      contractAddress: this.config.metadata.manager,
-      entrypoint: "manage_vault_with_merkle_verification",
-      calldata: [
-        "1", // proofs array length
-        proofs.length.toString(),
-        ...proofs,
-        "1", // decoder_and_sanitizers array length
-        harvestLeaf.decoder_and_sanitizer,
-        "1", // targets array length
-        harvestLeaf.target,
-        "1", // selectors array length
-        harvestLeaf.selector,
-        "1", // calldatas array length
-        calldata.length.toString(),
-        ...calldata,
+        operations.length.toString(),
+        ...manageProofs,
+        operations.length.toString(),
+        ...decodersAndSanitizers,
+        operations.length.toString(),
+        ...targets,
+        operations.length.toString(),
+        ...selectors,
+        operations.length.toString(),
+        ...calldatas,
       ],
     };
   }
@@ -1502,5 +135,245 @@ export class VaultCuratorSDK {
     const result = hash.computePedersenHashOnElements([first, second]);
     // Convert from hex to decimal string
     return BigInt(result).toString();
+  }
+
+  // ============================================
+  // Generic operations
+  // ============================================
+
+  public bringLiquidity(params: BringLiquidityParams): MerkleOperation {
+    const bringLiquidityLeaf = this.config.leafs.find((leaf) =>
+      leaf.description.toLowerCase().includes("bring liquidity")
+    );
+
+    if (!bringLiquidityLeaf) {
+      throw new Error(
+        "Bring liquidity operation not found in vault configuration"
+      );
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      bringLiquidityLeaf.leaf_hash
+    );
+
+    const amountUint256 = uint256.bnToUint256(params.amount.toString());
+
+    return {
+      manageProofs: proofs,
+      decoderAndSanitizer: bringLiquidityLeaf.decoder_and_sanitizer,
+      target: bringLiquidityLeaf.target,
+      selector: bringLiquidityLeaf.selector,
+      calldata: [amountUint256.low.toString(), amountUint256.high.toString()],
+    };
+  }
+
+  public approve(approveParams: ApproveParams): MerkleOperation {
+    const approveSelector = BigInt(
+      selector.getSelectorFromName("approve")
+    ).toString();
+    const approveLeaf = this.config.leafs.find(
+      (leaf) =>
+        leaf.selector === approveSelector &&
+        leaf.target === approveParams.target &&
+        leaf.argument_addresses.includes(approveParams.spender)
+    );
+    if (!approveLeaf) {
+      throw new Error("Approve operation not found in vault configuration");
+    }
+
+    const proofs = this.getManageProofs(
+      this.config.tree,
+      approveLeaf.leaf_hash
+    );
+    const amountUint256 = uint256.bnToUint256(approveParams.amount.toString());
+
+    return {
+      manageProofs: proofs,
+      decoderAndSanitizer: approveLeaf.decoder_and_sanitizer,
+      target: approveLeaf.target,
+      selector: approveLeaf.selector,
+      calldata: [
+        approveParams.spender,
+        amountUint256.low.toString(),
+        amountUint256.high.toString(),
+      ],
+    };
+  }
+
+  // ============================================
+  // ERC4626 operations
+  // ============================================
+
+  public deposit(params: DepositParams): MerkleOperation {
+    return erc4626.deposit(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public mint(params: MintParams): MerkleOperation {
+    return erc4626.mint(this.config, this.getManageProofs.bind(this), params);
+  }
+
+  public withdraw(params: WithdrawParams): MerkleOperation {
+    return erc4626.withdraw(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public redeem(params: RedeemParams): MerkleOperation {
+    return erc4626.redeem(this.config, this.getManageProofs.bind(this), params);
+  }
+
+  public requestRedeem(params: RequestRedeemParams): MerkleOperation {
+    return erc4626.requestRedeem(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public claimRedeem(params: ClaimRedeemParams): MerkleOperation {
+    return erc4626.claimRedeem(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  // ============================================
+  // AVNU swap
+  // ============================================
+
+  public multiRouteSwap(params: MultiRouteSwapParams): MerkleOperation {
+    return avnu.multiRouteSwap(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  // ============================================
+  // Starkgate bridge
+  // ============================================
+
+  public bridgeTokenStarkgate(
+    params: BridgeTokenStarkgateParams
+  ): MerkleOperation {
+    return starkgate.bridgeTokenStarkgate(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public claimTokenStarkgate(
+    params: ClaimTokenStarkgateParams = {}
+  ): MerkleOperation {
+    return starkgate.claimTokenStarkgate(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  // ============================================
+  // Hyperlane bridge
+  // ============================================
+
+  public bridgeTokenHyperlane(
+    params: BridgeTokenHyperlaneParams
+  ): MerkleOperation {
+    return hyperlane.bridgeTokenHyperlane(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public claimTokenHyperlane(
+    params: ClaimTokenHyperlaneParams
+  ): MerkleOperation {
+    return hyperlane.claimTokenHyperlane(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  // ============================================
+  // CCTP bridge
+  // ============================================
+
+  public bridgeTokenCctp(params: BridgeTokenCctpParams): MerkleOperation {
+    return cctp.bridgeTokenCctp(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public claimTokenCctp(params: ClaimTokenCctpParams): MerkleOperation {
+    return cctp.claimTokenCctp(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  // ============================================
+  // Vesu V2
+  // ============================================
+
+  public modifyPositionV2(params: ModifyPositionParamsV2): MerkleOperation {
+    return vesu.modifyPositionV2(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  // ============================================
+  // Ekubo LP
+  // ============================================
+
+  public ekuboDepositLiquidity(
+    params: EkuboDepositLiquidityParams
+  ): MerkleOperation {
+    return ekubo.ekuboDepositLiquidity(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public ekuboWithdrawLiquidity(
+    params: EkuboWithdrawLiquidityParams
+  ): MerkleOperation {
+    return ekubo.ekuboWithdrawLiquidity(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public ekuboCollectFees(params: EkuboCollectFeesParams): MerkleOperation {
+    return ekubo.ekuboCollectFees(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public ekuboHarvest(params: EkuboHarvestParams): MerkleOperation {
+    return ekubo.ekuboHarvest(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
   }
 }

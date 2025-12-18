@@ -2,6 +2,7 @@
 // Copyright (c) 2025 Starknet Vault Kit
 // Licensed under the MIT License. See LICENSE file for details.
 
+// work for interacting directly with the avnu router or using the avnu middleware
 #[starknet::component]
 pub mod AvnuExchangeDecoderAndSanitizerComponent {
     use starknet::ContractAddress;

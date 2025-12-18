@@ -4,33 +4,38 @@
 
 #[starknet::contract]
 pub mod CctpMiddleware {
-    const BPS_SCALE: u16 = 10_000;
     use core::num::traits::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
     use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
-    use openzeppelin::utils::math;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
-    use starknet::{ContractAddress, get_block_timestamp, get_caller_address, get_contract_address};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use vault_allocator::integration_interfaces::cctp::{
         ICctpTokenBridgeDispatcher, ICctpTokenBridgeDispatcherTrait,
     };
+    use vault_allocator::middlewares::base_middleware::base_middleware::BaseMiddlewareComponent;
     use vault_allocator::middlewares::cctp_middleware::errors::Errors;
     use vault_allocator::middlewares::cctp_middleware::interface::ICctpMiddleware;
-    use vault_allocator::periphery::price_router::interface::{
-        IPriceRouterDispatcher, IPriceRouterDispatcherTrait,
-    };
 
-    // --- OpenZeppelin Component Integrations ---
+    // --- Component Integrations ---
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
+    component!(path: BaseMiddlewareComponent, storage: base_middleware, event: BaseMiddlewareEvent);
 
     // --- Component Implementations ---
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+    impl BaseMiddlewareInternalImpl = BaseMiddlewareComponent::InternalImpl<ContractState>;
+
+    // --- Embedded Component Implementations ---
     #[abi(embed_v0)]
     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
-    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
-
-    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl BaseMiddlewareImpl =
+        BaseMiddlewareComponent::BaseMiddlewareImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
@@ -38,14 +43,9 @@ pub mod CctpMiddleware {
         pub ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         pub upgradeable: UpgradeableComponent::Storage,
+        #[substorage(v0)]
+        pub base_middleware: BaseMiddlewareComponent::Storage,
         pub cctp_token_bridge: ICctpTokenBridgeDispatcher,
-        pub vault_allocator: ContractAddress,
-        pub price_router: IPriceRouterDispatcher,
-        pub slippage: u16,
-        pub period: u64,
-        pub allowed_calls_per_period: u64,
-        pub current_window_id: u64,
-        pub window_call_count: u64,
         pub pending_balance: Map<(ContractAddress, ContractAddress, u32), u256>,
     }
 
@@ -56,6 +56,8 @@ pub mod CctpMiddleware {
         OwnableEvent: OwnableComponent::Event,
         #[flat]
         UpgradeableEvent: UpgradeableComponent::Event,
+        #[flat]
+        BaseMiddlewareEvent: BaseMiddlewareComponent::Event,
         DepositForBurnInitiated: DepositForBurnInitiated,
         ClaimedToken: ClaimedToken,
     }
@@ -88,11 +90,14 @@ pub mod CctpMiddleware {
         period: u64,
         allowed_calls_per_period: u64,
     ) {
-        self.vault_allocator.write(vault_allocator);
-        self.price_router.write(IPriceRouterDispatcher { contract_address: price_router });
-        self.cctp_token_bridge.write(ICctpTokenBridgeDispatcher { contract_address: cctp_token_bridge });
-        self.ownable.initializer(owner);
-        self._set_config(slippage, period, allowed_calls_per_period);
+        self
+            .base_middleware
+            .initialize_base_middleware(
+                vault_allocator, price_router, slippage, period, allowed_calls_per_period, owner,
+            );
+        self
+            .cctp_token_bridge
+            .write(ICctpTokenBridgeDispatcher { contract_address: cctp_token_bridge });
     }
 
     #[abi(embed_v0)]
@@ -109,10 +114,12 @@ pub mod CctpMiddleware {
             min_finality_threshold: u32,
         ) {
             let caller = get_caller_address();
-            self.enforce_rate_limit(caller);
+            self.base_middleware.enforce_rate_limit(caller);
 
             // Check that pending balance is zero for this pair/domain combination
-            let current_pending = self.pending_balance.read((burn_token, token_to_claim, destination_domain));
+            let current_pending = self
+                .pending_balance
+                .read((burn_token, token_to_claim, destination_domain));
             if (current_pending != Zero::zero()) {
                 Errors::pending_value_not_zero();
             }
@@ -136,17 +143,25 @@ pub mod CctpMiddleware {
                 .approve(self.cctp_token_bridge.read().contract_address, amount);
 
             // Call deposit_for_burn on the CCTP token bridge
-            self.cctp_token_bridge.read().deposit_for_burn(
-                amount,
-                destination_domain,
-                mint_recipient,
-                burn_token,
-                destination_caller,
-                max_fee,
-                min_finality_threshold,
-            );
+            self
+                .cctp_token_bridge
+                .read()
+                .deposit_for_burn(
+                    amount,
+                    destination_domain,
+                    mint_recipient,
+                    burn_token,
+                    destination_caller,
+                    max_fee,
+                    min_finality_threshold,
+                );
 
-            self.emit(DepositForBurnInitiated { burn_token, token_to_claim, destination_domain, mint_recipient, amount });
+            self
+                .emit(
+                    DepositForBurnInitiated {
+                        burn_token, token_to_claim, destination_domain, mint_recipient, amount,
+                    },
+                );
         }
 
         fn claim_token(
@@ -155,127 +170,51 @@ pub mod CctpMiddleware {
             token_to_claim: ContractAddress,
             destination_domain: u32,
         ) {
-            let pending = self.pending_balance.read((burn_token, token_to_claim, destination_domain));
+            let pending = self
+                .pending_balance
+                .read((burn_token, token_to_claim, destination_domain));
             if (pending == Zero::zero()) {
                 Errors::pending_balance_zero();
             }
-            let min_new_value = math::u256_mul_div(
-                pending,
-                (BPS_SCALE - self.slippage.read()).into(),
-                BPS_SCALE.into(),
-                math::Rounding::Ceil,
-            );
+            let min_new_value = self
+                .base_middleware
+                .get_computed_min(burn_token, pending, token_to_claim);
             let token_balance = ERC20ABIDispatcher { contract_address: token_to_claim }
                 .balance_of(get_contract_address());
-            let new_value = self
-                .price_router
-                .read()
-                .get_value(token_to_claim, token_balance, burn_token);
 
-            if (new_value < min_new_value) {
-                Errors::insufficient_output(new_value, min_new_value);
+            if (token_balance < min_new_value) {
+                Errors::insufficient_output(token_balance, min_new_value);
             }
 
-            self.pending_balance.write((burn_token, token_to_claim, destination_domain), Zero::zero());
+            self
+                .pending_balance
+                .write((burn_token, token_to_claim, destination_domain), Zero::zero());
 
             ERC20ABIDispatcher { contract_address: token_to_claim }
-                .transfer(self.vault_allocator.read(), token_balance);
+                .transfer(self.base_middleware.vault_allocator.read(), token_balance);
 
-            self.emit(ClaimedToken { burn_token, token_to_claim, destination_domain, amount_claimed: token_balance });
+            self
+                .emit(
+                    ClaimedToken {
+                        burn_token,
+                        token_to_claim,
+                        destination_domain,
+                        amount_claimed: token_balance,
+                    },
+                );
         }
 
-        fn set_config(
-            ref self: ContractState, slippage: u16, period: u64, allowed_calls_per_period: u64,
-        ) {
-            self.ownable.assert_only_owner();
-            self._set_config(slippage, period, allowed_calls_per_period);
-        }
-
-        fn set_vault_allocator(ref self: ContractState, vault_allocator: ContractAddress) {
-            self.ownable.assert_only_owner();
-            self.vault_allocator.write(vault_allocator);
-        }
-
-        // View functions
         fn get_cctp_token_bridge(self: @ContractState) -> ContractAddress {
             self.cctp_token_bridge.read().contract_address
         }
 
-        fn get_vault_allocator(self: @ContractState) -> ContractAddress {
-            self.vault_allocator.read()
-        }
-
-        fn get_price_router(self: @ContractState) -> ContractAddress {
-            self.price_router.read().contract_address
-        }
-
-        fn get_slippage(self: @ContractState) -> u16 {
-            self.slippage.read()
-        }
-
-        fn get_period(self: @ContractState) -> u64 {
-            self.period.read()
-        }
-
-        fn get_allowed_calls_per_period(self: @ContractState) -> u64 {
-            self.allowed_calls_per_period.read()
-        }
-
-        fn get_current_window_id(self: @ContractState) -> u64 {
-            self.current_window_id.read()
-        }
-
-        fn get_window_call_count(self: @ContractState) -> u64 {
-            self.window_call_count.read()
-        }
-
-        fn get_pending_balance(self: @ContractState, burn_token: ContractAddress, token_to_claim: ContractAddress, destination_domain: u32) -> u256 {
+        fn get_pending_balance(
+            self: @ContractState,
+            burn_token: ContractAddress,
+            token_to_claim: ContractAddress,
+            destination_domain: u32,
+        ) -> u256 {
             self.pending_balance.read((burn_token, token_to_claim, destination_domain))
-        }
-    }
-
-    #[generate_trait]
-    pub impl InternalFunctions of InternalFunctionsTrait {
-        fn enforce_rate_limit(ref self: ContractState, caller: ContractAddress) {
-            if (caller != self.vault_allocator.read()) {
-                Errors::caller_not_vault_allocator();
-            }
-
-            let period = self.period.read();
-            let ts: u64 = get_block_timestamp();
-            let window_id: u64 = ts / period;
-
-            if (window_id != self.current_window_id.read()) {
-                self.current_window_id.write(window_id);
-                self.window_call_count.write(0);
-            }
-
-            let current = self.window_call_count.read();
-            let next = current + 1;
-            let allowed = self.allowed_calls_per_period.read();
-
-            if (next > allowed) {
-                Errors::rate_limit_exceeded(next, allowed);
-            }
-            self.window_call_count.write(next);
-        }
-
-        fn _set_config(ref self: ContractState, slippage: u16, period: u64, allowed: u64) {
-            if (slippage >= BPS_SCALE) {
-                Errors::slippage_exceeds_max(slippage);
-            }
-            if (period.is_zero()) {
-                Errors::period_zero();
-            }
-            if (allowed.is_zero()) {
-                Errors::allowed_calls_per_period_zero();
-            }
-
-            self.slippage.write(slippage);
-            self.period.write(period);
-            self.allowed_calls_per_period.write(allowed);
-            self.current_window_id.write(0);
-            self.window_call_count.write(0);
         }
     }
 }

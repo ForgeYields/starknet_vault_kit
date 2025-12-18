@@ -4,35 +4,37 @@
 
 #[starknet::contract]
 pub mod StarkgateMiddleware {
-    const BPS_SCALE: u16 = 10_000;
     use core::num::traits::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::interfaces::erc20::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};
     use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
-    use openzeppelin::utils::math;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use starknet::{
-        ContractAddress, EthAddress, get_block_timestamp, get_caller_address, get_contract_address,
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
     };
+    use starknet::{ContractAddress, EthAddress, get_caller_address, get_contract_address};
     use vault_allocator::integration_interfaces::starkgate::{
-        IStarkgateABIDispatcher, IStarkgateABIDispatcherTrait, IStarkgateABIInitiateTokenWithdraw,
+        IStarkgateABIDispatcher, IStarkgateABIDispatcherTrait,
     };
+    use vault_allocator::middlewares::base_middleware::base_middleware::BaseMiddlewareComponent;
     use vault_allocator::middlewares::starkgate_middleware::errors::Errors;
     use vault_allocator::middlewares::starkgate_middleware::interface::IStarkgateMiddleware;
-    use vault_allocator::periphery::price_router::interface::{
-        IPriceRouterDispatcher, IPriceRouterDispatcherTrait,
-    };
 
-    // --- OpenZeppelin Component Integrations ---
+    // --- Component Integrations ---
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
+    component!(path: BaseMiddlewareComponent, storage: base_middleware, event: BaseMiddlewareEvent);
 
     // --- Component Implementations ---
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+    impl BaseMiddlewareInternalImpl = BaseMiddlewareComponent::InternalImpl<ContractState>;
+
+    // --- Embedded Component Implementations ---
     #[abi(embed_v0)]
     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
-    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
-
-    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl BaseMiddlewareImpl =
+        BaseMiddlewareComponent::BaseMiddlewareImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
@@ -40,18 +42,9 @@ pub mod StarkgateMiddleware {
         pub ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         pub upgradeable: UpgradeableComponent::Storage,
-        pub starkgate_token_bridge: IStarkgateABIDispatcher,
-        pub vault_allocator: ContractAddress,
-        pub price_router: IPriceRouterDispatcher,
-        pub slippage: u16,
-        pub period: u64,
-        pub allowed_calls_per_period: u64,
-        pub current_window_id: u64,
-        pub window_call_count: u64,
-        pub token_to_bridge: ContractAddress,
-        pub token_to_receive: ContractAddress,
-        pub l1_recipient: EthAddress,
-        pub pending_balance: u256,
+        #[substorage(v0)]
+        pub base_middleware: BaseMiddlewareComponent::Storage,
+        pub pending_balance: Map<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]
@@ -61,6 +54,26 @@ pub mod StarkgateMiddleware {
         OwnableEvent: OwnableComponent::Event,
         #[flat]
         UpgradeableEvent: UpgradeableComponent::Event,
+        #[flat]
+        BaseMiddlewareEvent: BaseMiddlewareComponent::Event,
+        WithdrawInitiated: WithdrawInitiated,
+        ClaimedToken: ClaimedToken,
+    }
+
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
+    pub struct WithdrawInitiated {
+        pub token_to_bridge: ContractAddress,
+        pub token_to_claim: ContractAddress,
+        pub l1_token: EthAddress,
+        pub l1_recipient: EthAddress,
+        pub amount: u256,
+    }
+
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
+    pub struct ClaimedToken {
+        pub token_to_bridge: ContractAddress,
+        pub token_to_claim: ContractAddress,
+        pub amount_claimed: u256,
     }
 
     #[constructor]
@@ -69,183 +82,103 @@ pub mod StarkgateMiddleware {
         owner: ContractAddress,
         vault_allocator: ContractAddress,
         price_router: ContractAddress,
-        starkgate_token_bridge: ContractAddress,
         slippage: u16,
         period: u64,
         allowed_calls_per_period: u64,
-        token_to_bridge: ContractAddress,
-        token_to_receive: ContractAddress,
-        l1_recipient: EthAddress,
     ) {
-        self.vault_allocator.write(vault_allocator);
-        self.price_router.write(IPriceRouterDispatcher { contract_address: price_router });
-        self.ownable.initializer(owner);
         self
-            .starkgate_token_bridge
-            .write(IStarkgateABIDispatcher { contract_address: starkgate_token_bridge });
-        self.token_to_bridge.write(token_to_bridge);
-        self.token_to_receive.write(token_to_receive);
-        self.l1_recipient.write(l1_recipient);
-        self._set_config(slippage, period, allowed_calls_per_period);
+            .base_middleware
+            .initialize_base_middleware(
+                vault_allocator, price_router, slippage, period, allowed_calls_per_period, owner,
+            );
     }
-
-
-    #[abi(embed_v0)]
-    impl IStarkgateABIMiddlewareImpl of IStarkgateABIInitiateTokenWithdraw<ContractState> {
-        fn initiate_token_withdraw(
-            ref self: ContractState, l1_token: EthAddress, l1_recipient: EthAddress, amount: u256,
-        ) {
-            let caller = get_caller_address();
-            self.enforce_rate_limit(caller);
-            if (self.pending_balance.read() != Zero::zero()) {
-                Errors::pending_value_not_zero();
-            }
-            let starkgate_token_bridge = self.starkgate_token_bridge.read();
-            let l2_token = starkgate_token_bridge.get_l2_token(l1_token);
-            if (l2_token != self.token_to_bridge.read()) {
-                Errors::invalid_l2_token(l2_token, self.token_to_bridge.read());
-            }
-            if (l1_recipient != self.l1_recipient.read()) {
-                Errors::invalid_l1_recipient(l1_recipient, self.l1_recipient.read());
-            }
-            ERC20ABIDispatcher { contract_address: l2_token }
-                .transfer_from(caller, get_contract_address(), amount);
-            starkgate_token_bridge.initiate_token_withdraw(l1_token, l1_recipient, amount);
-            self.pending_balance.write(amount);
-        }
-    }
-
 
     #[abi(embed_v0)]
     impl StarkgateMiddlewareImpl of IStarkgateMiddleware<ContractState> {
-        fn claim_token_bridged_back(ref self: ContractState) {
-            let token_to_receive = self.token_to_receive.read();
-            let min_new_value = math::u256_mul_div(
-                self.pending_balance.read(),
-                (BPS_SCALE - self.slippage.read()).into(),
-                BPS_SCALE.into(),
-                math::Rounding::Ceil,
-            );
-            let token_to_receive_balance = ERC20ABIDispatcher { contract_address: token_to_receive }
-                .balance_of(get_contract_address());
-            let new_value = self
-                .price_router
-                .read()
-                .get_value(token_to_receive, token_to_receive_balance, self.token_to_bridge.read());
-
-            if (new_value < min_new_value) {
-                Errors::insufficient_output(new_value, min_new_value);
-            }
-            ERC20ABIDispatcher { contract_address: token_to_receive }
-                .transfer(self.vault_allocator.read(), token_to_receive_balance);
-            self.pending_balance.write(Zero::zero());
-        }
-
-        fn set_config(
-            ref self: ContractState, slippage: u16, period: u64, allowed_calls_per_period: u64,
+        fn initiate_token_withdraw(
+            ref self: ContractState,
+            starkgate_token_bridge: ContractAddress,
+            l1_token: EthAddress,
+            l1_recipient: EthAddress,
+            amount: u256,
+            token_to_claim: ContractAddress,
         ) {
-            self.ownable.assert_only_owner();
-            self._set_config(slippage, period, allowed_calls_per_period);
+            let caller = get_caller_address();
+            self.base_middleware.enforce_rate_limit(caller);
+
+            let bridge = IStarkgateABIDispatcher { contract_address: starkgate_token_bridge };
+            let token_to_bridge = bridge.get_l2_token(l1_token);
+
+            // Check that pending balance is zero for this token pair
+            let current_pending = self.pending_balance.read((token_to_bridge, token_to_claim));
+            if (current_pending != Zero::zero()) {
+                Errors::pending_value_not_zero();
+            }
+
+            // Check that the middleware's balance of token_to_claim is zero
+            let token_to_claim_balance = ERC20ABIDispatcher { contract_address: token_to_claim }
+                .balance_of(get_contract_address());
+            if (token_to_claim_balance != Zero::zero()) {
+                Errors::claimable_value_not_zero();
+            }
+
+            // Track pending balance
+            self.pending_balance.write((token_to_bridge, token_to_claim), amount);
+
+            // Transfer token from caller to this contract
+            ERC20ABIDispatcher { contract_address: token_to_bridge }
+                .transfer_from(caller, get_contract_address(), amount);
+
+            // Initiate the withdrawal
+            bridge.initiate_token_withdraw(l1_token, l1_recipient, amount);
+
+            self
+                .emit(
+                    WithdrawInitiated {
+                        token_to_bridge, token_to_claim, l1_token, l1_recipient, amount,
+                    },
+                );
         }
 
-        fn set_vault_allocator(ref self: ContractState, vault_allocator: ContractAddress) {
-            self.ownable.assert_only_owner();
-            self.vault_allocator.write(vault_allocator);
+        fn claim_token(
+            ref self: ContractState,
+            token_to_bridge: ContractAddress,
+            token_to_claim: ContractAddress,
+        ) {
+            let pending = self.pending_balance.read((token_to_bridge, token_to_claim));
+            if (pending == Zero::zero()) {
+                Errors::pending_balance_zero();
+            }
+            let min_new_value = self
+                .base_middleware
+                .get_computed_min(token_to_bridge, pending, token_to_claim);
+            let token_balance = ERC20ABIDispatcher { contract_address: token_to_claim }
+                .balance_of(get_contract_address());
+
+            if (token_balance < min_new_value) {
+                Errors::insufficient_output(token_balance, min_new_value);
+            }
+
+            self.pending_balance.write((token_to_bridge, token_to_claim), Zero::zero());
+
+            ERC20ABIDispatcher { contract_address: token_to_claim }
+                .transfer(self.base_middleware.vault_allocator.read(), token_balance);
+
+            self
+                .emit(
+                    ClaimedToken {
+                        token_to_bridge, token_to_claim, amount_claimed: token_balance,
+                    },
+                );
         }
 
         // View functions
-        fn get_starkgate_token_bridge(self: @ContractState) -> ContractAddress {
-            self.starkgate_token_bridge.read().contract_address
-        }
-
-        fn get_vault_allocator(self: @ContractState) -> ContractAddress {
-            self.vault_allocator.read()
-        }
-
-        fn get_price_router(self: @ContractState) -> ContractAddress {
-            self.price_router.read().contract_address
-        }
-
-        fn get_slippage(self: @ContractState) -> u16 {
-            self.slippage.read()
-        }
-
-        fn get_period(self: @ContractState) -> u64 {
-            self.period.read()
-        }
-
-        fn get_allowed_calls_per_period(self: @ContractState) -> u64 {
-            self.allowed_calls_per_period.read()
-        }
-
-        fn get_current_window_id(self: @ContractState) -> u64 {
-            self.current_window_id.read()
-        }
-
-        fn get_window_call_count(self: @ContractState) -> u64 {
-            self.window_call_count.read()
-        }
-
-        fn get_token_to_bridge(self: @ContractState) -> ContractAddress {
-            self.token_to_bridge.read()
-        }
-
-        fn get_token_to_receive(self: @ContractState) -> ContractAddress {
-            self.token_to_receive.read()
-        }
-
-        fn get_pending_balance(self: @ContractState) -> u256 {
-            self.pending_balance.read()
-        }
-
-        fn get_l1_recipient(self: @ContractState) -> EthAddress {
-            self.l1_recipient.read()
-        }
-    }
-
-
-    #[generate_trait]
-    pub impl InternalFunctions of InternalFunctionsTrait {
-        fn enforce_rate_limit(ref self: ContractState, caller: ContractAddress) {
-            if (caller != self.vault_allocator.read()) {
-                Errors::caller_not_vault_allocator();
-            }
-
-            let period = self.period.read();
-            let ts: u64 = get_block_timestamp();
-            let window_id: u64 = ts / period;
-
-            if (window_id != self.current_window_id.read()) {
-                self.current_window_id.write(window_id);
-                self.window_call_count.write(0);
-            }
-
-            let current = self.window_call_count.read();
-            let next = current + 1;
-            let allowed = self.allowed_calls_per_period.read();
-
-            if (next > allowed) {
-                Errors::rate_limit_exceeded(next, allowed);
-            }
-            self.window_call_count.write(next);
-        }
-
-        fn _set_config(ref self: ContractState, slippage: u16, period: u64, allowed: u64) {
-            if (slippage >= BPS_SCALE) {
-                Errors::slippage_exceeds_max(slippage);
-            }
-            if (period.is_zero()) {
-                Errors::period_zero();
-            }
-            if (allowed.is_zero()) {
-                Errors::allowed_calls_per_period_zero();
-            }
-
-            self.slippage.write(slippage);
-            self.period.write(period);
-            self.allowed_calls_per_period.write(allowed);
-            self.current_window_id.write(0);
-            self.window_call_count.write(0);
+        fn get_pending_balance(
+            self: @ContractState,
+            token_to_bridge: ContractAddress,
+            token_to_claim: ContractAddress,
+        ) -> u256 {
+            self.pending_balance.read((token_to_bridge, token_to_claim))
         }
     }
 }

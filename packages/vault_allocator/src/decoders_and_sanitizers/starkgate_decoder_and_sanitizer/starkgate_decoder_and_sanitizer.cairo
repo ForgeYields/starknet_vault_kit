@@ -4,7 +4,7 @@
 
 #[starknet::component]
 pub mod StarkgateDecoderAndSanitizerComponent {
-    use starknet::ContractAddress;
+    use starknet::EthAddress;
     use vault_allocator::decoders_and_sanitizers::starkgate_decoder_and_sanitizer::interface::IStarkgateDecoderAndSanitizer;
     #[storage]
     pub struct Storage {}
@@ -19,8 +19,8 @@ pub mod StarkgateDecoderAndSanitizerComponent {
     > of IStarkgateDecoderAndSanitizer<ComponentState<TContractState>> {
         fn initiate_token_withdraw(
             self: @ComponentState<TContractState>,
-            l1_token: ContractAddress,
-            l1_recipient: ContractAddress,
+            l1_token: EthAddress,
+            l1_recipient: EthAddress,
             amount: u256,
         ) -> Span<felt252> {
             let mut serialized_struct: Array<felt252> = ArrayTrait::new();
