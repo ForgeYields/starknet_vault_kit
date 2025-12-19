@@ -201,6 +201,7 @@ export interface EkuboCollectFeesParams {
 export interface EkuboHarvestParams {
   target: string;
   rewardContract: string;
+  id: BigNumberish;
   amount: BigNumberish;
   proof: string[];
   rewardToken: string;

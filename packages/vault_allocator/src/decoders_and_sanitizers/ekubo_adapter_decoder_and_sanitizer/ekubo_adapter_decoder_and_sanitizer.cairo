@@ -45,6 +45,7 @@ pub mod EkuboAdapterDecoderAndSanitizerComponent {
         fn harvest(
             self: @ComponentState<TContractState>,
             reward_contract: ContractAddress,
+            id: u64,
             amount: u128,
             proof: Span<felt252>,
             reward_token: ContractAddress,

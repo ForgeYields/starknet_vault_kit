@@ -14,6 +14,7 @@ pub trait IEkuboAdapterDecoderAndSanitizer<T> {
     fn harvest(
         self: @T,
         reward_contract: ContractAddress,
+        id: u64,
         amount: u128,
         proof: Span<felt252>,
         reward_token: ContractAddress,

@@ -143,6 +143,7 @@ export function ekuboHarvest(
     selector: harvestLeaf.selector,
     calldata: [
       params.rewardContract,
+      params.id.toString(),
       params.amount.toString(),
       params.proof.length.toString(),
       ...params.proof,

@@ -29,8 +29,8 @@
       "VesuV2SpecificDecoderAndSanitizer": "0x02da0e885beb8200e0c1e2793cd5afecd4567c41b4f19940a962d77cd0b34f29",
       "StarkgateMiddleware": "0x02ba274e79e43284d2003f18d059af27d87165594e2902792eb9f5876499c3a9",
       "HyperlaneMiddleware": "0x4ed2b0b657e9894ef31c0cc2db747270290cdb8983e87caf8dd9f458ba5bab2",
-      "EkuboAdapter": "0x75c861c32455c2fa050217d0013b580824a3bbf3a2f8ceb6e37a1994cabba2a",
-      "FyWBTCDecoderAndSanitizer": "0x4fb068466b09959bfd9f67b36102f6bd996aef8d4fa5cffc8e80b30594c7f11",
+      "EkuboAdapter": "0xa0f901eb8a6654a367fffc95e0bf0f782f50aa3102dbe01649904bd99604bb",
+      "FyWBTCDecoderAndSanitizer": "0x15b6e96eb6fb84e3aad8ec2252b59b89ade1f34a8550fa78f9fdb4ef5d8e987",
       "AssetTransferPod": "0x33a25fdbfb3104698d37bfead121bd7d09d1280ea04b26cbe6a9e0544e99fc1"
     },
     "periphery": {
