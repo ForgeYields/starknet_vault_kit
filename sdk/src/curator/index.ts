@@ -26,6 +26,7 @@ import {
   RequestRedeemParams,
   ClaimRedeemParams,
   BridgeTokenStarkgateParams,
+  BridgeTokenStarkgateMiddlewareParams,
   ClaimTokenStarkgateParams,
   BridgeTokenHyperlaneParams,
   ClaimTokenHyperlaneParams,
@@ -265,6 +266,16 @@ export class VaultCuratorSDK {
     params: BridgeTokenStarkgateParams
   ): MerkleOperation {
     return starkgate.bridgeTokenStarkgate(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public bridgeTokenStarkgateMiddleware(
+    params: BridgeTokenStarkgateMiddlewareParams
+  ): MerkleOperation {
+    return starkgate.bridgeTokenStarkgateMiddleware(
       this.config,
       this.getManageProofs.bind(this),
       params

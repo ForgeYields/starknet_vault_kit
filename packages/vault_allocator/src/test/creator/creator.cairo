@@ -13,7 +13,7 @@ use vault_allocator::merkle_tree::integrations::vesu_v2::{VesuV2Config, _add_ves
 use vault_allocator::merkle_tree::integrations::erc4626::_add_erc4626_leafs;
 use vault_allocator::merkle_tree::integrations::starknet_vault_kit_strategies::_add_starknet_vault_kit_strategies;
 use vault_allocator::merkle_tree::integrations::extended::_add_extended_leafs;
-use vault_allocator::merkle_tree::integrations::starkgate::_add_starkgate_leafs;
+use vault_allocator::merkle_tree::integrations::starkgate::{StarkgateConfig, _add_starkgate_leafs};
 use vault_allocator::merkle_tree::base::_add_vault_allocator_leafs;
 
 
@@ -203,13 +203,18 @@ fn _generate_merkle_tree(
         .try_into()
         .unwrap();
     let l1_recipient = 0x732357e321Bf7a02CbB690fc2a629161D7722e29.try_into().unwrap();
+    let starkgate_configs = array![
+        StarkgateConfig {
+            l2_bridge: l2_bridge,
+            l2_token: usdc_address,
+            l1_recipient: l1_recipient,
+        }
+    ];
     _add_starkgate_leafs(
         ref leafs,
         ref leaf_index,
-        l2_bridge,
-        usdc_address,
-        l1_recipient,
         vault_decoder_and_sanitizer,
+        starkgate_configs.span(),
     );
 
     println!("We are at leafs");
