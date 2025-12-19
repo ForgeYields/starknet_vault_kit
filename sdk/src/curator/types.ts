@@ -112,6 +112,15 @@ export interface BridgeTokenStarkgateParams {
   amount: BigNumberish;
 }
 
+// Starkgate middleware bridge
+export interface BridgeTokenStarkgateMiddlewareParams {
+  starkgate_token_bridge: string;
+  l1_token: string;
+  l1_recipient: string;
+  amount: BigNumberish;
+  token_to_claim: string;
+}
+
 export interface ClaimTokenStarkgateParams {}
 
 // Hyperlane bridge
