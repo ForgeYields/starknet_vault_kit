@@ -117,6 +117,7 @@ async function testEkuboOperations() {
   const harvestOp = sdk.ekuboHarvest({
     target: EKUBO_ADAPTER,
     rewardContract: mockRewardContract,
+    id: "35", // Claim ID from Ekubo's reward API
     amount: "1000000000000000000", // 1 STRK reward
     proof: mockProof,
     rewardToken: TOKENS.STRK,

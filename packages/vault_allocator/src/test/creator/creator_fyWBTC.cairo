@@ -27,13 +27,12 @@ fn test_creator() {
     let vault_allocator = 0x7347602aedf0197492a6d10f7e9d9dda45493e62b26bd540e980617e92b4e38
         .try_into()
         .unwrap();
-    let decoder_and_sanitizer = 0x2daef50b554d472437b781db309760d13006904e5d85b697df7b730afa5cb4e
+    let decoder_and_sanitizer = 0x5126217917ca0f658f41c4416c64acf38bcd069b34cdb66259f620a3700bcaf
         .try_into()
         .unwrap();
     let avnu_router_middleware = 0x165cdb71573a3d4518cf0dd326aee8dd46eeec3cbe3ecdbbd57146c0a52b202
         .try_into()
         .unwrap();
-
     let ekubo_adapter = 0x59053bd0f16f755b83bb556ef75e7527d29ae27e4da437b94cdc323e3665182
         .try_into()
         .unwrap();

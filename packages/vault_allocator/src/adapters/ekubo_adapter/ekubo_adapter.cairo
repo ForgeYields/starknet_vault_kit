@@ -292,12 +292,14 @@ pub mod EkuboAdapter {
         fn harvest(
             ref self: ContractState,
             reward_contract: ContractAddress,
+            id: u64,
             amount: u128,
             proof: Span<felt252>,
             reward_token: ContractAddress,
         ) {
             let vault_allocator = self._only_vault_allocator();
-            IRewardContractDispatcher { contract_address: reward_contract }.claim(amount, proof);
+            IRewardContractDispatcher { contract_address: reward_contract }
+                .claim(id, starknet::get_contract_address(), amount, proof);
             let token_dispatcher = ERC20ABIDispatcher { contract_address: reward_token };
             let balance = token_dispatcher.balance_of(starknet::get_contract_address());
             token_dispatcher.transfer(vault_allocator, balance);

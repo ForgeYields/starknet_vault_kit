@@ -30,8 +30,8 @@ source = "git+https://github.com/ekuboprotocol/starknet-contracts#cf2e95fd124bfb
 
 [[package]]
 name = "openzeppelin"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -49,8 +49,8 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_access"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
@@ -58,8 +58,8 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
@@ -68,8 +68,8 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_interfaces",
@@ -78,11 +78,10 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_governance"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_access",
- "openzeppelin_account",
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_token",
@@ -91,26 +90,26 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_interfaces"
-version = "2.1.0"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "2.1.0-alpha.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_interfaces",
 ]
 
 [[package]]
 name = "openzeppelin_merkle_tree"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 
 [[package]]
 name = "openzeppelin_presets"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -124,19 +123,18 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_security"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_interfaces",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_access",
- "openzeppelin_account",
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -144,13 +142,13 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "3.0.0-alpha.3"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 
 [[package]]
 name = "openzeppelin_utils"
-version = "3.0.0-alpha.1"
-source = "git+https://github.com/OpenZeppelin/cairo-contracts#a2bdd1bdbdf96a9291ba0f2269f1e11c451fddb9"
+version = "2.1.0-alpha.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts#1e5a44ec50d7625395ca8322eec971ce8abb5bc1"
 dependencies = [
  "openzeppelin_interfaces",
 ]

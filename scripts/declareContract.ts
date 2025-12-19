@@ -8,13 +8,11 @@ dotenv.config({ path: __dirname + "/../.env" });
 
 const provider = new RpcProvider({ nodeUrl: process.env.RPC });
 
-const owner = new Account(
-  provider,
-  process.env.ACCOUNT_ADDRESS as string,
-  process.env.ACCOUNT_PK as string,
-  undefined,
-  "0x3"
-);
+const owner = new Account({
+  provider: provider,
+  address: process.env.ACCOUNT_ADDRESS as string,
+  signer: process.env.ACCOUNT_PK as string,
+});
 
 export async function declareContract(
   envNetwork: string,

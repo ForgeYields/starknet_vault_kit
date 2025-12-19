@@ -37,7 +37,7 @@
     "@ekubo/starknet-sdk": "^0.0.7",
     "decimal.js": "^10.6.0",
     "dotenv": "^16.4.5",
-    "starknet": "7.6.4"
+    "starknet": "9.2.1"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
