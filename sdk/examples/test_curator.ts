@@ -250,7 +250,7 @@ async function testAllOperations() {
       spender: CONTRACTS.HYPERLANE_MIDDLEWARE,
       amount: "100000000000000000",
     }),
-    sdk.bridgeTokenHyperlane({
+    sdk.bridgeTokenHyperlaneMiddleware({
       source_token: TOKENS.USDC,
       destination_token: TOKENS.USDC,
       amount: "1000000",
@@ -272,7 +272,7 @@ async function testAllOperations() {
       spender: CONTRACTS.CCTP_MIDDLEWARE,
       amount: "1000000",
     }),
-    sdk.bridgeTokenCctp({
+    sdk.bridgeTokenCctpMiddleware({
       burn_token: TOKENS.USDC_CCTP,
       token_to_claim: TOKENS.USDC,
       amount: "1000000",
@@ -392,8 +392,8 @@ async function testAllOperations() {
   console.log("  - Ekubo: depositLiquidity, withdrawLiquidity, collectFees, harvest");
   console.log("  - AVNU: multiRouteSwap (DEX aggregator)");
   console.log("  - Starkgate: bridgeTokenStarkgate, claimTokenStarkgate");
-  console.log("  - Hyperlane: bridgeTokenHyperlane, claimTokenHyperlane");
-  console.log("  - CCTP: bridgeTokenCctp, claimTokenCctp");
+  console.log("  - Hyperlane: bridgeTokenHyperlaneMiddleware, claimTokenHyperlaneMiddleware");
+  console.log("  - CCTP: bridgeTokenCctpMiddleware, claimTokenCctpMiddleware");
   console.log("\nAll operations return MerkleOperation objects.");
   console.log("Use buildCall() to combine multiple operations into a single transaction.");
 }

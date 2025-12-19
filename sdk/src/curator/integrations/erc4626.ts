@@ -20,7 +20,8 @@ export function deposit(
   ).toString();
   const depositLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === depositSelector && leaf.target === params.target
+      leaf.selector === depositSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!depositLeaf) {
@@ -50,7 +51,9 @@ export function mint(
 ): MerkleOperation {
   const mintSelector = BigInt(selector.getSelectorFromName("mint")).toString();
   const mintLeaf = config.leafs.find(
-    (leaf) => leaf.selector === mintSelector && leaf.target === params.target
+    (leaf) =>
+      leaf.selector === mintSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!mintLeaf) {
@@ -83,7 +86,8 @@ export function withdraw(
   ).toString();
   const withdrawLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === withdrawSelector && leaf.target === params.target
+      leaf.selector === withdrawSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!withdrawLeaf) {
@@ -116,7 +120,9 @@ export function redeem(
     selector.getSelectorFromName("redeem")
   ).toString();
   const redeemLeaf = config.leafs.find(
-    (leaf) => leaf.selector === redeemSelector && leaf.target === params.target
+    (leaf) =>
+      leaf.selector === redeemSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!redeemLeaf) {
@@ -150,7 +156,8 @@ export function requestRedeem(
   ).toString();
   const requestRedeemLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === requestRedeemSelector && leaf.target === params.target
+      leaf.selector === requestRedeemSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!requestRedeemLeaf) {
@@ -186,7 +193,8 @@ export function claimRedeem(
   ).toString();
   const claimRedeemLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === claimRedeemSelector && leaf.target === params.target
+      leaf.selector === claimRedeemSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!claimRedeemLeaf) {

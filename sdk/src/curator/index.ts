@@ -28,10 +28,10 @@ import {
   BridgeTokenStarkgateParams,
   BridgeTokenStarkgateMiddlewareParams,
   ClaimTokenStarkgateParams,
-  BridgeTokenHyperlaneParams,
-  ClaimTokenHyperlaneParams,
-  BridgeTokenCctpParams,
-  ClaimTokenCctpParams,
+  BridgeTokenHyperlaneMiddlewareParams,
+  ClaimTokenHyperlaneMiddlewareParams,
+  BridgeTokenCctpMiddlewareParams,
+  ClaimTokenCctpMiddlewareParams,
   ModifyPositionParamsV2,
   EkuboDepositLiquidityParams,
   EkuboWithdrawLiquidityParams,
@@ -293,23 +293,23 @@ export class VaultCuratorSDK {
   }
 
   // ============================================
-  // Hyperlane bridge
+  // Hyperlane middleware bridge
   // ============================================
 
-  public bridgeTokenHyperlane(
-    params: BridgeTokenHyperlaneParams
+  public bridgeTokenHyperlaneMiddleware(
+    params: BridgeTokenHyperlaneMiddlewareParams
   ): MerkleOperation {
-    return hyperlane.bridgeTokenHyperlane(
+    return hyperlane.bridgeTokenHyperlaneMiddleware(
       this.config,
       this.getManageProofs.bind(this),
       params
     );
   }
 
-  public claimTokenHyperlane(
-    params: ClaimTokenHyperlaneParams
+  public claimTokenHyperlaneMiddleware(
+    params: ClaimTokenHyperlaneMiddlewareParams
   ): MerkleOperation {
-    return hyperlane.claimTokenHyperlane(
+    return hyperlane.claimTokenHyperlaneMiddleware(
       this.config,
       this.getManageProofs.bind(this),
       params
@@ -317,19 +317,23 @@ export class VaultCuratorSDK {
   }
 
   // ============================================
-  // CCTP bridge
+  // CCTP middleware bridge
   // ============================================
 
-  public bridgeTokenCctp(params: BridgeTokenCctpParams): MerkleOperation {
-    return cctp.bridgeTokenCctp(
+  public bridgeTokenCctpMiddleware(
+    params: BridgeTokenCctpMiddlewareParams
+  ): MerkleOperation {
+    return cctp.bridgeTokenCctpMiddleware(
       this.config,
       this.getManageProofs.bind(this),
       params
     );
   }
 
-  public claimTokenCctp(params: ClaimTokenCctpParams): MerkleOperation {
-    return cctp.claimTokenCctp(
+  public claimTokenCctpMiddleware(
+    params: ClaimTokenCctpMiddlewareParams
+  ): MerkleOperation {
+    return cctp.claimTokenCctpMiddleware(
       this.config,
       this.getManageProofs.bind(this),
       params

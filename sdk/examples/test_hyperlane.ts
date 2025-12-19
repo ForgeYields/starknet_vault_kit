@@ -61,7 +61,7 @@ async function testHyperlaneOperations() {
   console.log("   Destination domain:", ETHEREUM_DOMAIN, "(Ethereum)");
   console.log("   Recipient:", RECIPIENT);
 
-  const bridgeOp = sdk.bridgeTokenHyperlane({
+  const bridgeOp = sdk.bridgeTokenHyperlaneMiddleware({
     source_token: TOKENS.USDC,
     destination_token: TOKENS.USDC,
     amount: bridgeAmount,
@@ -97,7 +97,7 @@ async function testHyperlaneOperations() {
       spender: HYPERLANE_MIDDLEWARE,
       amount: strkFee,
     }),
-    sdk.bridgeTokenHyperlane({
+    sdk.bridgeTokenHyperlaneMiddleware({
       source_token: TOKENS.USDC,
       destination_token: TOKENS.USDC,
       amount: bridgeAmount,

@@ -168,19 +168,19 @@ Bridge tokens between Starknet and Ethereum:
 - `bridgeTokenStarkgate(params)` - Initiate token withdrawal to L1
 - `claimTokenStarkgate(params)` - Claim tokens bridged back from L1
 
-##### Hyperlane (Cross-Chain Bridge)
+##### Hyperlane Middleware (Cross-Chain Bridge)
 
-Bridge tokens across chains via Hyperlane:
+Bridge tokens across chains via Hyperlane middleware:
 
-- `bridgeTokenHyperlane(params)` - Bridge tokens to another chain
-- `claimTokenHyperlane(params)` - Claim bridged tokens
+- `bridgeTokenHyperlaneMiddleware(params)` - Bridge tokens to another chain
+- `claimTokenHyperlaneMiddleware(params)` - Claim bridged tokens
 
-##### CCTP (Circle Cross-Chain Transfer)
+##### CCTP Middleware (Circle Cross-Chain Transfer)
 
-Bridge USDC via Circle's CCTP:
+Bridge USDC via Circle's CCTP middleware:
 
-- `bridgeTokenCctp(params)` - Bridge USDC to another chain
-- `claimTokenCctp(params)` - Claim bridged USDC
+- `bridgeTokenCctpMiddleware(params)` - Bridge USDC to another chain
+- `claimTokenCctpMiddleware(params)` - Claim bridged USDC
 
 ## Types
 

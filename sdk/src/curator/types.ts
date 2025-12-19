@@ -123,8 +123,8 @@ export interface BridgeTokenStarkgateMiddlewareParams {
 
 export interface ClaimTokenStarkgateParams {}
 
-// Hyperlane bridge
-export interface BridgeTokenHyperlaneParams {
+// Hyperlane middleware bridge
+export interface BridgeTokenHyperlaneMiddlewareParams {
   source_token: string;
   destination_token: string;
   amount: BigNumberish;
@@ -133,14 +133,14 @@ export interface BridgeTokenHyperlaneParams {
   strk_fee: BigNumberish;
 }
 
-export interface ClaimTokenHyperlaneParams {
+export interface ClaimTokenHyperlaneMiddlewareParams {
   token_to_bridge: string;
   token_to_claim: string;
   destination_domain: BigNumberish;
 }
 
-// CCTP bridge
-export interface BridgeTokenCctpParams {
+// CCTP middleware bridge
+export interface BridgeTokenCctpMiddlewareParams {
   burn_token: string;
   token_to_claim: string;
   amount: BigNumberish;
@@ -151,7 +151,7 @@ export interface BridgeTokenCctpParams {
   min_finality_threshold: BigNumberish;
 }
 
-export interface ClaimTokenCctpParams {
+export interface ClaimTokenCctpMiddlewareParams {
   burn_token: string;
   token_to_claim: string;
   destination_domain: BigNumberish;

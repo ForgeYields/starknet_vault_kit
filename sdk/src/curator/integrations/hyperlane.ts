@@ -2,14 +2,14 @@ import { uint256, selector } from "starknet";
 import {
   VaultConfigData,
   MerkleOperation,
-  BridgeTokenHyperlaneParams,
-  ClaimTokenHyperlaneParams,
+  BridgeTokenHyperlaneMiddlewareParams,
+  ClaimTokenHyperlaneMiddlewareParams,
 } from "../types";
 
-export function bridgeTokenHyperlane(
+export function bridgeTokenHyperlaneMiddleware(
   config: VaultConfigData,
   getManageProofs: (tree: Array<string[]>, leafHash: string) => string[],
-  params: BridgeTokenHyperlaneParams
+  params: BridgeTokenHyperlaneMiddlewareParams
 ): MerkleOperation {
   // Convert recipient string to u256
   const recipientUint256 = uint256.bnToUint256(params.recipient.toString());
@@ -22,11 +22,12 @@ export function bridgeTokenHyperlane(
   const hyperlaneLeaf = config.leafs.find(
     (leaf) =>
       leaf.argument_addresses.length >= 5 &&
-      leaf.argument_addresses[0] === params.source_token &&
-      leaf.argument_addresses[1] === params.destination_token &&
-      leaf.argument_addresses[2] === params.destination_domain.toString() &&
-      leaf.argument_addresses[3] === recipientLowDecimal &&
-      leaf.argument_addresses[4] === recipientHighDecimal
+      BigInt(leaf.argument_addresses[0]) === BigInt(params.source_token) &&
+      BigInt(leaf.argument_addresses[1]) === BigInt(params.destination_token) &&
+      BigInt(leaf.argument_addresses[2]) ===
+        BigInt(params.destination_domain) &&
+      BigInt(leaf.argument_addresses[3]) === BigInt(recipientLowDecimal) &&
+      BigInt(leaf.argument_addresses[4]) === BigInt(recipientHighDecimal)
   );
 
   if (!hyperlaneLeaf) {
@@ -59,10 +60,10 @@ export function bridgeTokenHyperlane(
   };
 }
 
-export function claimTokenHyperlane(
+export function claimTokenHyperlaneMiddleware(
   config: VaultConfigData,
   getManageProofs: (tree: Array<string[]>, leafHash: string) => string[],
-  params: ClaimTokenHyperlaneParams
+  params: ClaimTokenHyperlaneMiddlewareParams
 ): MerkleOperation {
   const claimTokenSelector = BigInt(
     selector.getSelectorFromName("claim_token")
@@ -73,9 +74,9 @@ export function claimTokenHyperlane(
     (leaf) =>
       leaf.selector === claimTokenSelector &&
       leaf.argument_addresses.length >= 3 &&
-      leaf.argument_addresses[0] === params.token_to_bridge &&
-      leaf.argument_addresses[1] === params.token_to_claim &&
-      leaf.argument_addresses[2] === params.destination_domain.toString()
+      BigInt(leaf.argument_addresses[0]) === BigInt(params.token_to_bridge) &&
+      BigInt(leaf.argument_addresses[1]) === BigInt(params.token_to_claim) &&
+      BigInt(leaf.argument_addresses[2]) === BigInt(params.destination_domain)
   );
 
   if (!claimLeaf) {

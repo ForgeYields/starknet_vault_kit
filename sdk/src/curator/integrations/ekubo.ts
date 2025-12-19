@@ -19,7 +19,7 @@ export function ekuboDepositLiquidity(
   const depositLiquidityLeaf = config.leafs.find(
     (leaf) =>
       leaf.selector === depositLiquiditySelector &&
-      leaf.target === params.target
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!depositLiquidityLeaf) {
@@ -58,7 +58,7 @@ export function ekuboWithdrawLiquidity(
   const withdrawLiquidityLeaf = config.leafs.find(
     (leaf) =>
       leaf.selector === withdrawLiquiditySelector &&
-      leaf.target === params.target
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!withdrawLiquidityLeaf) {
@@ -95,7 +95,8 @@ export function ekuboCollectFees(
   ).toString();
   const collectFeesLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === collectFeesSelector && leaf.target === params.target
+      leaf.selector === collectFeesSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!collectFeesLeaf) {
@@ -125,7 +126,8 @@ export function ekuboHarvest(
   ).toString();
   const harvestLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === harvestSelector && leaf.target === params.target
+      leaf.selector === harvestSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!harvestLeaf) {

@@ -15,7 +15,8 @@ export function modifyPositionV2(
   ).toString();
   const modifyPositionLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === modifyPositionSelector && leaf.target === params.target
+      leaf.selector === modifyPositionSelector &&
+      BigInt(leaf.target) === BigInt(params.target)
   );
 
   if (!modifyPositionLeaf) {

@@ -2,14 +2,14 @@ import { uint256, selector } from "starknet";
 import {
   VaultConfigData,
   MerkleOperation,
-  BridgeTokenCctpParams,
-  ClaimTokenCctpParams,
+  BridgeTokenCctpMiddlewareParams,
+  ClaimTokenCctpMiddlewareParams,
 } from "../types";
 
-export function bridgeTokenCctp(
+export function bridgeTokenCctpMiddleware(
   config: VaultConfigData,
   getManageProofs: (tree: Array<string[]>, leafHash: string) => string[],
-  params: BridgeTokenCctpParams
+  params: BridgeTokenCctpMiddlewareParams
 ): MerkleOperation {
   // Convert mint_recipient string to u256
   const mintRecipientUint256 = uint256.bnToUint256(
@@ -34,13 +34,16 @@ export function bridgeTokenCctp(
   const cctpLeaf = config.leafs.find(
     (leaf) =>
       leaf.argument_addresses.length >= 7 &&
-      leaf.argument_addresses[0] === params.destination_domain.toString() &&
-      leaf.argument_addresses[1] === mintRecipientLowDecimal &&
-      leaf.argument_addresses[2] === mintRecipientHighDecimal &&
-      leaf.argument_addresses[3] === params.burn_token &&
-      leaf.argument_addresses[4] === params.token_to_claim &&
-      leaf.argument_addresses[5] === destinationCallerLowDecimal &&
-      leaf.argument_addresses[6] === destinationCallerHighDecimal
+      BigInt(leaf.argument_addresses[0]) ===
+        BigInt(params.destination_domain) &&
+      BigInt(leaf.argument_addresses[1]) === BigInt(mintRecipientLowDecimal) &&
+      BigInt(leaf.argument_addresses[2]) === BigInt(mintRecipientHighDecimal) &&
+      BigInt(leaf.argument_addresses[3]) === BigInt(params.burn_token) &&
+      BigInt(leaf.argument_addresses[4]) === BigInt(params.token_to_claim) &&
+      BigInt(leaf.argument_addresses[5]) ===
+        BigInt(destinationCallerLowDecimal) &&
+      BigInt(leaf.argument_addresses[6]) ===
+        BigInt(destinationCallerHighDecimal)
   );
 
   if (!cctpLeaf) {
@@ -76,10 +79,10 @@ export function bridgeTokenCctp(
   };
 }
 
-export function claimTokenCctp(
+export function claimTokenCctpMiddleware(
   config: VaultConfigData,
   getManageProofs: (tree: Array<string[]>, leafHash: string) => string[],
-  params: ClaimTokenCctpParams
+  params: ClaimTokenCctpMiddlewareParams
 ): MerkleOperation {
   const claimTokenSelector = BigInt(
     selector.getSelectorFromName("claim_token")
@@ -90,9 +93,9 @@ export function claimTokenCctp(
     (leaf) =>
       leaf.selector === claimTokenSelector &&
       leaf.argument_addresses.length >= 3 &&
-      leaf.argument_addresses[0] === params.burn_token &&
-      leaf.argument_addresses[1] === params.token_to_claim &&
-      leaf.argument_addresses[2] === params.destination_domain.toString()
+      BigInt(leaf.argument_addresses[0]) === BigInt(params.burn_token) &&
+      BigInt(leaf.argument_addresses[1]) === BigInt(params.token_to_claim) &&
+      BigInt(leaf.argument_addresses[2]) === BigInt(params.destination_domain)
   );
 
   if (!claimLeaf) {

@@ -81,10 +81,12 @@ async function testStarkgateOperations() {
       spender: STARKGATE_MIDDLEWARE,
       amount: bridgeAmount,
     }),
-    sdk.bridgeTokenStarkgate({
+    sdk.bridgeTokenStarkgateMiddleware({
+      starkgate_token_bridge: STARKGATE_USDC_BRIDGE,
       l1_token: L1_USDC,
       l1_recipient: L1_RECIPIENT,
       amount: bridgeAmount,
+      token_to_claim: TOKENS.USDC,
     }),
   ];
 

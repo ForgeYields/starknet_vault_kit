@@ -61,7 +61,7 @@ async function testCctpOperations() {
   console.log("   Destination domain:", ETHEREUM_CCTP_DOMAIN, "(Ethereum)");
   console.log("   Mint recipient:", MINT_RECIPIENT);
 
-  const bridgeOp = sdk.bridgeTokenCctp({
+  const bridgeOp = sdk.bridgeTokenCctpMiddleware({
     burn_token: TOKENS.USDC_CCTP,
     token_to_claim: TOKENS.USDC,
     amount: bridgeAmount,
@@ -94,7 +94,7 @@ async function testCctpOperations() {
       spender: CCTP_MIDDLEWARE,
       amount: bridgeAmount,
     }),
-    sdk.bridgeTokenCctp({
+    sdk.bridgeTokenCctpMiddleware({
       burn_token: TOKENS.USDC_CCTP,
       token_to_claim: TOKENS.USDC,
       amount: bridgeAmount,

@@ -16,11 +16,13 @@ export function multiRouteSwap(
   const swapLeaf = config.leafs.find(
     (leaf) =>
       leaf.selector === multiRouteSwapSelector &&
-      leaf.target === params.target &&
+      BigInt(leaf.target) === BigInt(params.target) &&
       leaf.argument_addresses.length === 3 &&
-      leaf.argument_addresses[0] === params.sell_token_address &&
-      leaf.argument_addresses[1] === params.buy_token_address &&
-      leaf.argument_addresses[2] === config.metadata.vault_allocator
+      BigInt(leaf.argument_addresses[0]) ===
+        BigInt(params.sell_token_address) &&
+      BigInt(leaf.argument_addresses[1]) === BigInt(params.buy_token_address) &&
+      BigInt(leaf.argument_addresses[2]) ===
+        BigInt(config.metadata.vault_allocator)
   );
 
   if (!swapLeaf) {

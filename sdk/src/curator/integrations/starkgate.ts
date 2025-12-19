@@ -18,8 +18,12 @@ export function bridgeTokenStarkgate(
   const initiateTokenWithdrawLeaf = config.leafs.find(
     (leaf) =>
       leaf.selector === initiateTokenWithdrawSelector &&
-      leaf.argument_addresses.includes(params.l1_token) &&
-      leaf.argument_addresses.includes(params.l1_recipient)
+      leaf.argument_addresses.some(
+        (addr) => BigInt(addr) === BigInt(params.l1_token)
+      ) &&
+      leaf.argument_addresses.some(
+        (addr) => BigInt(addr) === BigInt(params.l1_recipient)
+      )
   );
 
   if (!initiateTokenWithdrawLeaf) {
@@ -62,10 +66,18 @@ export function bridgeTokenStarkgateMiddleware(
   const initiateTokenWithdrawLeaf = config.leafs.find(
     (leaf) =>
       leaf.selector === initiateTokenWithdrawSelector &&
-      leaf.argument_addresses.includes(params.starkgate_token_bridge) &&
-      leaf.argument_addresses.includes(params.l1_token) &&
-      leaf.argument_addresses.includes(params.l1_recipient) &&
-      leaf.argument_addresses.includes(params.token_to_claim)
+      leaf.argument_addresses.some(
+        (addr) => BigInt(addr) === BigInt(params.starkgate_token_bridge)
+      ) &&
+      leaf.argument_addresses.some(
+        (addr) => BigInt(addr) === BigInt(params.l1_token)
+      ) &&
+      leaf.argument_addresses.some(
+        (addr) => BigInt(addr) === BigInt(params.l1_recipient)
+      ) &&
+      leaf.argument_addresses.some(
+        (addr) => BigInt(addr) === BigInt(params.token_to_claim)
+      )
   );
 
   if (!initiateTokenWithdrawLeaf) {
