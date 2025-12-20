@@ -15,8 +15,12 @@ export function modifyPositionV2(
   ).toString();
   const modifyPositionLeaf = config.leafs.find(
     (leaf) =>
-      leaf.selector === modifyPositionSelector &&
-      BigInt(leaf.target) === BigInt(params.target)
+      BigInt(leaf.target) === BigInt(params.target) &&
+      BigInt(leaf.selector) === BigInt(modifyPositionSelector) &&
+      leaf.argument_addresses.length === 3 &&
+      BigInt(leaf.argument_addresses[0]) === BigInt(params.collateral_asset) &&
+      BigInt(leaf.argument_addresses[1]) === BigInt(params.debt_asset) &&
+      BigInt(leaf.argument_addresses[2]) === BigInt(params.user)
   );
 
   if (!modifyPositionLeaf) {
