@@ -57,6 +57,11 @@ pub fn CCTP_USDC_BRIDGE() -> ContractAddress {
     0x7d421b9ca8aa32df259965cda8acb93f7599f69209a41872ae84638b2a20f2a.try_into().unwrap()
 }
 
+// LZ
+pub fn LZ_WBTC_OFT_ADAPTER() -> ContractAddress {
+    0x069ac468d7ad7324c2807d9422630c650729a46121f023b11a647edf173562f9.try_into().unwrap()
+}
+
 
 // VESU
 

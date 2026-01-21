@@ -1,10 +1,11 @@
-import { uint256, selector } from "starknet";
+import { uint256 } from "starknet";
 import {
   VaultConfigData,
   MerkleOperation,
   BridgeTokenCctpMiddlewareParams,
-  ClaimTokenCctpMiddlewareParams,
 } from "../types";
+
+// Note: claim_token is permissionless - call directly on middleware contract
 
 export function bridgeTokenCctpMiddleware(
   config: VaultConfigData,
@@ -75,46 +76,6 @@ export function bridgeTokenCctpMiddleware(
       maxFeeUint256.low.toString(),
       maxFeeUint256.high.toString(),
       params.min_finality_threshold.toString(),
-    ],
-  };
-}
-
-export function claimTokenCctpMiddleware(
-  config: VaultConfigData,
-  getManageProofs: (tree: Array<string[]>, leafHash: string) => string[],
-  params: ClaimTokenCctpMiddlewareParams
-): MerkleOperation {
-  const claimTokenSelector = BigInt(
-    selector.getSelectorFromName("claim_token")
-  ).toString();
-
-  // Find the CCTP claim_token leaf by matching the selector and argument addresses
-  const claimLeaf = config.leafs.find(
-    (leaf) =>
-      leaf.selector === claimTokenSelector &&
-      leaf.argument_addresses.length >= 3 &&
-      BigInt(leaf.argument_addresses[0]) === BigInt(params.burn_token) &&
-      BigInt(leaf.argument_addresses[1]) === BigInt(params.token_to_claim) &&
-      BigInt(leaf.argument_addresses[2]) === BigInt(params.destination_domain)
-  );
-
-  if (!claimLeaf) {
-    throw new Error(
-      "CCTP claim_token operation not found in vault configuration"
-    );
-  }
-
-  const proofs = getManageProofs(config.tree, claimLeaf.leaf_hash);
-
-  return {
-    manageProofs: proofs,
-    decoderAndSanitizer: claimLeaf.decoder_and_sanitizer,
-    target: claimLeaf.target,
-    selector: claimLeaf.selector,
-    calldata: [
-      params.burn_token,
-      params.token_to_claim,
-      params.destination_domain.toString(),
     ],
   };
 }

@@ -23,13 +23,16 @@ use vault_allocator::merkle_tree::integrations::erc4626::_add_erc4626_leafs;
 use vault_allocator::merkle_tree::integrations::hyperlane::{
     HyperlaneMiddlewareConfig, _add_hyperlane_middleware_leafs,
 };
+use vault_allocator::merkle_tree::integrations::lz::{
+    LzConfig, LzMiddlewareConfig, _add_lz_leafs, _add_lz_middleware_leafs,
+};
 use vault_allocator::merkle_tree::integrations::starkgate::{
     StarkgateMiddlewareConfig, _add_starkgate_middleware_leafs,
 };
 use vault_allocator::merkle_tree::integrations::starknet_vault_kit_strategies::_add_starknet_vault_kit_strategies;
 use vault_allocator::merkle_tree::integrations::vesu_v2::{VesuV2Config, _add_vesu_v2_leafs};
 use vault_allocator::merkle_tree::registery::{
-    ETH, STARKGATE_USDC_BRIDGE, STRK, USDC, USDC_CCTP, USDT, WBTC, wstETH,
+    ETH, LZ_WBTC_OFT_ADAPTER, STARKGATE_USDC_BRIDGE, STRK, USDC, USDC_CCTP, USDT, WBTC, wstETH,
 };
 
 #[derive(PartialEq, Drop, Serde, Debug, Clone)]
@@ -99,6 +102,10 @@ fn test_creator_sdk_comprehensive() {
         0x057c3e904b23095e905e00e61f49ef46007f64f8b0ceb3c1de729d936f4c4205
         .try_into()
         .unwrap();
+    let lz_middleware: ContractAddress =
+        0x057c3e904b23095e905e00e61f49ef46007f64f8b0ceb3c1de729d936f4c4207
+        .try_into()
+        .unwrap();
 
     // Defi Spring claim contract
     let defi_spring_claim_contract: ContractAddress =
@@ -118,6 +125,10 @@ fn test_creator_sdk_comprehensive() {
     let cctp_destination_domain: u32 = 0; // Ethereum CCTP domain
     let cctp_mint_recipient: u256 = 0x732357e321Bf7a02CbB690fc2a629161D7722e29;
     let cctp_destination_caller: u256 = 0; // No specific caller restriction
+
+    // LayerZero destination (Ethereum mainnet)
+    let lz_dst_eid: u32 = 30101; // Ethereum mainnet endpoint ID
+    let lz_to: u256 = 0x732357e321Bf7a02CbB690fc2a629161D7722e29; // Same as l1_recipient
 
     // Build configs
     let mut vesu_v2_configs: Array<VesuV2Config> = array![
@@ -179,6 +190,28 @@ fn test_creator_sdk_comprehensive() {
         DefiSpringConfig { claim_contract: defi_spring_claim_contract, reward_token: STRK() },
     ];
 
+    // LayerZero configs (direct OFT)
+    let mut lz_configs: Array<LzConfig> = array![
+        LzConfig {
+            oft: LZ_WBTC_OFT_ADAPTER(),
+            underlying_token: WBTC(), // oft != underlying_token means adapter OFT
+            dst_eid: lz_dst_eid,
+            to: lz_to,
+        },
+    ];
+
+    // LayerZero middleware configs
+    let mut lz_middleware_configs: Array<LzMiddlewareConfig> = array![
+        LzMiddlewareConfig {
+            middleware: lz_middleware,
+            oft: LZ_WBTC_OFT_ADAPTER(),
+            underlying_token: WBTC(),
+            token_to_claim: USDC(),
+            dst_eid: lz_dst_eid,
+            to: lz_to,
+        },
+    ];
+
     // Generate the merkle tree
     _generate_sdk_test_merkle_tree(
         vault,
@@ -194,6 +227,8 @@ fn test_creator_sdk_comprehensive() {
         hyperlane_middleware_configs.span(),
         cctp_middleware_configs.span(),
         defi_spring_configs.span(),
+        lz_configs.span(),
+        lz_middleware_configs.span(),
     );
 }
 
@@ -212,6 +247,8 @@ fn _generate_sdk_test_merkle_tree(
     hyperlane_middleware_configs: Span<HyperlaneMiddlewareConfig>,
     cctp_middleware_configs: Span<CctpMiddlewareConfig>,
     defi_spring_configs: Span<DefiSpringConfig>,
+    lz_configs: Span<LzConfig>,
+    lz_middleware_configs: Span<LzMiddlewareConfig>,
 ) {
     let mut leafs: Array<ManageLeaf> = ArrayTrait::new();
     let mut leaf_index: u256 = 0;
@@ -282,6 +319,16 @@ fn _generate_sdk_test_merkle_tree(
     // 10. Defi Spring leafs
     println!("Adding Defi Spring leafs");
     _add_defi_spring_leafs(ref leafs, ref leaf_index, decoder_and_sanitizer, defi_spring_configs);
+
+    // 11. LayerZero direct OFT leafs
+    println!("Adding LayerZero leafs");
+    _add_lz_leafs(ref leafs, ref leaf_index, decoder_and_sanitizer, vault_allocator, lz_configs);
+
+    // 12. LayerZero middleware leafs
+    println!("Adding LayerZero middleware leafs");
+    _add_lz_middleware_leafs(
+        ref leafs, ref leaf_index, decoder_and_sanitizer, vault_allocator, lz_middleware_configs,
+    );
 
     // Finalize merkle tree
     let leaf_used = leafs.len();

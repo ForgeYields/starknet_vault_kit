@@ -4,8 +4,9 @@ import {
   MerkleOperation,
   BridgeTokenStarkgateParams,
   BridgeTokenStarkgateMiddlewareParams,
-  ClaimTokenStarkgateParams,
 } from "../types";
+
+// Note: claim_token_bridged_back is permissionless - call directly on middleware contract
 
 export function bridgeTokenStarkgate(
   config: VaultConfigData,
@@ -106,37 +107,5 @@ export function bridgeTokenStarkgateMiddleware(
       amountUint256.high.toString(),
       params.token_to_claim,
     ],
-  };
-}
-
-export function claimTokenStarkgate(
-  config: VaultConfigData,
-  getManageProofs: (tree: Array<string[]>, leafHash: string) => string[],
-  _params: ClaimTokenStarkgateParams = {}
-): MerkleOperation {
-  const claimTokenBridgedBackSelector = BigInt(
-    selector.getSelectorFromName("claim_token_bridged_back")
-  ).toString();
-  const claimTokenBridgedBackLeaf = config.leafs.find(
-    (leaf) => leaf.selector === claimTokenBridgedBackSelector
-  );
-
-  if (!claimTokenBridgedBackLeaf) {
-    throw new Error(
-      "Claim token bridged back operation not found in vault configuration"
-    );
-  }
-
-  const proofs = getManageProofs(
-    config.tree,
-    claimTokenBridgedBackLeaf.leaf_hash
-  );
-
-  return {
-    manageProofs: proofs,
-    decoderAndSanitizer: claimTokenBridgedBackLeaf.decoder_and_sanitizer,
-    target: claimTokenBridgedBackLeaf.target,
-    selector: claimTokenBridgedBackLeaf.selector,
-    calldata: [],
   };
 }

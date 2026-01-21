@@ -1,10 +1,11 @@
-import { uint256, selector } from "starknet";
+import { uint256 } from "starknet";
 import {
   VaultConfigData,
   MerkleOperation,
   BridgeTokenHyperlaneMiddlewareParams,
-  ClaimTokenHyperlaneMiddlewareParams,
 } from "../types";
+
+// Note: claim_token is permissionless - call directly on middleware contract
 
 export function bridgeTokenHyperlaneMiddleware(
   config: VaultConfigData,
@@ -56,46 +57,6 @@ export function bridgeTokenHyperlaneMiddleware(
       amountUint256.high.toString(),
       feeUint256.low.toString(),
       feeUint256.high.toString(),
-    ],
-  };
-}
-
-export function claimTokenHyperlaneMiddleware(
-  config: VaultConfigData,
-  getManageProofs: (tree: Array<string[]>, leafHash: string) => string[],
-  params: ClaimTokenHyperlaneMiddlewareParams
-): MerkleOperation {
-  const claimTokenSelector = BigInt(
-    selector.getSelectorFromName("claim_token")
-  ).toString();
-
-  // Find the Hyperlane claim_token leaf by matching the selector and argument addresses
-  const claimLeaf = config.leafs.find(
-    (leaf) =>
-      leaf.selector === claimTokenSelector &&
-      leaf.argument_addresses.length >= 3 &&
-      BigInt(leaf.argument_addresses[0]) === BigInt(params.token_to_bridge) &&
-      BigInt(leaf.argument_addresses[1]) === BigInt(params.token_to_claim) &&
-      BigInt(leaf.argument_addresses[2]) === BigInt(params.destination_domain)
-  );
-
-  if (!claimLeaf) {
-    throw new Error(
-      "Hyperlane claim_token operation not found in vault configuration"
-    );
-  }
-
-  const proofs = getManageProofs(config.tree, claimLeaf.leaf_hash);
-
-  return {
-    manageProofs: proofs,
-    decoderAndSanitizer: claimLeaf.decoder_and_sanitizer,
-    target: claimLeaf.target,
-    selector: claimLeaf.selector,
-    calldata: [
-      params.token_to_bridge,
-      params.token_to_claim,
-      params.destination_domain.toString(),
     ],
   };
 }

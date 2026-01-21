@@ -121,7 +121,7 @@ export interface BridgeTokenStarkgateMiddlewareParams {
   token_to_claim: string;
 }
 
-export interface ClaimTokenStarkgateParams {}
+// Note: claim_token_bridged_back is permissionless - no type needed
 
 // Hyperlane middleware bridge
 export interface BridgeTokenHyperlaneMiddlewareParams {
@@ -133,11 +133,7 @@ export interface BridgeTokenHyperlaneMiddlewareParams {
   strk_fee: BigNumberish;
 }
 
-export interface ClaimTokenHyperlaneMiddlewareParams {
-  token_to_bridge: string;
-  token_to_claim: string;
-  destination_domain: BigNumberish;
-}
+// Note: claim_token for Hyperlane middleware is permissionless - no type needed
 
 // CCTP middleware bridge
 export interface BridgeTokenCctpMiddlewareParams {
@@ -151,11 +147,39 @@ export interface BridgeTokenCctpMiddlewareParams {
   min_finality_threshold: BigNumberish;
 }
 
-export interface ClaimTokenCctpMiddlewareParams {
-  burn_token: string;
-  token_to_claim: string;
-  destination_domain: BigNumberish;
+// Note: claim_token for CCTP middleware is permissionless - no type needed
+
+// LayerZero direct OFT
+export interface BridgeLZParams {
+  oft: string;
+  dst_eid: BigNumberish;
+  to: string; // u256 recipient address
+  amount: BigNumberish;
+  min_amount: BigNumberish;
+  native_fee: BigNumberish; // STRK fee
+  lz_token_fee?: BigNumberish; // Optional, defaults to 0
+  extra_options?: string; // Optional ByteArray hex
+  compose_msg?: string; // Optional ByteArray hex
+  oft_cmd?: string; // Optional ByteArray hex
 }
+
+// LayerZero middleware bridge
+export interface BridgeLZMiddlewareParams {
+  oft: string;
+  underlying_token: string;
+  token_to_claim: string;
+  dst_eid: BigNumberish;
+  to: string; // u256 recipient address
+  amount: BigNumberish;
+  min_amount: BigNumberish;
+  native_fee: BigNumberish; // STRK fee
+  lz_token_fee?: BigNumberish; // Optional, defaults to 0
+  extra_options?: string; // Optional ByteArray hex
+  compose_msg?: string; // Optional ByteArray hex
+  oft_cmd?: string; // Optional ByteArray hex
+}
+
+// Note: claim_token for LZ middleware is permissionless - no type needed
 
 // Vesu V2
 export interface i257 {

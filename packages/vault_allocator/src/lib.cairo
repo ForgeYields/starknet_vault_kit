@@ -19,6 +19,7 @@ pub mod integration_interfaces {
     pub mod cctp;
     pub mod ekubo;
     pub mod hyperlane;
+    pub mod lz;
     pub mod paradex_gigavault;
     pub mod pragma;
     pub mod starkgate;
@@ -65,6 +66,11 @@ pub mod middlewares {
         pub mod cctp_middleware;
         pub mod errors;
         pub mod interface;
+    }
+    pub mod lz_middleware {
+        pub mod errors;
+        pub mod interface;
+        pub mod lz_middleware;
     }
     pub mod base_middleware {
         pub mod base_middleware;
@@ -148,6 +154,14 @@ pub mod decoders_and_sanitizers {
         pub mod cctp_decoder_and_sanitizer;
         pub mod interface;
     }
+    pub mod lz_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod lz_decoder_and_sanitizer;
+    }
+    pub mod lz_middleware_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod lz_middleware_decoder_and_sanitizer;
+    }
     pub mod cctp_middleware_decoder_and_sanitizer {
         pub mod cctp_middleware_decoder_and_sanitizer;
         pub mod interface;
@@ -175,31 +189,32 @@ pub mod test {
     pub mod creator {
         // pub mod creator;
         pub mod creator_fyWBTC;
-        // pub mod creator_sdk_test;
+        pub mod creator_sdk_test;
     }
-    // pub mod utils;
-// pub mod middleware {
-//     pub mod base_middleware;
-//     pub mod cctp_middleware;
-//     pub mod hyperlane_middleware;
-//     pub mod starkgate_middleware;
-// }
-// pub mod units {
-//     pub mod manager;
-//     pub mod vault_allocator;
-// }
-// pub mod integrations {
-//     pub mod avnu;
-//     pub mod vault_bring_liquidity;
-//     pub mod vesu_v1;
-// }
-// pub mod scenarios {
-//     pub mod stable_carry_loop;
-// }
+    pub mod utils;
+    pub mod middleware {
+        pub mod base_middleware;
+        pub mod cctp_middleware;
+        pub mod hyperlane_middleware;
+        pub mod lz_middleware;
+        pub mod starkgate_middleware;
+    }
+    pub mod units {
+        pub mod manager;
+        pub mod vault_allocator;
+    }
+    pub mod integrations {
+        pub mod avnu;
+        pub mod vault_bring_liquidity;
+        pub mod vesu_v1;
+    }
+    pub mod scenarios {
+        pub mod stable_carry_loop;
+    }
 
-    // pub mod adapters {
-//     pub mod ekubo_adapter;
-// }
+    pub mod adapters {
+        pub mod ekubo_adapter;
+    }
 }
 
 
@@ -214,6 +229,7 @@ pub mod merkle_tree {
         pub mod erc4626;
         pub mod extended;
         pub mod hyperlane;
+        pub mod lz;
         pub mod starkgate;
         pub mod starknet_vault_kit_strategies;
         pub mod vesu_v1;

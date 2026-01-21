@@ -18,6 +18,11 @@ name = "MAINNET"
 url = "https://rpc.starknet.lava.build"
 block_id.number = "4343594"
 
+[[tool.snforge.fork]]
+name = "LZ"
+url = "https://rpc.starknet.lava.build"
+block_id.number = "4343594"
+
 
 [[tool.snforge.fork]]
 name = "STARKGATE_MIDDLEWARE"
@@ -36,6 +41,11 @@ block_id.number = "4336541"
 
 [[tool.snforge.fork]]
 name = "BASE_MIDDLEWARE"
+url = "https://rpc.starknet.lava.build"
+block_id.number = "4336541"
+
+[[tool.snforge.fork]]
+name = "LZ_MIDDLEWARE"
 url = "https://rpc.starknet.lava.build"
 block_id.number = "4336541"
 

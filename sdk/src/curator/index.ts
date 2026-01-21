@@ -10,6 +10,7 @@ import * as avnu from "./integrations/avnu";
 import * as starkgate from "./integrations/starkgate";
 import * as hyperlane from "./integrations/hyperlane";
 import * as cctp from "./integrations/cctp";
+import * as lz from "./integrations/lz";
 import * as vesu from "./integrations/vesu";
 import * as ekubo from "./integrations/ekubo";
 
@@ -27,11 +28,10 @@ import {
   ClaimRedeemParams,
   BridgeTokenStarkgateParams,
   BridgeTokenStarkgateMiddlewareParams,
-  ClaimTokenStarkgateParams,
   BridgeTokenHyperlaneMiddlewareParams,
-  ClaimTokenHyperlaneMiddlewareParams,
   BridgeTokenCctpMiddlewareParams,
-  ClaimTokenCctpMiddlewareParams,
+  BridgeLZParams,
+  BridgeLZMiddlewareParams,
   ModifyPositionParamsV2,
   EkuboDepositLiquidityParams,
   EkuboWithdrawLiquidityParams,
@@ -282,15 +282,7 @@ export class VaultCuratorSDK {
     );
   }
 
-  public claimTokenStarkgate(
-    params: ClaimTokenStarkgateParams = {}
-  ): MerkleOperation {
-    return starkgate.claimTokenStarkgate(
-      this.config,
-      this.getManageProofs.bind(this),
-      params
-    );
-  }
+  // Note: claim_token_bridged_back is permissionless - call directly on middleware contract
 
   // ============================================
   // Hyperlane middleware bridge
@@ -306,15 +298,7 @@ export class VaultCuratorSDK {
     );
   }
 
-  public claimTokenHyperlaneMiddleware(
-    params: ClaimTokenHyperlaneMiddlewareParams
-  ): MerkleOperation {
-    return hyperlane.claimTokenHyperlaneMiddleware(
-      this.config,
-      this.getManageProofs.bind(this),
-      params
-    );
-  }
+  // Note: claim_token is permissionless - call directly on middleware contract
 
   // ============================================
   // CCTP middleware bridge
@@ -330,15 +314,25 @@ export class VaultCuratorSDK {
     );
   }
 
-  public claimTokenCctpMiddleware(
-    params: ClaimTokenCctpMiddlewareParams
-  ): MerkleOperation {
-    return cctp.claimTokenCctpMiddleware(
+  // Note: claim_token is permissionless - call directly on middleware contract
+
+  // ============================================
+  // LayerZero bridge
+  // ============================================
+
+  public bridgeLZ(params: BridgeLZParams): MerkleOperation {
+    return lz.bridgeLZ(this.config, this.getManageProofs.bind(this), params);
+  }
+
+  public bridgeLZMiddleware(params: BridgeLZMiddlewareParams): MerkleOperation {
+    return lz.bridgeLZMiddleware(
       this.config,
       this.getManageProofs.bind(this),
       params
     );
   }
+
+  // Note: claim_token for LZ middleware is permissionless - call directly on middleware contract
 
   // ============================================
   // Vesu V2
