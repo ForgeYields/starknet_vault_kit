@@ -51,9 +51,28 @@ pub fn _add_vesu_v2_leafs(
         // debt mode
         let debt_assets_len = debt_assets.len();
         for j in 0..debt_assets_len {
-            // APPROVAL of collateral asset to the pool contract
-
             let debt_asset = *debt_assets.at(j);
+
+            // APPROVAL of debt asset to the pool contract (needed for repayment)
+            leafs
+                .append(
+                    ManageLeaf {
+                        decoder_and_sanitizer,
+                        target: debt_asset,
+                        selector: selector!("approve"),
+                        argument_addresses: array![pool_contract.into()].span(),
+                        description: "Approve"
+                            + " "
+                            + "pool contract"
+                            + "_"
+                            + pool_contract_str.clone()
+                            + " "
+                            + "to spend"
+                            + " "
+                            + get_symbol(debt_asset),
+                    },
+                );
+            leaf_index += 1;
 
             // MODIFY POSITION
             let mut argument_addresses_modify_position = ArrayTrait::new();
