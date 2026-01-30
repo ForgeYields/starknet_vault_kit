@@ -5,3 +5,14 @@ target
 scripts/deployments.json
 
 .env
+
+# Claude Code
+.claude/
+
+# TLDR tool
+.tldr/
+.tldrignore
+
+# Test artifacts
+leafs/testMerkl.json
+leafs/testMerkl.log
