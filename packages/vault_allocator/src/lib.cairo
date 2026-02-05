@@ -175,6 +175,10 @@ pub mod decoders_and_sanitizers {
         pub mod defi_spring_decoder_and_sanitizer;
         pub mod interface;
     }
+    pub mod migration_usdc_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod migration_usdc_decoder_and_sanitizer;
+    }
 }
 
 pub mod mocks {
@@ -230,6 +234,7 @@ pub mod merkle_tree {
         pub mod extended;
         pub mod hyperlane;
         pub mod lz;
+        pub mod migration_usdc;
         pub mod starkgate;
         pub mod starknet_vault_kit_strategies;
         pub mod vesu_v1;
