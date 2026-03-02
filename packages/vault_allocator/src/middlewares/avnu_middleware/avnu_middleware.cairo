@@ -73,7 +73,6 @@ pub mod AvnuMiddleware {
         period: u64,
         allowed_calls_per_period: u64,
     ) {
-        self.ownable.initializer(owner);
         self
             .base_middleware
             .initialize_base_middleware(
