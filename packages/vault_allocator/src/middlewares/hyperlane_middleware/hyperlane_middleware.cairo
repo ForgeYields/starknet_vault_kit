@@ -141,10 +141,6 @@ pub mod HyperlaneMiddleware {
             ERC20ABIDispatcher { contract_address: token_to_bridge }
                 .transfer_from(caller, get_contract_address(), amount);
 
-            // Approve token_to_bridge contract to pull token_to_bridge to bridge
-            ERC20ABIDispatcher { contract_address: token_to_bridge }
-                .approve(token_to_bridge, amount);
-
             // Call transfer_remote on the token contract directly
             let message_id = IHyperlaneTokenRouterDispatcher { contract_address: token_to_bridge }
                 .transfer_remote(
