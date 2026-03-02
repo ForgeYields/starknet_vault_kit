@@ -46,6 +46,7 @@ pub mod LzMiddleware {
         #[substorage(v0)]
         pub base_middleware: BaseMiddlewareComponent::Storage,
         pub pending_balance: Map<(ContractAddress, ContractAddress, u32), u256>,
+        pub pending_claim: Map<ContractAddress, bool>,
     }
 
     #[event]
@@ -122,15 +123,14 @@ pub mod LzMiddleware {
                 Errors::pending_value_not_zero();
             }
 
-            // Check that the middleware's balance of token_to_claim is zero
-            let token_to_claim_balance = ERC20ABIDispatcher { contract_address: token_to_claim }
-                .balance_of(get_contract_address());
-            if (token_to_claim_balance != Zero::zero()) {
+            // Check that no claim is already pending for this token_to_claim
+            if (self.pending_claim.read(token_to_claim)) {
                 Errors::claimable_value_not_zero();
             }
 
-            // Track pending balance
+            // Track pending balance and claim flag
             self.pending_balance.write((underlying_token, token_to_claim, dst_eid), amount);
+            self.pending_claim.write(token_to_claim, true);
 
             // Transfer STRK from caller to this contract for bridge fees (native_fee)
             let native_fee = fee.native_fee;
@@ -184,6 +184,7 @@ pub mod LzMiddleware {
             }
 
             self.pending_balance.write((underlying_token, token_to_claim, dst_eid), Zero::zero());
+            self.pending_claim.write(token_to_claim, false);
 
             ERC20ABIDispatcher { contract_address: token_to_claim }
                 .transfer(self.base_middleware.vault_allocator.read(), token_balance);
