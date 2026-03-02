@@ -147,7 +147,7 @@ pub mod EkuboAdapter {
                     liquidity_to_withdraw,
                     min_token0,
                     min_token1,
-                    false,
+                    true,
                 );
             ERC20ABIDispatcher { contract_address: pool_key.token0 }
                 .transfer(vault_allocator, amt0.into());
