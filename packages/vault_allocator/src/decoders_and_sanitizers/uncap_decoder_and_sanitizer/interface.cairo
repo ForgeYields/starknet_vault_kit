@@ -8,5 +8,6 @@ use starknet::ContractAddress;
 pub trait IUnCapDecoderAndSanitizer<T> {
     fn provide_to_sp(self: @T, top_up: u256, do_claim: bool) -> Span<felt252>;
     fn withdraw_from_sp(self: @T, amount: u256, do_claim: bool) -> Span<felt252>;
+    fn claim_all_coll_gains(self: @T) -> Span<felt252>;
 }
 

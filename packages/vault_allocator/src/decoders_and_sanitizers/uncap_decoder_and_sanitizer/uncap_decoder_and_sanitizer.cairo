@@ -33,5 +33,12 @@ pub mod UnCapDecoderAndSanitizerComponent {
             let mut serialized_struct: Array<felt252> = ArrayTrait::new();
             serialized_struct.span()
         }
+
+        fn claim_all_coll_gains(
+            self: @ComponentState<TContractState>,
+        ) -> Span<felt252> {
+            let serialized_struct: Array<felt252> = ArrayTrait::new();
+            serialized_struct.span()
+        }
     }
 }
