@@ -1,5 +1,10 @@
 use starknet::ContractAddress;
-use vault_allocator::integration_interfaces::vesu_v1::Position;
+
+#[derive(PartialEq, Copy, Drop, Serde)]
+pub struct Position {
+    collateral_shares: u256,
+    nominal_debt: u256,
+}
 
 #[starknet::interface]
 pub trait IV2Token<TContractState> {

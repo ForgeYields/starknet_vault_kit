@@ -190,7 +190,6 @@ const calls = curator.depositHelper({
 
 // Advanced DeFi operations
 const calls = curator.multiRouteSwapHelper(swapParams, { withApproval: true });
-const calls = curator.ModifyPositionV1Helper(vesuParams, approvalParams);
 ```
 
 #### 3.3 Execute Operations

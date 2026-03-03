@@ -23,7 +23,6 @@ pub mod integration_interfaces {
     pub mod paradex_gigavault;
     pub mod pragma;
     pub mod starkgate;
-    pub mod vesu_v1;
     pub mod vesu_v2;
 }
 
@@ -112,10 +111,6 @@ pub mod decoders_and_sanitizers {
     pub mod erc4626_decoder_and_sanitizer {
         pub mod erc4626_decoder_and_sanitizer;
         pub mod interface;
-    }
-    pub mod vesu_decoder_and_sanitizer {
-        pub mod interface;
-        pub mod vesu_decoder_and_sanitizer;
     }
     pub mod starknet_vault_kit_decoder_and_sanitizer {
         pub mod interface;
@@ -210,12 +205,7 @@ pub mod test {
     pub mod integrations {
         pub mod avnu;
         pub mod vault_bring_liquidity;
-        pub mod vesu_v1;
     }
-    pub mod scenarios {
-        pub mod stable_carry_loop;
-    }
-
     pub mod adapters {
         pub mod ekubo_adapter;
     }
@@ -237,7 +227,6 @@ pub mod merkle_tree {
         pub mod migration_usdc;
         pub mod starkgate;
         pub mod starknet_vault_kit_strategies;
-        pub mod vesu_v1;
         pub mod vesu_v2;
     }
 }

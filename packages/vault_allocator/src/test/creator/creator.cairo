@@ -8,7 +8,6 @@ use vault_allocator::merkle_tree::base::{
 
 };
 use vault_allocator::merkle_tree::integrations::avnu::{AvnuConfig, _add_avnu_leafs};
-use vault_allocator::merkle_tree::integrations::vesu_v1::{VesuV1Config, _add_vesu_v1_leafs};
 use vault_allocator::merkle_tree::integrations::vesu_v2::{VesuV2Config, _add_vesu_v2_leafs};
 use vault_allocator::merkle_tree::integrations::erc4626::_add_erc4626_leafs;
 use vault_allocator::merkle_tree::integrations::starknet_vault_kit_strategies::_add_starknet_vault_kit_strategies;
@@ -32,7 +31,6 @@ pub struct ManageLeafAdditionalData {
 #[fork("MAINNET")]
 #[test]
 fn test_creator() {
-    let mut vesu_v1_configs: Array<VesuV1Config> = ArrayTrait::new();
     let mut vesu_v2_configs: Array<VesuV2Config> = ArrayTrait::new();
     let mut erc4626_strategies: Array<ContractAddress> = ArrayTrait::new();
     let mut starknet_vault_kit_strategies = ArrayTrait::new();
@@ -94,7 +92,6 @@ fn test_creator() {
         vault_allocator,
         vault_decoder_and_sanitizer,
         vault_vesu_v2_specific_decoder_and_sanitizer,
-        vesu_v1_configs.span(),
         vesu_v2_configs.span(),
         erc4626_strategies.span(),
         starknet_vault_kit_strategies.span(),
@@ -109,7 +106,6 @@ fn _generate_merkle_tree(
     vault_allocator: ContractAddress,
     vault_decoder_and_sanitizer: ContractAddress,
     vault_vesu_v2_specific_decoder_and_sanitizer: ContractAddress,
-    vesu_v1_configs: Span<VesuV1Config>,
     vesu_v2_configs: Span<VesuV2Config>,
     erc4626_strategies: Span<ContractAddress>,
     starknet_vault_kit_strategies: Span<ContractAddress>,
@@ -122,13 +118,6 @@ fn _generate_merkle_tree(
     // base leafs mandatory
     _add_vault_allocator_leafs(
         ref leafs, ref leaf_index, vault_allocator, vault_decoder_and_sanitizer, vault,
-    );
-
-    println!("We are at vesu v1 leafs");
-
-    // vesu V1 leafs
-    _add_vesu_v1_leafs(
-        ref leafs, ref leaf_index, vault_allocator, vault_decoder_and_sanitizer, vesu_v1_configs,
     );
 
     println!("We are at vesu v2 leafs");
