@@ -30,6 +30,7 @@ export class RelayerAutomaticRedeemService {
       await this.processAutoRedeem();
     } catch (error) {
       this.logger.error('Auto-redeem job failed:', error);
+      throw error;
     } finally {
       this.isRunning = false;
     }
@@ -93,40 +94,37 @@ export class RelayerAutomaticRedeemService {
   }
 
   private async findPendingRedeems(lastReport: any): Promise<any[]> {
-    try {
-      const pendingRedeems = await this.prismaService.redeemRequested.findMany({
-        where: {
-          redeemId: {
-            notIn: await this.prismaService.redeemClaimed
-              .findMany({
-                select: { redeemId: true },
-              })
-              .then((claims) => claims.map((c) => c.redeemId)),
-          },
-          epoch: {
-            lte: lastReport.newHandledEpochLen || 0n,
-          },
+    const pendingRedeems = await this.prismaService.redeemRequested.findMany({
+      where: {
+        redeemId: {
+          notIn: await this.prismaService.redeemClaimed
+            .findMany({
+              select: { redeemId: true },
+            })
+            .then((claims) => claims.map((c) => c.redeemId)),
         },
-        orderBy: { redeemId: 'asc' },
-        take: BATCH_SIZE_FOR_CLAIM_MULTIPLE_REDEEMS * 5,
-      });
+        epoch: {
+          lte: lastReport.newHandledEpochLen || 0n,
+        },
+      },
+      orderBy: { redeemId: 'asc' },
+      take: BATCH_SIZE_FOR_CLAIM_MULTIPLE_REDEEMS * 5,
+    });
 
-      this.logger.debug('Found pending redeems from database', {
-        count: pendingRedeems.length,
-        epochFilter: lastReport.newHandledEpochLen?.toString(),
-      });
+    this.logger.debug('Found pending redeems from database', {
+      count: pendingRedeems.length,
+      epochFilter: lastReport.newHandledEpochLen?.toString(),
+    });
 
-      return pendingRedeems;
-    } catch (error) {
-      this.logger.error('Error finding pending redeems:', error);
-      return [];
-    }
+    return pendingRedeems;
   }
 
   private async processPendingRedeemsBatches(pendingRedeems: any[]): Promise<void> {
     const batches = this.chunkArray(pendingRedeems, BATCH_SIZE_FOR_CLAIM_MULTIPLE_REDEEMS);
 
     this.logger.info(`Processing ${batches.length} batches of redeems`);
+
+    const batchErrors: { batchIndex: number; error: unknown }[] = [];
 
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
@@ -141,7 +139,19 @@ export class RelayerAutomaticRedeemService {
         }
       } catch (error) {
         this.logger.error(`Error processing batch ${i + 1}:`, error);
+        batchErrors.push({ batchIndex: i + 1, error });
       }
+    }
+
+    if (batchErrors.length > 0) {
+      const nested = batchErrors.map(({ batchIndex, error }) => {
+        const detail = error instanceof Error ? error.message : String(error);
+        return new Error(`batch ${batchIndex}/${batches.length}: ${detail}`);
+      });
+      throw new AggregateError(
+        nested,
+        `auto-redeem: ${batchErrors.length} of ${batches.length} batch(es) failed`
+      );
     }
   }
 
