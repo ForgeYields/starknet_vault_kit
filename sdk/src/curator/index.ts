@@ -13,6 +13,7 @@ import * as cctp from "./integrations/cctp";
 import * as lz from "./integrations/lz";
 import * as vesu from "./integrations/vesu";
 import * as ekubo from "./integrations/ekubo";
+import * as endur from "./integrations/endur";
 
 import {
   VaultConfigData,
@@ -37,6 +38,8 @@ import {
   EkuboWithdrawLiquidityParams,
   EkuboCollectFeesParams,
   EkuboHarvestParams,
+  EndurDepositWithReferralParams,
+  EndurClaimWithdrawalParams,
 } from "./types";
 
 export class VaultCuratorSDK {
@@ -240,6 +243,30 @@ export class VaultCuratorSDK {
 
   public claimRedeem(params: ClaimRedeemParams): MerkleOperation {
     return erc4626.claimRedeem(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  // ============================================
+  // Endur LST
+  // ============================================
+
+  public endurDepositWithReferral(
+    params: EndurDepositWithReferralParams
+  ): MerkleOperation {
+    return endur.endurDepositWithReferral(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
+
+  public endurClaimWithdrawal(
+    params: EndurClaimWithdrawalParams
+  ): MerkleOperation {
+    return endur.endurClaimWithdrawal(
       this.config,
       this.getManageProofs.bind(this),
       params

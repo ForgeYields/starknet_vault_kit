@@ -121,3 +121,13 @@ pub fn wstETH_PRAGMA_ID() -> felt252 {
 pub fn AVNU_ROUTER() -> ContractAddress {
     0x04270219d365d6b017231b52e92b3fb5d7c8378b05e9abc97724537a80e93b0f.try_into().unwrap()
 }
+
+
+// ENDUR
+pub fn ENDUR_XSTRK() -> ContractAddress {
+    0x028d709c875c0ceac3dce7065bec5328186dc89fe254527084d1689910954b0a.try_into().unwrap()
+}
+
+pub fn ENDUR_XWBTC() -> ContractAddress {
+    0x06a567e68c805323525fe1649adb80b03cddf92c23d2629a6779f54192dffc13.try_into().unwrap()
+}
