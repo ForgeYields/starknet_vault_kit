@@ -194,7 +194,8 @@ fn build_exit_call(
 fn deposit_strk(setup: @TestSetup) -> u256 {
     let receiver = *setup.vault_allocator.contract_address;
     execute_manage_calls(
-        setup, array![build_approve_call(DEPOSIT_AMOUNT), build_deposit_call(DEPOSIT_AMOUNT, receiver)],
+        setup,
+        array![build_approve_call(DEPOSIT_AMOUNT), build_deposit_call(DEPOSIT_AMOUNT, receiver)],
     );
     ERC20ABIDispatcher { contract_address: ENDUR_XSTRK() }.balance_of(receiver)
 }
@@ -310,7 +311,9 @@ fn test_endur_deposit_to_unauthorized_receiver_fails() {
     let setup = setup();
     execute_manage_calls(
         @setup,
-        array![build_approve_call(DEPOSIT_AMOUNT), build_deposit_call(DEPOSIT_AMOUNT, DUMMY_ADDRESS())],
+        array![
+            build_approve_call(DEPOSIT_AMOUNT), build_deposit_call(DEPOSIT_AMOUNT, DUMMY_ADDRESS()),
+        ],
     );
 }
 

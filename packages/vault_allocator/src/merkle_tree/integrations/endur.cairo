@@ -31,10 +31,7 @@ pub fn _add_endur_leafs(
                 target: asset,
                 selector: selector!("approve"),
                 argument_addresses: array![lst.into()].span(),
-                description: "Approve "
-                    + lst_symbol.clone()
-                    + " to spend "
-                    + asset_symbol.clone(),
+                description: "Approve " + lst_symbol.clone() + " to spend " + asset_symbol.clone(),
             },
         );
     leaf_index += 1;
