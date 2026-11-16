@@ -105,6 +105,21 @@ export interface ClaimRedeemParams {
   id: BigNumberish;
 }
 
+// Endur LST
+export interface EndurDepositWithReferralParams {
+  target: string; // LST address
+  assets: BigNumberish;
+  receiver: string;
+  referral: string;
+}
+
+export interface EndurClaimWithdrawalParams {
+  target: string; // withdraw queue address
+  request_id: BigNumberish;
+}
+
+// Note: claim_withdrawal is also permissionless and pays the owner of the request NFT
+
 // Starkgate bridge
 export interface BridgeTokenStarkgateParams {
   l1_token: string;

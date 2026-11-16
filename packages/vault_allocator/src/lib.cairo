@@ -18,6 +18,7 @@ pub mod integration_interfaces {
     pub mod avnu;
     pub mod cctp;
     pub mod ekubo;
+    pub mod endur;
     pub mod hyperlane;
     pub mod lz;
     pub mod paradex_gigavault;
@@ -166,6 +167,11 @@ pub mod decoders_and_sanitizers {
         pub mod interface;
     }
 
+    pub mod endur_decoder_and_sanitizer {
+        pub mod endur_decoder_and_sanitizer;
+        pub mod interface;
+    }
+
     pub mod defi_spring_decoder_and_sanitizer {
         pub mod defi_spring_decoder_and_sanitizer;
         pub mod interface;
@@ -204,6 +210,7 @@ pub mod test {
     }
     pub mod integrations {
         pub mod avnu;
+        pub mod endur;
         pub mod vault_bring_liquidity;
     }
     pub mod adapters {
@@ -220,6 +227,7 @@ pub mod merkle_tree {
         pub mod cctp;
         pub mod defi_spring;
         pub mod ekubo_adapter;
+        pub mod endur;
         pub mod erc4626;
         pub mod extended;
         pub mod hyperlane;
