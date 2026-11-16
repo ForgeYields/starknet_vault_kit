@@ -121,3 +121,9 @@ pub fn wstETH_PRAGMA_ID() -> felt252 {
 pub fn AVNU_ROUTER() -> ContractAddress {
     0x04270219d365d6b017231b52e92b3fb5d7c8378b05e9abc97724537a80e93b0f.try_into().unwrap()
 }
+
+
+// NEAR INTENTS
+pub fn NEAR_OMNI_BRIDGE() -> ContractAddress {
+    0x05f9a4a841dfb7bb3cde33073b2450fe45dcd407fb6c0985a274b0e943ad8598.try_into().unwrap()
+}

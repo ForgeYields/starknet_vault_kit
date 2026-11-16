@@ -13,6 +13,7 @@ import * as cctp from "./integrations/cctp";
 import * as lz from "./integrations/lz";
 import * as vesu from "./integrations/vesu";
 import * as ekubo from "./integrations/ekubo";
+import * as nearIntents from "./integrations/near-intents";
 
 import {
   VaultConfigData,
@@ -37,6 +38,7 @@ import {
   EkuboWithdrawLiquidityParams,
   EkuboCollectFeesParams,
   EkuboHarvestParams,
+  DepositNearIntentsParams,
 } from "./types";
 
 export class VaultCuratorSDK {
@@ -283,6 +285,18 @@ export class VaultCuratorSDK {
   }
 
   // Note: claim_token_bridged_back is permissionless - call directly on middleware contract
+
+  // ============================================
+  // NEAR Intents (Omni Bridge deposit)
+  // ============================================
+
+  public depositNearIntents(params: DepositNearIntentsParams): MerkleOperation {
+    return nearIntents.depositNearIntents(
+      this.config,
+      this.getManageProofs.bind(this),
+      params
+    );
+  }
 
   // ============================================
   // Hyperlane middleware bridge

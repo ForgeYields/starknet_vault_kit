@@ -181,6 +181,15 @@ export interface BridgeLZMiddlewareParams {
 
 // Note: claim_token for LZ middleware is permissionless - no type needed
 
+// NEAR Intents deposit through the NEAR Omni Bridge
+export interface DepositNearIntentsParams {
+  omni_bridge: string;
+  token: string;
+  amount: BigNumberish; // u128, token base units
+  native_fee: BigNumberish; // u128, paid in STRK to the Omni Bridge relayer
+  intents_account: string; // NEAR Intents account credited with the deposit
+}
+
 // Vesu V2
 export interface i257 {
   abs: BigNumberish;
