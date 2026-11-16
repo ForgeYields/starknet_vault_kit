@@ -20,6 +20,7 @@ pub mod integration_interfaces {
     pub mod ekubo;
     pub mod hyperlane;
     pub mod lz;
+    pub mod near_intents;
     pub mod paradex_gigavault;
     pub mod pragma;
     pub mod starkgate;
@@ -166,6 +167,11 @@ pub mod decoders_and_sanitizers {
         pub mod interface;
     }
 
+    pub mod near_intents_decoder_and_sanitizer {
+        pub mod interface;
+        pub mod near_intents_decoder_and_sanitizer;
+    }
+
     pub mod defi_spring_decoder_and_sanitizer {
         pub mod defi_spring_decoder_and_sanitizer;
         pub mod interface;
@@ -204,6 +210,7 @@ pub mod test {
     }
     pub mod integrations {
         pub mod avnu;
+        pub mod near_intents;
         pub mod vault_bring_liquidity;
     }
     pub mod adapters {
@@ -225,6 +232,7 @@ pub mod merkle_tree {
         pub mod hyperlane;
         pub mod lz;
         pub mod migration_usdc;
+        pub mod near_intents;
         pub mod starkgate;
         pub mod starknet_vault_kit_strategies;
         pub mod vesu_v2;

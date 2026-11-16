@@ -71,6 +71,11 @@ name = "SLLSE"
 url = "https://rpc.starknet.lava.build"
 block_id.number = "1794270"
 
+[[tool.snforge.fork]]
+name = "NEAR_INTENTS"
+url = "https://starknet-rpc.publicnode.com"
+block_id.number = "18062000"
+
 [dependencies]
 starknet.workspace = true
 openzeppelin.workspace = true
